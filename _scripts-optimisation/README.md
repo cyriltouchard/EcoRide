@@ -5,10 +5,16 @@ Ce dossier contient tous les **scripts d'optimisation**, **rapports d'audit** et
 ## 📁 Contenu
 
 ### 🔧 Scripts PowerShell (`.ps1`)
+
+#### Optimisation HTML
 - **`fix-widget-order.ps1`** : Correction de l'ordre Footer/Widget Chat
 - **`optimize-pages-final.ps1`** : Optimisation des balises `<head>` HTML
 - **`optimize-remaining-pages.ps1`** : Optimisation des pages restantes
 - **`uniformize-components.ps1`** : Uniformisation Navbar/Footer/Widget
+
+#### Sauvegarde GitHub
+- **`push-to-github.ps1`** : Script de création nouveau repository GitHub
+- **`update-github.ps1`** : Script de remplacement repository existant
 
 ### 📊 Rapports d'Audit (`.md`)
 - **`RAPPORT-OPTIMISATION.md`** : Rapport détaillé des optimisations
@@ -17,11 +23,13 @@ Ce dossier contient tous les **scripts d'optimisation**, **rapports d'audit** et
 - **`INDEX-RAPPORTS-OPTIMISATION.md`** : Index de tous les rapports
 - **`OPTIMISATION-HEAD-HTML.md`** : Détails optimisation SEO
 
+### 📘 Guides GitHub (`.md`)
+- **`GUIDE-GITHUB.md`** : Guide complet GitHub (création nouveau repo)
+- **`GUIDE-REMPLACEMENT-GITHUB.md`** : Guide de remplacement repository existant
+
 ### 📝 Fichiers d'Audit
 - **`RESUME-AUDIT.txt`** : Résumé court de l'audit
 - **`audit-complet-global.html`** : Page HTML d'audit interactif
-- **`analyze-quality.js`** : Script d'analyse qualité du code
-- **`test-api.sh`** : Tests API (Bash)
 
 ---
 
