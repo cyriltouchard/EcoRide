@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <!-- Métas essentiels -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#27ae60">
+
+    <!-- SEO -->
+    <title>Connexion - EcoRide | Accédez à votre compte de covoiturage</title>
+    <meta name="description"
+        content="Connectez-vous à votre compte EcoRide pour gérer vos trajets en covoiturage, vos réservations et votre profil. Accès sécurisé à votre espace personnel.">
+    <meta name="author" content="EcoRide">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="canonical" href="https://ecoride.fr/connexion.html">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ecoride.fr/connexion.html">
+    <meta property="og:title" content="Connexion - EcoRide">
+    <meta property="og:description"
+        content="Connectez-vous à votre compte EcoRide pour gérer vos trajets en covoiturage.">
+    <meta property="og:image" content="https://ecoride.fr/public/images/logo.png">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:site_name" content="EcoRide">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://ecoride.fr/connexion.html">
+    <meta name="twitter:title" content="Connexion - EcoRide">
+    <meta name="twitter:description" content="Connectez-vous à votre compte EcoRide.">
+    <meta name="twitter:image" content="https://ecoride.fr/public/images/logo.png">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="public/images/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="public/images/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="public/images/favicon.svg">
+
+    <!-- Préchargement des ressources (Performance) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Poppins:wght@700&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="public/css/style.css">
+</head>
+
+<body class="connexion-page">
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo-link">
+                <img src="public/images/logo.png" alt="Logo EcoRide">
+                <span class="logo-text">EcoRide</span>
+            </a>
+
+            <button class="hamburger-menu" aria-label="Toggle navigation">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="index.html">Accueil</a></li>
+                    <li><a href="covoiturages.html">Covoiturages</a></li>
+
+                    <li id="user-nav-links" class="hidden">
+                        <a href="proposer-covoiturage.html">Proposer un trajet</a>
+                    </li>
+                    <li id="user-nav-dashboard" class="hidden">
+                        <a href="espace-utilisateur.html">Mon Espace</a>
+                    </li>
+
+                    <li>
+                        <button id="chat-toggle-btn" class="chat-button" aria-label="Ouvrir le chat">
+                            <i class="fas fa-comments"></i> Chat
+                        </button>
+                    </li>
+
+                    <li id="guest-nav-button">
+                        <a href="connexion.html" class="auth-button">Se connecter</a>
+                    </li>
+                    <li id="user-nav-button" class="hidden">
+                        <button id="logout-button" class="logout-button">Déconnexion</button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="auth-section">
+            <div class="auth-container">
+                <h1>Connexion</h1>
+                <form class="auth-form">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Mot de passe</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="auth-button">Se connecter</button>
+                </form>
+                <div class="auth-links">
+                    <a href="creation-compte.html">Créer un compte</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Widget de Chat -->
+    <div id="chat-widget" class="chat-widget hidden">
+        <div class="chat-header">
+            <h3><i class="fas fa-comments"></i> Chat en direct</h3>
+            <button id="chat-close-btn" class="chat-close-btn">&times;</button>
+        </div>
+        <div class="chat-body">
+            <div id="chat-messages" class="chat-messages">
+                <div class="chat-message bot-message">
+                    <div class="message-content">
+                        <strong>Assistant EcoRide :</strong><br>
+                        Bonjour ! 👋 Comment puis-je vous aider aujourd'hui ?
+                    </div>
+                    <div class="message-time">Maintenant</div>
+                </div>
+            </div>
+            <div class="chat-input-container">
+                <input type="text" id="chat-input" placeholder="Tapez votre message..." maxlength="500">
+                <button id="chat-send-btn" title="Envoyer le message"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 EcoRide. Tous droits réservés.</p>
+            <nav>
+                <ul>
+                    <li><a href="conditions-generales.html">Conditions Générales</a></li>
+                    <li><a href="politique-confidentialite.html">Politique de Confidentialité</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="secure-payment-info">
+                <p>Paiement sécurisé par :</p>
+                <div>
+                    <img src="public/images/paiements-securises-paypal-768x159.png" alt="Paiement sécurisé">
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="public/js/script.js"></script>
+</body>
+
+</html>

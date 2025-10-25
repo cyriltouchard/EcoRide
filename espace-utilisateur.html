@@ -1,0 +1,228 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!-- Métas essentiels -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#27ae60">
+    
+    <!-- SEO -->
+    <title>Mon Espace - EcoRide | Gérez vos trajets et réservations</title>
+    <meta name="description" content="Accédez à votre espace personnel EcoRide. Gérez vos réservations, consultez vos trajets, modifiez votre profil et suivez vos économies de CO2.">
+    <meta name="author" content="EcoRide">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="canonical" href="https://ecoride.fr/espace-utilisateur.html">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ecoride.fr/espace-utilisateur.html">
+    <meta property="og:title" content="Mon Espace - EcoRide">
+    <meta property="og:description" content="Gérez vos trajets et réservations sur EcoRide.">
+    <meta property="og:image" content="https://ecoride.fr/public/images/logo.png">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:site_name" content="EcoRide">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://ecoride.fr/espace-utilisateur.html">
+    <meta name="twitter:title" content="Mon Espace - EcoRide">
+    <meta name="twitter:description" content="Gérez vos trajets et réservations.">
+    <meta name="twitter:image" content="https://ecoride.fr/public/images/logo.png">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="public/images/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="public/images/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="public/images/favicon.svg">
+    
+    <!-- Préchargement des ressources (Performance) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Poppins:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="public/css/style.css">
+</head>
+<body class="dashboard-page">
+
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo-link"><img src="public/images/logo.png" alt="Logo EcoRide"><span class="logo-text">EcoRide</span></a>
+            <button class="hamburger-menu" aria-label="Ouvrir le menu"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="index.html">Accueil</a></li>
+                    <li><a href="covoiturages.html">Covoiturages</a></li>
+                    <li id="user-nav-links" class="hidden"><a href="proposer-covoiturage.html">Proposer un trajet</a></li>
+                    <li id="user-nav-dashboard" class="hidden"><a href="espace-utilisateur.html" class="active">Mon Espace</a></li>
+                    <li><button id="chat-toggle-btn" class="chat-button" aria-label="Ouvrir le chat">
+                        <i class="fas fa-comments"></i> Chat
+                    </button></li>
+                    <li id="guest-nav-button"><a href="connexion.html" class="auth-button">Se connecter</a></li>
+                    <li id="user-nav-button" class="hidden"><button id="logout-button" class="logout-button">Déconnexion</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="dashboard-header">
+            <h1 id="welcome-message">Bienvenue, <span id="user-pseudo-welcome">...</span> !</h1>
+            <div class="credits-display">
+                <i class="fas fa-coins"></i>
+                <span>Mon solde : <strong id="user-credits">...</strong> crédits</span>
+            </div>
+        </section>
+
+        <section class="dashboard-main-content">
+            <!-- Colonne de Gauche : Profil -->
+            <div class="profile-sidebar">
+                <div class="profile-card">
+                    <div class="profile-picture-container">
+                        <img id="profile-picture" src="public/images/driver-default.jpeg" alt="Photo de profil" class="profile-picture">
+                        <button id="edit-picture-btn" class="edit-picture-btn" aria-label="Modifier la photo de profil">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
+                    <h2 id="user-pseudo-profile">Chargement...</h2>
+                    <p id="user-email-profile">Chargement...</p>
+                </div>
+            </div>
+
+            <!-- Colonne de Droite : Contenu des Onglets -->
+            <div class="dashboard-tabs-content">
+                <div class="tabs">
+                    <button class="tab-button active" data-tab="tab-vehicles">Mes Véhicules</button>
+                    <button class="tab-button" data-tab="tab-offered-rides">Trajets Proposés</button>
+                    <button class="tab-button" data-tab="tab-booked-rides">Mes Réservations</button>
+                </div>
+
+                <div class="tab-content-wrapper">
+                    <section id="tab-vehicles" class="tab-content active">
+                        <div class="dashboard-card manage-vehicles">
+                             <div class="card-header">
+                                <h2><i class="fas fa-car"></i> Mes véhicules</h2>
+                                <button id="add-vehicle-btn" class="add-button-small">+ Ajouter</button>
+                            </div>
+                            <div id="vehicle-list" class="vehicle-list"></div>
+                            <p class="no-items-message hidden" id="no-vehicles-message">Vous n'avez aucun véhicule enregistré.</p>
+                        </div>
+                    </section>
+                    <section id="tab-offered-rides" class="tab-content">
+                        <div class="dashboard-card">
+                            <h2><i class="fas fa-route"></i> Mes Trajets Proposés</h2>
+                            <div id="offered-rides-list"></div>
+                             <p id="no-offered-rides" class="info-message hidden">Vous n'avez pas encore proposé de trajets.</p>
+                        </div>
+                    </section>
+                    <section id="tab-booked-rides" class="tab-content">
+                         <div class="dashboard-card">
+                            <h2><i class="fas fa-bookmark"></i> Mes Réservations</h2>
+                            <div id="booked-rides-list"></div>
+                            <p id="no-booked-rides" class="info-message hidden">Vous n'avez pas de réservations.</p>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modale pour changer la photo de profil -->
+    <div id="picture-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span id="close-picture-modal-btn" class="close-modal-btn">&times;</span>
+            <h2>Modifier la photo de profil</h2>
+            <form id="picture-form" class="auth-form">
+                <p>Veuillez coller l'URL d'une image ci-dessous.</p>
+                <div class="form-group">
+                    <label for="profileImageUrl">URL de l'image</label>
+                    <input type="url" id="profileImageUrl" name="profileImageUrl" placeholder="https://example.com/image.png" required>
+                </div>
+                <button type="submit" class="auth-button">Enregistrer</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modale d'Ajout de Véhicule -->
+    <div id="add-vehicle-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span id="close-modal-btn" class="close-modal-btn">&times;</span>
+            <h2>Ajouter un nouveau véhicule</h2>
+            <form id="add-vehicle-form-modal" class="auth-form">
+                <div class="form-group"><label for="brand">Marque</label><input type="text" id="brand" name="brand" required></div>
+                <div class="form-group"><label for="model">Modèle</label><input type="text" id="model" name="model" required></div>
+                <div class="form-group"><label for="plate">Immatriculation</label><input type="text" id="plate" name="plate" required></div>
+                <div class="form-group"><label for="energy">Énergie</label><select id="energy" name="energy" required><option value="">--</option><option>Essence</option><option>Diesel</option><option>Électrique</option><option>Hybride</option><option>GPL</option></select></div>
+                <div class="form-group"><label for="seats">Places</label><input type="number" id="seats" name="seats" min="1" max="8" required></div>
+                <button type="submit" class="auth-button">Ajouter</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modale de Modification de Véhicule -->
+    <div id="edit-vehicle-modal" class="modal-overlay">
+         <div class="modal-content">
+            <span id="close-edit-modal-btn" class="close-modal-btn">&times;</span>
+            <h2>Modifier le véhicule</h2>
+            <form id="edit-vehicle-form-modal" class="auth-form">
+                <input type="hidden" id="edit-vehicle-id" name="edit-vehicle-id">
+                <div class="form-group"><label for="edit-brand-modal">Marque</label><input type="text" id="edit-brand-modal" name="brand" required></div>
+                <div class="form-group"><label for="edit-model-modal">Modèle</label><input type="text" id="edit-model-modal" name="model" required></div>
+                <div class="form-group"><label for="edit-plate-modal">Immatriculation</label><input type="text" id="edit-plate-modal" name="plate" required></div>
+                <div class="form-group"><label for="edit-energy-modal">Énergie</label><select id="edit-energy-modal" name="energy" required><option value="">--</option><option>Essence</option><option>Diesel</option><option>Électrique</option><option>Hybride</option><option>GPL</option></select></div>
+                <div class="form-group"><label for="edit-seats-modal">Places</label><input type="number" id="edit-seats-modal" name="seats" min="1" max="8" required></div>
+                <button type="submit" class="auth-button">Mettre à jour</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Widget de Chat -->
+    <div id="chat-widget" class="chat-widget hidden">
+        <div class="chat-header">
+            <h3><i class="fas fa-comments"></i> Chat en direct</h3>
+            <button id="chat-close-btn" class="chat-close-btn">&times;</button>
+        </div>
+
+     <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 EcoRide. Tous droits réservés.</p>
+            <nav>
+                <ul>
+                    <li><a href="conditions-generales.html">Conditions Générales</a></li>
+                    <li><a href="politique-confidentialite.html">Politique de Confidentialité</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="secure-payment-info">
+                <p>Paiement sécurisé par :</p>
+                <div>
+                    <img src="public/images/paiements-securises-paypal-768x159.png" alt="Paiement sécurisé">
+                </div>
+            </div>
+        </div>
+    </footer>
+        <div class="chat-body">
+            <div id="chat-messages" class="chat-messages">
+                <div class="chat-message bot-message">
+                    <div class="message-content">
+                        <strong>Assistant EcoRide :</strong><br>
+                        Bonjour ! 👋 Comment puis-je vous aider aujourd'hui ?
+                    </div>
+                    <div class="message-time">Maintenant</div>
+                </div>
+            </div>
+            <div class="chat-input-container">
+                <input type="text" id="chat-input" placeholder="Tapez votre message..." maxlength="500">
+                <button id="chat-send-btn" title="Envoyer le message"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification-container"></div>
+    <script src="public/js/script.js"></script>
+</body>
+</html>
