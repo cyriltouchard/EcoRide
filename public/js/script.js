@@ -817,113 +817,228 @@ document.addEventListener('DOMContentLoaded', () => {
         
         loadRideDetails();
     }
-
     // =========================================================================
-    // 10. GESTION DU CHAT EN DIRECT
+    // PAGE D'ACHAT DE CRÉDITS
     // =========================================================================
-    
-    const chatWidget = document.getElementById('chat-widget');
-    const chatToggleBtn = document.getElementById('chat-toggle-btn');
-    const chatCloseBtn = document.getElementById('chat-close-btn');
-    const chatInput = document.getElementById('chat-input');
-    const chatSendBtn = document.getElementById('chat-send-btn');
-    const chatMessages = document.getElementById('chat-messages');
 
-    // Ouvrir le chat
-    if (chatToggleBtn) {
-        chatToggleBtn.addEventListener('click', () => {
-            if (chatWidget) {
-                chatWidget.classList.remove('hidden');
-                chatInput.focus();
+    if (document.querySelector('.buy-credits-page')) {
+        const currentCreditsSpan = document.getElementById('current-credits');
+        const buyButtons = document.querySelectorAll('.buy-button');
+        const paymentModal = document.getElementById('payment-modal');
+        const closePaymentModal = document.getElementById('close-payment-modal');
+        const paymentForm = document.getElementById('payment-form');
+        const cardPaymentFields = document.getElementById('card-payment-fields');
+        const paypalPaymentFields = document.getElementById('paypal-payment-fields');
+        const paymentMethodRadios = document.querySelectorAll('input[name="payment-method"]');
+
+        let selectedPackage = null;
+
+        // Charger le solde de crédits actuel
+        const loadCurrentCredits = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                if (currentCreditsSpan) {
+                    currentCreditsSpan.textContent = '0 crédit';
+                }
+                showNotification('Veuillez vous connecter pour voir votre solde', 'warning');
+                setTimeout(() => window.location.href = 'connexion.html', 2000);
+                return;
             }
-        });
-    }
 
-    // Fermer le chat
-    if (chatCloseBtn) {
-        chatCloseBtn.addEventListener('click', () => {
-            if (chatWidget) {
-                chatWidget.classList.add('hidden');
+            try {
+                const fetchWithAuth = createFetchWithAuth(token);
+                const response = await fetchWithAuth(`${API_BASE_URL}/users/me`);
+                
+                if (response && response.user) {
+                    const credits = response.user.credits || 0;
+                    if (currentCreditsSpan) {
+                        currentCreditsSpan.textContent = `${credits} crédit${credits > 1 ? 's' : ''}`;
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des crédits:', error);
+                if (currentCreditsSpan) {
+                    currentCreditsSpan.textContent = '0 crédit';
+                }
             }
+        };
+
+        // Ouvrir la modale de paiement
+        const openPaymentModal = (packageData) => {
+            selectedPackage = packageData;
+            
+            document.getElementById('summary-package').textContent = packageData.name;
+            document.getElementById('summary-credits').textContent = `${packageData.credits} crédits`;
+            document.getElementById('summary-price').textContent = `${packageData.price} €`;
+            
+            paymentModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        };
+
+        // Fermer la modale
+        const closeModal = () => {
+            paymentModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            paymentForm.reset();
+        };
+
+        // Gestion des boutons d'achat
+        buyButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const packageName = button.getAttribute('data-package');
+                const credits = parseInt(button.getAttribute('data-credits'));
+                const price = parseFloat(button.getAttribute('data-price'));
+                
+                const packageNames = {
+                    'discovery': 'Pack Découverte',
+                    'standard': 'Pack Standard',
+                    'premium': 'Pack Premium'
+                };
+                
+                openPaymentModal({
+                    type: packageName,
+                    name: packageNames[packageName],
+                    credits: credits,
+                    price: price
+                });
+            });
         });
-    }
 
-    // Envoyer un message
-    const sendMessage = () => {
-        const message = chatInput.value.trim();
-        if (message === '') return;
-
-        // Ajouter le message de l'utilisateur
-        addMessageToChat(message, 'user');
-        chatInput.value = '';
-
-        // Simuler une réponse automatique après un délai
-        setTimeout(() => {
-            const botResponse = generateBotResponse(message);
-            addMessageToChat(botResponse, 'bot');
-        }, 1000);
-    };
-
-    // Fonction pour ajouter un message au chat
-    const addMessageToChat = (message, sender) => {
-        if (!chatMessages) return;
-
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `chat-message ${sender}-message`;
-        
-        const now = new Date();
-        const timeString = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-        
-        const senderName = sender === 'user' ? 'Vous' : 'Assistant EcoRide';
-        
-        messageDiv.innerHTML = `
-            <div class="message-content">
-                <strong>${senderName} :</strong><br>
-                ${message}
-            </div>
-            <div class="message-time">${timeString}</div>
-        `;
-
-        chatMessages.appendChild(messageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    };
-
-    // Générer une réponse automatique du bot
-    const generateBotResponse = (userMessage) => {
-        const lowerMessage = userMessage.toLowerCase();
-        
-        if (lowerMessage.includes('bonjour') || lowerMessage.includes('salut')) {
-            return "Bonjour ! 😊 Je suis votre assistant EcoRide. Comment puis-je vous aider ?";
-        } else if (lowerMessage.includes('covoiturage') || lowerMessage.includes('trajet')) {
-            return "Je peux vous aider à trouver un covoiturage ! Consultez notre page <strong>Covoiturages</strong> pour voir les trajets disponibles.";
-        } else if (lowerMessage.includes('prix') || lowerMessage.includes('tarif')) {
-            return "Les prix des trajets sont fixés par les conducteurs. Vous pouvez voir le prix avant de réserver !";
-        } else if (lowerMessage.includes('réservation') || lowerMessage.includes('réserver')) {
-            return "Pour réserver un trajet, connectez-vous à votre compte, puis cliquez sur 'Réserver' sur le trajet de votre choix.";
-        } else if (lowerMessage.includes('compte') || lowerMessage.includes('inscription')) {
-            return "Vous pouvez créer un compte gratuitement en cliquant sur 'Se connecter' puis 'Créer un compte'.";
-        } else if (lowerMessage.includes('aide') || lowerMessage.includes('help')) {
-            return "Je suis là pour vous aider ! Vous pouvez me poser des questions sur les covoiturages, les réservations, ou naviguer vers la page <strong>Contact</strong> pour plus d'aide.";
-        } else if (lowerMessage.includes('merci')) {
-            return "De rien ! 😊 N'hésitez pas si vous avez d'autres questions !";
-        } else {
-            return "Je comprends votre question. Pour une assistance plus détaillée, vous pouvez consulter notre page <strong>Contact</strong> ou essayer de reformuler votre demande.";
+        // Fermer la modale
+        if (closePaymentModal) {
+            closePaymentModal.addEventListener('click', closeModal);
         }
-    };
 
-    // Événements pour envoyer le message
-    if (chatSendBtn) {
-        chatSendBtn.addEventListener('click', sendMessage);
-    }
-
-    if (chatInput) {
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
+        paymentModal?.addEventListener('click', (e) => {
+            if (e.target === paymentModal) {
+                closeModal();
             }
         });
+
+        // Basculer entre les méthodes de paiement
+        paymentMethodRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.value === 'card') {
+                    cardPaymentFields.style.display = 'block';
+                    paypalPaymentFields.style.display = 'none';
+                } else {
+                    cardPaymentFields.style.display = 'none';
+                    paypalPaymentFields.style.display = 'block';
+                }
+            });
+        });
+
+        // Format du numéro de carte
+        const cardNumberInput = document.getElementById('card-number');
+        if (cardNumberInput) {
+            cardNumberInput.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\s/g, '');
+                let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+                e.target.value = formattedValue;
+            });
+        }
+
+        // Format de la date d'expiration
+        const cardExpiryInput = document.getElementById('card-expiry');
+        if (cardExpiryInput) {
+            cardExpiryInput.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                }
+                e.target.value = value;
+            });
+        }
+
+        // Soumettre le paiement
+        if (paymentForm) {
+            paymentForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                if (!selectedPackage) {
+                    showNotification('Erreur: aucun pack sélectionné', 'danger');
+                    return;
+                }
+
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    showNotification('Veuillez vous connecter', 'warning');
+                    window.location.href = 'connexion.html';
+                    return;
+                }
+
+                const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+                
+                // Validation des champs selon la méthode
+                if (paymentMethod === 'card') {
+                    const cardNumber = document.getElementById('card-number').value;
+                    const cardExpiry = document.getElementById('card-expiry').value;
+                    const cardCvv = document.getElementById('card-cvv').value;
+                    const cardName = document.getElementById('card-name').value;
+                    
+                    if (!cardNumber || !cardExpiry || !cardCvv || !cardName) {
+                        showNotification('Veuillez remplir tous les champs de la carte', 'warning');
+                        return;
+                    }
+                    
+                    // Validation simple du numéro de carte (16 chiffres)
+                    if (cardNumber.replace(/\s/g, '').length !== 16) {
+                        showNotification('Numéro de carte invalide (16 chiffres requis)', 'danger');
+                        return;
+                    }
+                    
+                    // Validation de la date d'expiration
+                    if (!/^\d{2}\/\d{2}$/.test(cardExpiry)) {
+                        showNotification('Format de date invalide (MM/AA)', 'danger');
+                        return;
+                    }
+                    
+                    // Validation du CVV
+                    if (!/^\d{3}$/.test(cardCvv)) {
+                        showNotification('CVV invalide (3 chiffres requis)', 'danger');
+                        return;
+                    }
+                }
+
+                try {
+                    const fetchWithAuth = createFetchWithAuth(token);
+                    
+                    // Simuler un délai de traitement
+                    showNotification('Traitement du paiement en cours...', 'info');
+                    
+                    const response = await fetchWithAuth(`${API_BASE_URL}/credits/purchase`, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            packageType: selectedPackage.type,
+                            credits: selectedPackage.credits,
+                            amount: selectedPackage.price,
+                            paymentMethod: paymentMethod
+                        })
+                    });
+
+                    if (response && response.success) {
+                        closeModal();
+                        showNotification(`✅ Paiement réussi ! Vous avez reçu ${selectedPackage.credits} crédits`, 'success');
+                        
+                        // Recharger le solde
+                        setTimeout(() => {
+                            loadCurrentCredits();
+                        }, 1000);
+                    } else {
+                        showNotification('Erreur lors du paiement', 'danger');
+                    }
+                } catch (error) {
+                    console.error('Erreur paiement:', error);
+                    showNotification(error.message || 'Erreur lors du traitement du paiement', 'danger');
+                }
+            });
+        }
+
+        // Charger le solde au chargement de la page
+        loadCurrentCredits();
     }
 });
+
 
 
 

@@ -69,9 +69,6 @@
                     </li>
                     <li id="user-nav-dashboard" class="hidden"><a href="espace-utilisateur.html" class="active">Mon
                             Espace</a></li>
-                    <li><button id="chat-toggle-btn" class="chat-button" aria-label="Ouvrir le chat">
-                            <i class="fas fa-comments"></i> Chat
-                        </button></li>
                     <li id="guest-nav-button"><a href="connexion.html" class="auth-button">Se connecter</a></li>
                     <li id="user-nav-button" class="hidden"><button id="logout-button"
                             class="logout-button">Déconnexion</button></li>
@@ -86,6 +83,9 @@
             <div class="credits-display">
                 <i class="fas fa-coins"></i>
                 <span>Mon solde : <strong id="user-credits">...</strong> crédits</span>
+                <a href="acheter-credits.html" class="button button-primary" style="margin-left: 15px;">
+                    <i class="fas fa-shopping-cart"></i> Acheter des crédits
+                </a>
             </div>
         </section>
 
@@ -249,47 +249,24 @@
         </div>
     </div>
 
-    <!-- Widget de Chat -->
-    <div id="chat-widget" class="chat-widget hidden">
-        <div class="chat-header">
-            <h3><i class="fas fa-comments"></i> Chat en direct</h3>
-            <button id="chat-close-btn" class="chat-close-btn">&times;</button>
-        </div>
-
-        <footer>
-            <div class="footer-content">
-                <p>&copy; 2025 EcoRide. Tous droits réservés.</p>
-                <nav>
-                    <ul>
-                        <li><a href="conditions-generales.html">Conditions Générales</a></li>
-                        <li><a href="politique-confidentialite.html">Politique de Confidentialité</a></li>
-                        <li><a href="contact.html">Contact</a></li>
-                    </ul>
-                </nav>
-                <div class="secure-payment-info">
-                    <p>Paiement sécurisé par :</p>
-                    <div>
-                        <img src="public/images/paiements-securises-paypal-768x159.png" alt="Paiement sécurisé">
-                    </div>
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 EcoRide. Tous droits réservés.</p>
+            <nav>
+                <ul>
+                    <li><a href="conditions-generales.html">Conditions Générales</a></li>
+                    <li><a href="politique-confidentialite.html">Politique de Confidentialité</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="secure-payment-info">
+                <p>Paiement sécurisé par :</p>
+                <div>
+                    <img src="public/images/paiements-securises-paypal-768x159.png" alt="Paiement sécurisé">
                 </div>
             </div>
-        </footer>
-        <div class="chat-body">
-            <div id="chat-messages" class="chat-messages">
-                <div class="chat-message bot-message">
-                    <div class="message-content">
-                        <strong>Assistant EcoRide :</strong><br>
-                        Bonjour ! 👋 Comment puis-je vous aider aujourd'hui ?
-                    </div>
-                    <div class="message-time">Maintenant</div>
-                </div>
-            </div>
-            <div class="chat-input-container">
-                <input type="text" id="chat-input" placeholder="Tapez votre message..." maxlength="500">
-                <button id="chat-send-btn" title="Envoyer le message"><i class="fas fa-paper-plane"></i></button>
-            </div>
         </div>
-    </div>
+    </footer>
 
     <div id="notification-container"></div>
     <script src="public/js/script.js?v=13"></script>

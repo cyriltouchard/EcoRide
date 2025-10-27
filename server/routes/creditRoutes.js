@@ -276,3 +276,56 @@ router.post('/process-booking', authenticateToken, async (req, res) => {
 });
 
 module.exports = router;
+
+// ============================================
+// POST /api/credits/purchase - Acheter des crédits
+// ============================================
+router.post('/purchase', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { packageType, credits, amount, paymentMethod } = req.body;
+        
+        // Validation des données
+        if (!packageType || !credits || !amount || !paymentMethod) {
+            return res.status(400).json({
+                success: false,
+                message: 'Données de paiement incomplètes'
+            });
+        }
+        
+        // Vérifier que le montant est cohérent
+        const expectedAmounts = {
+            'discovery': { credits: 10, price: 5.00 },
+            'standard': { credits: 25, price: 10.00 },
+            'premium': { credits: 60, price: 20.00 }
+        };
+        
+        if (!expectedAmounts[packageType] || 
+            expectedAmounts[packageType].credits !== credits ||
+            expectedAmounts[packageType].price !== amount) {
+            return res.status(400).json({
+                success: false,
+                message: 'Package invalide ou montant incorrect'
+            });
+        }
+        
+        // Ajouter les crédits
+        const result = await CreditModel.addCredits(userId, credits, 'Achat ' + packageType);
+        
+        res.json({
+            success: true,
+            message: 'Achat de ' + credits + ' crédits effectué avec succès',
+            data: {
+                credits_added: credits,
+                new_balance: result.new_balance
+            }
+        });
+        
+    } catch (error) {
+        console.error('Erreur achat crédits:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Erreur lors de l\'achat de crédits'
+        });
+    }
+});

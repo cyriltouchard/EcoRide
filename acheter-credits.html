@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#27ae60">
+
+    <title>Acheter des Crédits - EcoRide</title>
+    <meta name="description" content="Achetez des crédits EcoRide pour réserver vos trajets en covoiturage.">
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Poppins:wght@700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="public/css/style.css">
+</head>
+
+<body class="buy-credits-page">
+
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo-link">
+                <img src="public/images/logo.png" alt="Logo EcoRide">
+                <span class="logo-text">EcoRide</span>
+            </a>
+            <button class="hamburger-menu" aria-label="Ouvrir le menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="index.html">Accueil</a></li>
+                    <li><a href="covoiturages.html">Covoiturages</a></li>
+                    <li id="user-nav-links" class="hidden"><a href="proposer-covoiturage.html">Proposer un trajet</a>
+                    </li>
+                    <li id="user-nav-dashboard" class="hidden"><a href="espace-utilisateur.html">Mon Espace</a></li>
+                    <li id="guest-nav-button"><a href="connexion.html" class="auth-button">Se connecter</a></li>
+                    <li id="user-nav-button" class="hidden">
+                        <button id="logout-button" class="logout-button">Déconnexion</button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="buy-credits-section">
+            <div class="container">
+                <h1><i class="fas fa-coins"></i> Acheter des Crédits EcoRide</h1>
+
+                <div class="credits-info-banner">
+                    <div class="current-balance">
+                        <i class="fas fa-wallet"></i>
+                        <div>
+                            <span class="label">Votre solde actuel</span>
+                            <span class="amount" id="current-credits">-- crédits</span>
+                        </div>
+                    </div>
+                    <div class="info-text">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Les crédits EcoRide vous permettent de réserver des places dans les covoiturages. 1 crédit =
+                            1 euro.</p>
+                    </div>
+                </div>
+
+                <h2>Choisissez votre offre</h2>
+
+                <div class="credits-packages">
+                    <!-- Pack Découverte -->
+                    <div class="package-card">
+                        <div class="package-badge">Idéal pour débuter</div>
+                        <div class="package-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h3>Pack Découverte</h3>
+                        <div class="credits-amount">10 crédits</div>
+                        <div class="package-price">
+                            <span class="price">5,00 €</span>
+                            <span class="unit-price">0,50 € / crédit</span>
+                        </div>
+                        <ul class="package-features">
+                            <li><i class="fas fa-check"></i> Valable 6 mois</li>
+                            <li><i class="fas fa-check"></i> Parfait pour tester</li>
+                        </ul>
+                        <button class="buy-button" data-package="discovery" data-credits="10" data-price="5.00">
+                            Acheter maintenant
+                        </button>
+                    </div>
+
+                    <!-- Pack Standard -->
+                    <div class="package-card popular">
+                        <div class="package-badge popular-badge">Le plus populaire</div>
+                        <div class="package-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <h3>Pack Standard</h3>
+                        <div class="credits-amount">25 crédits</div>
+                        <div class="package-price">
+                            <span class="price">10,00 €</span>
+                            <span class="unit-price">0,40 € / crédit</span>
+                            <span class="savings">Économisez 20%</span>
+                        </div>
+                        <ul class="package-features">
+                            <li><i class="fas fa-check"></i> Valable 1 an</li>
+                            <li><i class="fas fa-check"></i> Meilleur rapport qualité/prix</li>
+                            <li><i class="fas fa-check"></i> 5 crédits bonus offerts</li>
+                        </ul>
+                        <button class="buy-button" data-package="standard" data-credits="25" data-price="10.00">
+                            Acheter maintenant
+                        </button>
+                    </div>
+
+                    <!-- Pack Premium -->
+                    <div class="package-card">
+                        <div class="package-badge">Meilleure économie</div>
+                        <div class="package-icon">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <h3>Pack Premium</h3>
+                        <div class="credits-amount">60 crédits</div>
+                        <div class="package-price">
+                            <span class="price">20,00 €</span>
+                            <span class="unit-price">0,33 € / crédit</span>
+                            <span class="savings">Économisez 34%</span>
+                        </div>
+                        <ul class="package-features">
+                            <li><i class="fas fa-check"></i> Valable 1 an</li>
+                            <li><i class="fas fa-check"></i> Économies maximales</li>
+                            <li><i class="fas fa-check"></i> 10 crédits bonus offerts</li>
+                            <li><i class="fas fa-check"></i> Support prioritaire</li>
+                        </ul>
+                        <button class="buy-button" data-package="premium" data-credits="60" data-price="20.00">
+                            Acheter maintenant
+                        </button>
+                    </div>
+                </div>
+
+                <div class="payment-info">
+                    <h3><i class="fas fa-shield-alt"></i> Paiement 100% sécurisé</h3>
+                    <p>Vos données de paiement sont protégées par un chiffrement SSL. Nous n'avons jamais accès à vos
+                        informations bancaires.</p>
+                    <div class="payment-methods">
+                        <img src="public/images/paiements-securises-paypal-768x159.png"
+                            alt="Moyens de paiement acceptés">
+                    </div>
+                </div>
+
+                <div class="faq-section">
+                    <h3><i class="fas fa-question-circle"></i> Questions fréquentes</h3>
+                    <div class="faq-item">
+                        <strong>Comment utiliser mes crédits ?</strong>
+                        <p>Chaque fois que vous réservez une place dans un covoiturage, un crédit est déduit de votre
+                            solde.</p>
+                    </div>
+                    <div class="faq-item">
+                        <strong>Les crédits expirent-ils ?</strong>
+                        <p>Oui, selon le pack choisi : 6 mois pour le Pack Découverte, 1 an pour les Packs Standard et
+                            Premium.</p>
+                    </div>
+                    <div class="faq-item">
+                        <strong>Puis-je être remboursé ?</strong>
+                        <p>Les crédits non utilisés peuvent être remboursés dans les 14 jours suivant l'achat,
+                            conformément à la loi.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modale de paiement -->
+    <div id="payment-modal" class="modal-overlay">
+        <div class="modal-content payment-modal-content">
+            <span id="close-payment-modal" class="close-modal-btn">&times;</span>
+            <h2><i class="fas fa-credit-card"></i> Finaliser votre achat</h2>
+
+            <div class="payment-summary">
+                <h3>Résumé de votre commande</h3>
+                <div class="summary-line">
+                    <span>Pack sélectionné:</span>
+                    <span id="summary-package">--</span>
+                </div>
+                <div class="summary-line">
+                    <span>Nombre de crédits:</span>
+                    <span id="summary-credits">--</span>
+                </div>
+                <div class="summary-line total">
+                    <span>Total à payer:</span>
+                    <span id="summary-price">-- €</span>
+                </div>
+            </div>
+
+            <form id="payment-form" class="payment-form">
+                <h3>Méthode de paiement</h3>
+
+                <div class="payment-methods-selection">
+                    <label class="payment-method-option">
+                        <input type="radio" name="payment-method" value="card" checked>
+                        <div class="method-card">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Carte bancaire</span>
+                        </div>
+                    </label>
+                    <label class="payment-method-option">
+                        <input type="radio" name="payment-method" value="paypal">
+                        <div class="method-card">
+                            <i class="fab fa-paypal"></i>
+                            <span>PayPal</span>
+                        </div>
+                    </label>
+                </div>
+
+                <div id="card-payment-fields" class="payment-fields">
+                    <div class="form-group">
+                        <label for="card-number">Numéro de carte</label>
+                        <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="card-expiry">Date d'expiration</label>
+                            <input type="text" id="card-expiry" placeholder="MM/AA" maxlength="5">
+                        </div>
+                        <div class="form-group">
+                            <label for="card-cvv">CVV</label>
+                            <input type="text" id="card-cvv" placeholder="123" maxlength="3">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="card-name">Nom du titulaire</label>
+                        <input type="text" id="card-name" placeholder="Nom sur la carte">
+                    </div>
+                </div>
+
+                <div id="paypal-payment-fields" class="payment-fields" style="display: none;">
+                    <p class="info-message">
+                        <i class="fas fa-info-circle"></i>
+                        Vous serez redirigé vers PayPal pour finaliser votre paiement de manière sécurisée.
+                    </p>
+                </div>
+
+                <button type="submit" class="submit-payment-btn">
+                    <i class="fas fa-lock"></i> Payer maintenant
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2025 EcoRide. Tous droits réservés.</p>
+                <nav>
+                    <ul>
+                        <li><a href="conditions-generales.html">Conditions Générales</a></li>
+                        <li><a href="politique-confidentialite.html">Politique de Confidentialité</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </nav>
+                <div class="secure-payment-info">
+                    <p>Paiement sécurisé par :</p>
+                    <div>
+                        <img src="public/images/paiements-securises-paypal-768x159.png" alt="Paiement sécurisé">
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <div id="notification-container"></div>
+        <script src="public/js/script.js?v=15"></script>
+</body>
+
+</html>
