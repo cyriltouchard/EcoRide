@@ -28,6 +28,16 @@ router.post('/login', [
 // @access  Private
 router.get('/me', authenticateToken, userController.getUserProfile);
 
+// @route   PUT api/users/profile
+// @desc    Mettre à jour le profil utilisateur (pseudo, email, phone, bio)
+// @access  Private
+router.put('/profile', authenticateToken, userController.updateProfile);
+
+// @route   PUT api/users/profile-picture
+// @desc    Mettre à jour la photo de profil
+// @access  Private
+router.put('/profile-picture', authenticateToken, userController.updateProfilePicture);
+
 // @route   PUT api/users/type
 // @desc    Mettre à jour le type d'utilisateur (passager/chauffeur/chauffeur_passager)
 // @access  Private

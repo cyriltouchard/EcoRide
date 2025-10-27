@@ -1,52 +1,59 @@
 ﻿<!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <!-- Métas essentiels -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#27ae60">
-    
+
     <!-- SEO -->
     <title>Rechercher un Covoiturage - EcoRide | Trajets disponibles en France</title>
-    <meta name="description" content="Trouvez votre covoiturage en France. Des milliers de trajets disponibles chaque jour. Réservation instantanée, paiement sécurisé et avis vérifiés.">
+    <meta name="description"
+        content="Trouvez votre covoiturage en France. Des milliers de trajets disponibles chaque jour. Réservation instantanée, paiement sécurisé et avis vérifiés.">
     <meta name="author" content="EcoRide">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://ecoride.fr/covoiturages.html">
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://ecoride.fr/covoiturages.html">
     <meta property="og:title" content="Rechercher un Covoiturage - EcoRide">
-    <meta property="og:description" content="Trouvez votre covoiturage en France. Des milliers de trajets disponibles chaque jour.">
+    <meta property="og:description"
+        content="Trouvez votre covoiturage en France. Des milliers de trajets disponibles chaque jour.">
     <meta property="og:image" content="https://ecoride.fr/public/images/logo.png">
     <meta property="og:locale" content="fr_FR">
     <meta property="og:site_name" content="EcoRide">
-    
+
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://ecoride.fr/covoiturages.html">
     <meta name="twitter:title" content="Rechercher un Covoiturage - EcoRide">
     <meta name="twitter:description" content="Des milliers de trajets de covoiturage disponibles.">
     <meta name="twitter:image" content="https://ecoride.fr/public/images/logo.png">
-    
+
     <!-- Favicons -->
     <link rel="icon" type="image/svg+xml" href="public/images/favicon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="public/images/favicon.svg">
     <link rel="apple-touch-icon" sizes="180x180" href="public/images/favicon.svg">
-    
+
     <!-- Préchargement des ressources (Performance) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    
+
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Poppins:wght@700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Poppins:wght@700&display=swap"
+        rel="stylesheet">
+
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+
     <!-- Styles -->
     <link rel="stylesheet" href="public/css/style.css">
 </head>
+
 <body class="covoiturages-page">
     <header>
         <div class="header-container">
@@ -54,7 +61,7 @@
                 <img src="public/images/logo.png" alt="Logo EcoRide">
                 <span class="logo-text">EcoRide</span>
             </a>
-            
+
             <button class="hamburger-menu" aria-label="Toggle navigation">
                 <span class="bar"></span>
                 <span class="bar"></span>
@@ -65,7 +72,7 @@
                 <ul>
                     <li><a href="index.html">Accueil</a></li>
                     <li><a href="covoiturages.html" class="active">Covoiturages</a></li>
-                    
+
                     <li id="user-nav-links" class="hidden">
                         <a href="proposer-covoiturage.html">Proposer un trajet</a>
                     </li>
@@ -73,8 +80,8 @@
                         <a href="espace-utilisateur.html">Mon Espace</a>
                     </li>
                     <li><button id="chat-toggle-btn" class="chat-button" aria-label="Ouvrir le chat">
-                        <i class="fas fa-comments"></i> Chat
-                    </button></li>
+                            <i class="fas fa-comments"></i> Chat
+                        </button></li>
                     <li id="guest-nav-button">
                         <a href="connexion.html" class="auth-button">Se connecter</a>
                     </li>
@@ -91,10 +98,13 @@
             <div class="search-form-container">
                 <h1>Trouvez votre covoiturage</h1>
                 <form id="main-search-form" class="search-form">
-                    <input type="text" id="search-departure" placeholder="Adresse de départ" aria-label="Adresse de départ" required>
-                    <input type="text" id="search-arrival" placeholder="Adresse d'arrivée" aria-label="Adresse d'arrivée" required>
-                    <input type="date" id="search-date" aria-label="Date du trajet" required>
-                    <input type="number" id="search-seats" placeholder="Nb. personnes" aria-label="Nombre de personnes" min="1" value="1" required>
+                    <input type="text" id="search-departure" name="departure" placeholder="Adresse de départ"
+                        aria-label="Adresse de départ">
+                    <input type="text" id="search-arrival" name="arrival" placeholder="Adresse d'arrivée"
+                        aria-label="Adresse d'arrivée">
+                    <input type="date" id="search-date" name="date" aria-label="Date du trajet">
+                    <input type="number" id="search-seats" name="seats" placeholder="Nb. personnes"
+                        aria-label="Nombre de personnes" min="1" value="1">
                     <button type="submit">Rechercher</button>
                 </form>
             </div>
@@ -121,14 +131,15 @@
                         <input type="number" id="note-min" name="note-min" min="0" max="5" step="0.5">
                     </div>
                     <button type="submit" class="apply-filters-button">Appliquer les filtres</button>
-                    <button type="button" id="reset-filters-button" class="reset-filters-button">Réinitialiser les filtres</button>
+                    <button type="button" id="reset-filters-button" class="reset-filters-button">Réinitialiser les
+                        filtres</button>
                 </form>
             </div>
 
             <div class="results-container">
                 <h2>Résultats de la recherche</h2>
                 <div id="search-results-list" class="ride-list">
-                    </div>
+                </div>
                 <div id="no-search-results" class="no-results hidden">
                     <p>Aucun covoiturage trouvé. Veuillez ajuster votre recherche ou les filtres.</p>
                 </div>
@@ -144,24 +155,24 @@
         </div>
 
 
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2025 EcoRide. Tous droits réservés.</p>
-            <nav>
-                <ul>
-                    <li><a href="conditions-generales.html">Conditions Générales</a></li>
-                    <li><a href="politique-confidentialite.html">Politique de Confidentialité</a></li>
-                    <li><a href="contact.html">Contact</a></li>
-                </ul>
-            </nav>
-            <div class="secure-payment-info">
-                <p>Paiement sécurisé par :</p>
-                <div>
-                    <img src="public/images/paiements-securises-paypal-768x159.png" alt="Paiement sécurisé">
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2025 EcoRide. Tous droits réservés.</p>
+                <nav>
+                    <ul>
+                        <li><a href="conditions-generales.html">Conditions Générales</a></li>
+                        <li><a href="politique-confidentialite.html">Politique de Confidentialité</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </nav>
+                <div class="secure-payment-info">
+                    <p>Paiement sécurisé par :</p>
+                    <div>
+                        <img src="public/images/paiements-securises-paypal-768x159.png" alt="Paiement sécurisé">
+                    </div>
                 </div>
             </div>
-        </div>
-    </footer>
+        </footer>
         <div class="chat-body">
             <div id="chat-messages" class="chat-messages">
                 <div class="chat-message bot-message">
@@ -181,4 +192,5 @@
 
     <script src="public/js/script.js"></script>
 </body>
+
 </html>

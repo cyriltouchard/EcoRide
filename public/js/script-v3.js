@@ -7,38 +7,6 @@
 // Configuration centralisée des URLs
 const API_BASE_URL = 'http://localhost:3000/api';
 
-// Fonction globale pour les requêtes authentifiées
-const createFetchWithAuth = (token) => {
-    return async (url, options = {}) => {
-        console.log('🔵 Requête authentifiée:', url, 'Token présent:', !!token);
-        const headers = { ...options.headers, 'Content-Type': 'application/json', 'x-auth-token': token };
-        const response = await fetch(url, { ...options, headers });
-        
-        console.log('📡 Réponse:', response.status, response.statusText);
-        
-        // Tenter de parser le JSON, sinon retourner null
-        let data = null;
-        try {
-            const text = await response.text();
-            data = text ? JSON.parse(text) : null;
-            console.log('📦 Data reçue:', data);
-        } catch (e) {
-            console.error('❌ Erreur de parsing JSON:', e);
-        }
-        
-        if (!response.ok) {
-            console.error('❌ Erreur HTTP:', response.status, data?.message);
-            if (response.status === 401) {
-                console.warn('⚠️ Token invalide - déconnexion');
-                localStorage.removeItem('token');
-                window.location.href = 'connexion.html';
-            }
-            throw new Error(data?.message || `Erreur ${response.status}`);
-        }
-        return data;
-    };
-};
-
 document.addEventListener('DOMContentLoaded', () => {
 
     // =========================================================================
@@ -239,15 +207,26 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const fetchWithAuth = createFetchWithAuth(userToken);
+        const fetchWithAuth = async (url, options = {}) => {
+            const headers = { ...options.headers, 'Content-Type': 'application/json', 'x-auth-token': userToken };
+            const response = await fetch(url, { ...options, headers });
+            const data = await response.json();
+            if (!response.ok) {
+                if (response.status === 401) {
+                    localStorage.removeItem('token');
+                    window.location.href = 'connexion.html';
+                }
+                throw new Error(data.message || 'Erreur serveur.');
+            }
+            return data;
+        };
 
         const fetchUserData = async () => {
             try {
-                const response = await fetchWithAuth(`${API_BASE_URL}/users/me`);
-                const data = response.data || response; // Support both formats
+                const data = await fetchWithAuth(`${API_BASE_URL}/users/me`);
                 if (document.getElementById('user-pseudo')) document.getElementById('user-pseudo').textContent = data.pseudo;
                 if (document.getElementById('user-email')) document.getElementById('user-email').textContent = data.email;
-                if (document.getElementById('user-credits')) document.getElementById('user-credits').textContent = data.credits || 0;
+                if (document.getElementById('user-credits')) document.getElementById('user-credits').textContent = data.credits;
                 if (document.getElementById('user-pseudo-welcome')) document.getElementById('user-pseudo-welcome').textContent = data.pseudo;
             } catch (error) {
                 showNotification(`Erreur chargement profil: ${error.message}`, 'error');
@@ -299,7 +278,47 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         };
 
-        // Définir addRideActionListeners AVANT loadRides
+        const loadRides = async (type) => {
+            const listId = type === 'offered' ? 'offered-rides-list' : 'booked-rides-list';
+            const noItemsId = type === 'offered' ? 'no-offered-rides' : 'no-booked-rides';
+            const container = document.getElementById(listId);
+            const noMsg = document.getElementById(noItemsId);
+            if (!container || !noMsg) return;
+
+            const statusMap = {
+                scheduled: 'Ouvert',
+                started: 'En cours',
+                completed: 'Terminé',
+                cancelled: 'Annulé'
+            };
+
+            try {
+                const data = await fetchWithAuth(`${API_BASE_URL}/rides/${type}`);
+                container.innerHTML = '';
+                if (data.rides && data.rides.length > 0) {
+                    noMsg.style.display = 'none';
+                    data.rides.forEach(ride => {
+                        const date = new Date(ride.departureDate).toLocaleDateString('fr-FR');
+                        const statusText = statusMap[ride.status] || ride.status;
+                        const isCancellable = ride.status === 'scheduled';
+                        
+                        let cardHtml = '';
+                        if (type === 'offered') {
+                            cardHtml = `<h3>${ride.departure} → ${ride.arrival}</h3><p>Date et heure: ${date} à ${ride.departureTime}</p><p>Statut: ${statusText}</p><div class="ride-actions"><button class="cancel-ride-btn button button-danger" data-id="${ride._id}" ${!isCancellable ? 'disabled' : ''}>Annuler le trajet</button></div>`;
+                        } else {
+                            cardHtml = `<h3>${ride.departure} → ${ride.arrival}</h3><p>Avec ${ride.driver.pseudo}</p><p>Date: ${date}</p><p>Statut: ${statusText}</p><div class="ride-actions"><button class="cancel-booking-btn button button-danger" data-id="${ride._id}" ${!isCancellable ? 'disabled' : ''}>Annuler la réservation</button></div>`;
+                        }
+                        container.innerHTML += `<div class="ride-card">${cardHtml}</div>`;
+                    });
+                } else {
+                    noMsg.style.display = 'block';
+                }
+                addRideActionListeners(type);
+            } catch (error) {
+                showNotification(`Erreur chargement trajets: ${error.message}`, 'error');
+            }
+        };
+        
         const addRideActionListeners = (type) => {
             const selector = type === 'offered' ? '.cancel-ride-btn' : '.cancel-booking-btn';
             document.querySelectorAll(selector).forEach(button => {
@@ -319,74 +338,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         };
 
-        const loadRides = async (type) => {
-            const listId = type === 'offered' ? 'offered-rides-list' : 'booked-rides-list';
-            const noItemsId = type === 'offered' ? 'no-offered-rides' : 'no-booked-rides';
-            const container = document.getElementById(listId);
-            const noMsg = document.getElementById(noItemsId);
-            if (!container || !noMsg) return;
-
-            const statusMap = {
-                en_attente: 'En attente',
-                scheduled: 'Ouvert',
-                started: 'En cours',
-                completed: 'Terminé',
-                cancelled: 'Annulé'
-            };
-
-            try {
-                const data = await fetchWithAuth(`${API_BASE_URL}/rides/${type}`);
-                container.innerHTML = '';
-                if (data.rides && data.rides.length > 0) {
-                    // Filtrer les trajets annulés
-                    const activeRides = data.rides.filter(ride => ride.status !== 'cancelled' && ride.status !== 'annule');
-                    
-                    if (activeRides.length > 0) {
-                        noMsg.style.display = 'none';
-                        activeRides.forEach(ride => {
-                            const date = new Date(ride.departureDate).toLocaleDateString('fr-FR');
-                            const statusText = statusMap[ride.status] || ride.status;
-                            // Autoriser l'annulation pour les statuts "en_attente" et "scheduled"
-                            const isCancellable = ride.status === 'scheduled' || ride.status === 'en_attente';
-                            
-                            let cardHtml = '';
-                            if (type === 'offered') {
-                                cardHtml = `
-                                    <div class="ride-card-content">
-                                        <h3>${ride.departure} → ${ride.arrival}</h3>
-                                        <p>Date et heure: ${date} à ${ride.departureTime}</p>
-                                        <p>Statut: ${statusText}</p>
-                                    </div>
-                                    <div class="ride-actions">
-                                        <button class="cancel-ride-btn button button-danger" data-id="${ride._id}" ${!isCancellable ? 'disabled' : ''}>Annuler</button>
-                                    </div>`;
-                            } else {
-                                cardHtml = `
-                                    <div class="ride-card-content">
-                                        <h3>${ride.departure} → ${ride.arrival}</h3>
-                                        <p>Avec ${ride.driver.pseudo}</p>
-                                        <p>Date: ${date}</p>
-                                        <p>Statut: ${statusText}</p>
-                                    </div>
-                                    <div class="ride-actions">
-                                        <button class="cancel-booking-btn button button-danger" data-id="${ride._id}" ${!isCancellable ? 'disabled' : ''}>Annuler</button>
-                                    </div>`;
-                            }
-                            container.innerHTML += `<div class="ride-card">${cardHtml}</div>`;
-                        });
-                    } else {
-                        noMsg.style.display = 'block';
-                    }
-                } else {
-                    noMsg.style.display = 'block';
-                }
-                addRideActionListeners(type);
-            } catch (error) {
-                showNotification(`Erreur chargement trajets: ${error.message}`, 'error');
-            }
-        };
-        
-        // Gestionnaires d'ajout et modification de véhicules
         const addModal = document.getElementById('add-vehicle-modal');
         const editModal = document.getElementById('edit-vehicle-modal');
         const addForm = document.getElementById('add-vehicle-form-modal');
@@ -403,64 +354,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
             addForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const formData = new FormData(e.target);
-                
-                // Transformer les données pour le backend
-                const vehicleData = {
-                    brand: formData.get('brand'),
-                    model: formData.get('model'),
-                    license_plate: formData.get('plate'), // plate → license_plate
-                    energy_type: formData.get('energy').toLowerCase(), // Convertir en minuscules
-                    available_seats: parseInt(formData.get('seats')), // seats → available_seats
-                    color: 'Non spécifié', // Champ obligatoire
-                    first_registration: new Date().toISOString().split('T')[0] // Date du jour
-                };
-                
-                console.log('📤 Véhicule à créer:', vehicleData);
-                
+                const data = Object.fromEntries(new FormData(e.target).entries());
                 try {
-                    const response = await fetchWithAuth(`${API_BASE_URL}/vehicles`, { 
-                        method: 'POST', 
-                        body: JSON.stringify(vehicleData) 
-                    });
-                    console.log('✅ Véhicule créé:', response);
+                    await fetchWithAuth(`${API_BASE_URL}/vehicles`, { method: 'POST', body: JSON.stringify(data) });
                     showNotification('Véhicule ajouté !', 'success');
                     addModal.classList.remove('active');
                     e.target.reset();
                     loadUserVehicles();
                 } catch (error) {
-                    console.error('❌ Erreur création véhicule:', error);
                     showNotification(`Erreur: ${error.message}`, 'error');
                 }
             });
 
             editForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const formData = new FormData(e.target);
-                const vehicleId = formData.get('edit-vehicle-id');
-                
-                // Transformer les données pour le backend (même format que la création)
-                const vehicleData = {
-                    brand: formData.get('brand'),
-                    model: formData.get('model'),
-                    license_plate: formData.get('plate'), // plate → license_plate
-                    energy_type: formData.get('energy').toLowerCase(), // Convertir en minuscules
-                    available_seats: parseInt(formData.get('seats')), // seats → available_seats
-                };
-                
-                console.log('📤 Véhicule à modifier:', vehicleId, vehicleData);
-                
+                const data = Object.fromEntries(new FormData(e.target).entries());
+                const vehicleId = data['edit-vehicle-id'];
+                delete data['edit-vehicle-id'];
                 try {
-                    const response = await fetchWithAuth(`${API_BASE_URL}/vehicles/${vehicleId}`, { 
-                        method: 'PUT', 
-                        body: JSON.stringify(vehicleData) 
-                    });
-                    console.log('✅ Véhicule modifié:', response);
+                    await fetchWithAuth(`${API_BASE_URL}/vehicles/${vehicleId}`, { method: 'PUT', body: JSON.stringify(data) });
                     showNotification('Véhicule mis à jour !', 'success');
                     editModal.classList.remove('active');
                     loadUserVehicles();
                 } catch (error) {
-                    console.error('❌ Erreur modification véhicule:', error);
                     showNotification(`Erreur: ${error.message}`, 'error');
                 }
             });
@@ -498,126 +414,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 profileTab.click();
             }
         }
-
-        // ========== GESTION DU PROFIL UTILISATEUR ==========
-        
-        // Modale de modification de la photo de profil
-        const pictureModal = document.getElementById('picture-modal');
-        const editPictureBtn = document.getElementById('edit-picture-btn');
-        const closePictureModalBtn = document.getElementById('close-picture-modal-btn');
-        const pictureForm = document.getElementById('picture-form');
-
-        if (editPictureBtn && pictureModal) {
-            editPictureBtn.addEventListener('click', () => {
-                pictureModal.classList.add('active');
-            });
-        }
-
-        if (closePictureModalBtn && pictureModal) {
-            closePictureModalBtn.addEventListener('click', () => {
-                pictureModal.classList.remove('active');
-            });
-        }
-
-        if (pictureModal) {
-            window.addEventListener('click', (e) => {
-                if (e.target === pictureModal) {
-                    pictureModal.classList.remove('active');
-                }
-            });
-        }
-
-        if (pictureForm) {
-            pictureForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const imageUrl = document.getElementById('profileImageUrl').value;
-                
-                try {
-                    const response = await fetchWithAuth(`${API_BASE_URL}/users/profile-picture`, {
-                        method: 'PUT',
-                        body: JSON.stringify({ profile_picture: imageUrl })
-                    });
-                    
-                    document.getElementById('profile-picture').src = imageUrl;
-                    showNotification('Photo de profil mise à jour !', 'success');
-                    pictureModal.classList.remove('active');
-                    pictureForm.reset();
-                } catch (error) {
-                    showNotification(`Erreur: ${error.message}`, 'error');
-                }
-            });
-        }
-
-        // Modale de modification du profil
-        const editProfileModal = document.getElementById('edit-profile-modal');
-        const editProfileBtn = document.getElementById('edit-profile-btn');
-        const closeEditProfileModalBtn = document.getElementById('close-edit-profile-modal-btn');
-        const editProfileForm = document.getElementById('edit-profile-form');
-
-        if (editProfileBtn && editProfileModal) {
-            editProfileBtn.addEventListener('click', async () => {
-                // Charger les données actuelles de l'utilisateur
-                try {
-                    const data = await fetchWithAuth(`${API_BASE_URL}/users/me`);
-                    document.getElementById('edit-pseudo').value = data.pseudo || '';
-                    document.getElementById('edit-email').value = data.email || '';
-                    document.getElementById('edit-phone').value = data.phone || '';
-                    document.getElementById('edit-bio').value = data.bio || '';
-                    editProfileModal.classList.add('active');
-                } catch (error) {
-                    showNotification(`Erreur: ${error.message}`, 'error');
-                }
-            });
-        }
-
-        if (closeEditProfileModalBtn && editProfileModal) {
-            closeEditProfileModalBtn.addEventListener('click', () => {
-                editProfileModal.classList.remove('active');
-            });
-        }
-
-        if (editProfileModal) {
-            window.addEventListener('click', (e) => {
-                if (e.target === editProfileModal) {
-                    editProfileModal.classList.remove('active');
-                }
-            });
-        }
-
-        if (editProfileForm) {
-            editProfileForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const formData = new FormData(e.target);
-                
-                const profileData = {
-                    pseudo: formData.get('pseudo'),
-                    email: formData.get('email'),
-                    phone: formData.get('phone') || null,
-                    bio: formData.get('bio') || null
-                };
-
-                console.log('📤 Profil à mettre à jour:', profileData);
-                
-                try {
-                    const response = await fetchWithAuth(`${API_BASE_URL}/users/profile`, {
-                        method: 'PUT',
-                        body: JSON.stringify(profileData)
-                    });
-                    
-                    console.log('✅ Profil mis à jour:', response);
-                    
-                    // Mettre à jour l'affichage
-                    document.getElementById('user-pseudo-profile').textContent = profileData.pseudo;
-                    document.getElementById('user-email-profile').textContent = profileData.email;
-                    
-                    showNotification('Profil mis à jour avec succès !', 'success');
-                    editProfileModal.classList.remove('active');
-                } catch (error) {
-                    console.error('❌ Erreur modification profil:', error);
-                    showNotification(`Erreur: ${error.message}`, 'error');
-                }
-            });
-        }
     }
 
     // --- PAGE: proposer-covoiturage.html ---
@@ -628,7 +424,19 @@ document.addEventListener('DOMContentLoaded', () => {
             return setTimeout(() => window.location.href = 'connexion.html', 2000);
         }
 
-        const fetchWithAuth = createFetchWithAuth(userToken);
+        const fetchWithAuth = async (url, options = {}) => {
+            const headers = { ...options.headers, 'Content-Type': 'application/json', 'x-auth-token': userToken };
+            const response = await fetch(url, { ...options, headers });
+            const data = await response.json();
+            if (!response.ok) {
+                if (response.status === 401) {
+                    localStorage.removeItem('token');
+                    window.location.href = 'connexion.html';
+                }
+                throw new Error(data.message || 'Erreur serveur.');
+            }
+            return data;
+        };
 
         const vehicleSelect = document.getElementById('vehicleSelect');
         const noVehicleMessage = document.getElementById('no-vehicle-message');
@@ -638,14 +446,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!vehicleSelect || !noVehicleMessage) return;
             try {
                 const data = await fetchWithAuth(`${API_BASE_URL}/vehicles/me`);
-                console.log('🚗 Véhicules chargés:', data.vehicles);
                 if (data.vehicles && data.vehicles.length > 0) {
                     vehicleSelect.innerHTML = '<option value="" disabled selected>-- Sélectionnez votre véhicule --</option>';
                     data.vehicles.forEach(vehicle => {
-                        // Utiliser sql_id (MySQL) au lieu de _id (MongoDB)
-                        const vehicleId = vehicle.sql_id || vehicle._id;
-                        console.log(`  - ${vehicle.brand} ${vehicle.model}: sql_id=${vehicle.sql_id}, _id=${vehicle._id}, utilisé=${vehicleId}`);
-                        vehicleSelect.innerHTML += `<option value="${vehicleId}">${vehicle.brand} ${vehicle.model} (${vehicle.plate})</option>`;
+                        vehicleSelect.innerHTML += `<option value="${vehicle._id}">${vehicle.brand} ${vehicle.model} (${vehicle.plate})</option>`;
                     });
                     noVehicleMessage.style.display = 'none';
                     vehicleSelect.style.display = 'block';
@@ -665,39 +469,23 @@ document.addEventListener('DOMContentLoaded', () => {
             offerRideForm.addEventListener('submit', async (event) => {
                 event.preventDefault();
                 const formData = new FormData(offerRideForm);
-                
-                // Transformer les données pour correspondre au format attendu par le backend
-                const departureDate = formData.get('departureDate');
-                const departureTime = formData.get('departureTime');
-                const departure_datetime = `${departureDate} ${departureTime}:00`;
-                
                 const rideData = {
-                    vehicle_id: formData.get('vehicleId'),
-                    departure_city: formData.get('departure'),
-                    arrival_city: formData.get('arrival'),
-                    departure_address: formData.get('departure'), // Utiliser la ville comme adresse
-                    arrival_address: formData.get('arrival'),
-                    departure_datetime: departure_datetime,
-                    estimated_arrival: departure_datetime, // À améliorer plus tard
-                    price_per_seat: parseFloat(formData.get('price')),
-                    available_seats: parseInt(formData.get('availableSeats'), 10)
+                    ...Object.fromEntries(formData.entries()),
+                    price: parseFloat(formData.get('price')),
+                    availableSeats: parseInt(formData.get('availableSeats'), 10),
+                    isEcologic: formData.get('isEcologic') === 'on'
                 };
-                
-                console.log('📤 Données envoyées:', rideData);
-                
-                if (!rideData.vehicle_id) {
+                if (!rideData.vehicleId) {
                     return showNotification("Veuillez sélectionner un véhicule.", "error");
                 }
                 try {
-                    const response = await fetchWithAuth(`${API_BASE_URL}/rides`, {
+                    await fetchWithAuth(`${API_BASE_URL}/rides`, {
                         method: 'POST',
                         body: JSON.stringify(rideData)
                     });
-                    console.log('✅ Trajet créé:', response);
                     showNotification('Covoiturage proposé avec succès !', 'success');
                     setTimeout(() => window.location.href = 'espace-utilisateur.html', 1500);
                 } catch (error) {
-                    console.error('❌ Erreur création trajet:', error);
                     showNotification(`Erreur : ${error.message}`, 'error');
                 }
             });
@@ -763,8 +551,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const fetchWithAuth = async (url, options = {}) => {
             const userToken = localStorage.getItem('token');
-            if (!userToken) return fetch(url, options).then(r => r.json());
-            return createFetchWithAuth(userToken)(url, options);
+            const headers = { ...options.headers, 'Content-Type': 'application/json' };
+            if(userToken) headers['x-auth-token'] = userToken;
+            const response = await fetch(url, { ...options, headers });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Erreur serveur.');
+            return data;
         };
 
         const loadRideDetails = async () => {
@@ -924,7 +716,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-
-
-
 

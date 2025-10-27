@@ -21,11 +21,11 @@ class UserSQL {
             
             const userId = userResult.insertId;
             
-            // Le trigger se charge automatiquement des crédits, mais on peut aussi le faire manuellement
-            // await connection.execute(
-            //     'INSERT INTO user_credits (user_id, current_credits) VALUES (?, 20)',
-            //     [userId]
-            // );
+            // Créer les crédits initiaux (20 crédits de départ)
+            await connection.execute(
+                'INSERT INTO user_credits (user_id, current_credits, total_earned, total_spent) VALUES (?, 20, 0, 0)',
+                [userId]
+            );
             
             await connection.commit();
             
@@ -128,6 +128,31 @@ class UserSQL {
         
         const [rows] = await pool.execute(query, params);
         return rows;
+    }
+
+    // Mettre à jour le profil utilisateur
+    static async updateProfile(userId, data) {
+        const updates = [];
+        const values = [];
+        
+        if (data.pseudo) { updates.push('pseudo = ?'); values.push(data.pseudo); }
+        if (data.email) { updates.push('email = ?'); values.push(data.email); }
+        if (data.phone !== undefined) { updates.push('phone = ?'); values.push(data.phone); }
+        if (data.bio !== undefined) { updates.push('bio = ?'); values.push(data.bio); }
+        if (data.profile_picture) { updates.push('profile_picture = ?'); values.push(data.profile_picture); }
+        
+        if (updates.length === 0) return false;
+        
+        if (updates.length === 0) return false;
+        
+        values.push(userId);
+        
+        const [result] = await pool.execute(
+            `UPDATE users SET ${updates.join(', ')} WHERE id = ?`,
+            values
+        );
+        
+        return result.affectedRows > 0;
     }
 }
 

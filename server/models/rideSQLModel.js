@@ -240,7 +240,7 @@ class RideSQL {
             
             // Mettre à jour le statut du trajet
             await connection.execute(
-                'UPDATE rides SET status = "annule", updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+                'UPDATE rides SET status = "annule" WHERE id = ?',
                 [rideId]
             );
             
@@ -379,7 +379,7 @@ class RideSQL {
                     v.brand,
                     v.model,
                     v.energy_type,
-                    v.seats as vehicle_seats
+                    v.available_seats as vehicle_seats
                 FROM rides r
                 LEFT JOIN vehicles v ON r.vehicle_id = v.id
                 WHERE r.driver_id = ?
@@ -392,7 +392,7 @@ class RideSQL {
                 params.push(status);
             }
             
-            query += ' ORDER BY r.departure_date DESC, r.departure_time DESC';
+            query += ' ORDER BY r.departure_datetime DESC';
             
             const [rows] = await pool.execute(query, params);
             return rows;

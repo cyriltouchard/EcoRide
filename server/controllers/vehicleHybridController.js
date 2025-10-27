@@ -47,18 +47,40 @@ exports.addVehicle = async (req, res) => {
         
         // Créer aussi en MongoDB pour données étendues (optionnel)
         try {
+            console.log('🔵 Tentative création MongoDB - mongo_id:', req.user.mongo_id);
+            if (!req.user.mongo_id) {
+                console.warn('⚠️  mongo_id manquant dans req.user, recherche dans MongoDB...');
+                const UserModel = require('../models/user');
+                const existingUser = await UserModel.findOne({ sql_id: userId });
+                if (existingUser) {
+                    req.user.mongo_id = existingUser._id;
+                    console.log('✅ mongo_id trouvé:', req.user.mongo_id);
+                }
+            }
+            
+            // Convertir energy_type pour MongoDB (Essence, Diesel, etc.)
+            const energyMap = {
+                'essence': 'Essence',
+                'diesel': 'Diesel',
+                'electrique': 'Électrique',
+                'hybride': 'Hybride',
+                'gpl': 'GPL'
+            };
+            
             const vehicleMongo = new Vehicle({
                 userId: req.user.mongo_id,
                 brand: vehicle.brand,
                 model: vehicle.model,
                 plate: vehicle.license_plate,
-                energy: vehicle.energy_type,
+                energy: energyMap[vehicle.energy_type] || vehicle.energy_type,
                 seats: vehicle.available_seats,
                 sql_id: vehicle.id
             });
             await vehicleMongo.save();
+            console.log('✅ Véhicule créé dans MongoDB:', vehicleMongo._id);
         } catch (mongoError) {
-            console.warn('Erreur MongoDB véhicule (non critique):', mongoError.message);
+            console.error('❌ Erreur MongoDB véhicule:', mongoError.message);
+            console.error('Stack:', mongoError.stack);
         }
         
         res.status(201).json({
@@ -81,21 +103,40 @@ exports.addVehicle = async (req, res) => {
 // @access  Private
 exports.getVehicles = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user.id; // Utiliser l'ID MySQL
         
+        // Récupérer depuis MySQL
         const vehicles = await VehicleSQL.getUserVehicles(userId);
+        
+        // Transformer pour compatibilité frontend (qui attend le format MongoDB)
+        const vehiclesFormatted = vehicles.map(v => ({
+            _id: v.id, // Utiliser l'ID MySQL comme _id pour compatibilité
+            sql_id: v.id, // Ajouter aussi sql_id explicitement
+            userId: userId,
+            brand: v.brand,
+            model: v.model,
+            plate: v.license_plate,
+            energy: v.energy_type,
+            seats: v.available_seats,
+            color: v.color,
+            first_registration: v.first_registration,
+            is_active: v.is_active,
+            createdAt: v.created_at
+        }));
         
         res.json({
             success: true,
-            data: vehicles,
-            count: vehicles.length
+            vehicles: vehiclesFormatted,
+            data: vehiclesFormatted,
+            count: vehiclesFormatted.length
         });
         
     } catch (error) {
         console.error('Erreur récupération véhicules:', error);
         res.status(500).json({
             success: false,
-            message: 'Erreur serveur lors de la récupération des véhicules'
+            message: 'Erreur serveur lors de la récupération des véhicules',
+            error: error.message
         });
     }
 };

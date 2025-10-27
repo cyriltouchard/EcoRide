@@ -9,22 +9,32 @@ const { authenticateToken, requireDriver, requireAdmin } = require('../middlewar
 // @route   POST /api/rides
 // @desc    Créer un nouveau covoiturage (US9)
 // @access  Private (chauffeur requis)
-router.post('/', requireDriver, rideController.createRide);
+router.post('/', authenticateToken, requireDriver, rideController.createRide);
 
 // @route   GET /api/rides/search
 // @desc    Rechercher des covoiturages (US3)
 // @access  Public
 router.get('/search', rideController.searchRides);
 
+// @route   GET /api/rides/offered
+// @desc    Obtenir les trajets proposés par l'utilisateur (chauffeur)
+// @access  Private
+router.get('/offered', authenticateToken, rideController.getOfferedRides);
+
+// @route   GET /api/rides/booked
+// @desc    Obtenir les trajets réservés par l'utilisateur (passager)
+// @access  Private
+router.get('/booked', authenticateToken, rideController.getBookedRides);
+
 // @route   GET /api/rides/my-rides
 // @desc    Obtenir tous les trajets du chauffeur connecté (US9)
 // @access  Private (chauffeur requis)
-router.get('/my-rides', requireDriver, rideController.getMyRides);
+router.get('/my-rides', authenticateToken, requireDriver, rideController.getMyRides);
 
 // @route   GET /api/rides/statistics
 // @desc    Statistiques des trajets (admin)
 // @access  Private (admin requis)
-router.get('/statistics', requireAdmin, rideController.getStatistics);
+router.get('/statistics', authenticateToken, requireAdmin, rideController.getStatistics);
 
 // @route   GET /api/rides/:id
 // @desc    Obtenir un trajet spécifique (US5)
@@ -34,12 +44,12 @@ router.get('/:id', rideController.getRideById);
 // @route   PUT /api/rides/:id/status
 // @desc    Changer le statut d'un trajet (US11 - démarrer/arrêter)
 // @access  Private (chauffeur propriétaire)
-router.put('/:id/status', requireDriver, rideController.updateRideStatus);
+router.put('/:id/status', authenticateToken, requireDriver, rideController.updateRideStatus);
 
 // @route   DELETE /api/rides/:id
 // @desc    Annuler un trajet (US10)
 // @access  Private (chauffeur propriétaire)
-router.delete('/:id', requireDriver, rideController.cancelRide);
+router.delete('/:id', authenticateToken, requireDriver, rideController.cancelRide);
 
 // @route   POST /api/rides/:id/book
 // @desc    Réserver une place dans un covoiturage (US4)

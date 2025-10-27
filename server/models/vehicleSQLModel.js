@@ -149,7 +149,7 @@ class VehicleSQL {
             values.push(vehicleId, userId);
             
             const [result] = await connection.execute(
-                `UPDATE vehicles SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP 
+                `UPDATE vehicles SET ${updates.join(', ')} 
                  WHERE id = ? AND user_id = ?`,
                 values
             );

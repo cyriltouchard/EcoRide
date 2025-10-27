@@ -193,16 +193,21 @@ exports.getUserProfile = async (req, res) => {
         const userId = req.user.id;
         
         // Récupérer les données depuis MySQL
-        const profileSQL = await UserSQL.getProfile(userId);
-        if (!profileSQL) {
+        const userSQL = await UserSQL.findById(userId);
+        if (!userSQL) {
             return res.status(404).json({ 
                 success: false,
                 message: 'Utilisateur non trouvé.' 
             });
         }
         
-        // Récupérer les données étendues depuis MongoDB
-        const userMongo = await User.findOne({ sql_id: userId }).select('-password');
+        // Récupérer les données étendues depuis MongoDB (optionnel)
+        const userMongo = await User.findOne({ 
+            $or: [
+                { sql_id: userId },
+                { email: userSQL.email }
+            ]
+        }).select('-password');
         
         // Récupérer les crédits
         const credits = await CreditModel.getUserCredits(userId);
@@ -211,21 +216,16 @@ exports.getUserProfile = async (req, res) => {
             success: true,
             data: {
                 // Données de base (MySQL)
-                id: profileSQL.id,
-                pseudo: profileSQL.pseudo,
-                email: profileSQL.email,
-                user_type: profileSQL.user_type,
-                created_at: profileSQL.created_at,
-                vehicles_count: profileSQL.vehicles_count,
-                rides_created: profileSQL.rides_created,
-                rides_booked: profileSQL.rides_booked,
+                id: userSQL.id,
+                pseudo: userSQL.pseudo,
+                email: userSQL.email,
+                user_type: userSQL.user_type,
+                created_at: userSQL.created_at,
                 
                 // Système de crédits
-                credits: {
-                    current: credits?.current_credits || 0,
-                    earned: credits?.total_earned || 0,
-                    spent: credits?.total_spent || 0
-                },
+                credits: userSQL.current_credits || credits?.current_credits || 0,
+                total_earned: credits?.total_earned || 0,
+                total_spent: credits?.total_spent || 0,
                 
                 // Données étendues (MongoDB) si disponibles
                 preferences: userMongo?.preferences || {},
@@ -277,5 +277,68 @@ exports.updateUserType = async (req, res) => {
             success: false,
             message: 'Erreur serveur'
         });
+    }
+};
+
+
+// --- Mettre � jour le profil utilisateur ---
+exports.updateProfile = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { pseudo, email, phone, bio } = req.body;
+        
+        const updateData = {};
+        if (pseudo) updateData.pseudo = pseudo;
+        if (email) updateData.email = email;
+        if (phone !== undefined) updateData.phone = phone;
+        if (bio !== undefined) updateData.bio = bio;
+        
+        const success = await UserSQL.updateProfile(userId, updateData);
+        
+        res.json({ success: true, message: 'Profil mis � jour avec succ�s' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+exports.updateProfilePicture = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { profile_picture } = req.body;
+        
+        await UserSQL.updateProfile(userId, { profile_picture });
+        
+        res.json({ success: true, message: 'Photo mise � jour' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+
+// --- Mettre � jour le profil utilisateur ---
+exports.updateProfile = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { pseudo, email, phone, bio } = req.body;
+        const updateData = {};
+        if (pseudo) updateData.pseudo = pseudo;
+        if (email) updateData.email = email;
+        if (phone !== undefined) updateData.phone = phone;
+        if (bio !== undefined) updateData.bio = bio;
+        await UserSQL.updateProfile(userId, updateData);
+        res.json({ success: true, message: 'Profil mis � jour' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+exports.updateProfilePicture = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { profile_picture } = req.body;
+        await UserSQL.updateProfile(userId, { profile_picture });
+        res.json({ success: true, message: 'Photo mise � jour' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
     }
 };

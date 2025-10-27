@@ -2,6 +2,9 @@
 // Contrôleur Trajets Hybride MySQL+MongoDB pour ECF US9
 
 const RideSQL = require('../models/rideSQLModel');
+const Ride = require('../models/rideModel'); // MongoDB pour les trajets
+const Vehicle = require('../models/vehicleModel'); // MongoDB pour les véhicules
+const User = require('../models/userModel'); // MongoDB pour les utilisateurs
 const VehicleSQL = require('../models/vehicleSQLModel');
 const CreditModel = require('../models/creditModel');
 
@@ -100,39 +103,75 @@ exports.searchRides = async (req, res) => {
             departure_date,
             max_price,
             ecological_only,
-            min_seats = 1
+            min_seats = 1,
+            // Alias pour compatibilité frontend
+            departure,
+            arrival,
+            date,
+            seats
         } = req.query;
         
-        if (!departure_city && !arrival_city) {
-            return res.status(400).json({
-                success: false,
-                message: 'Ville de départ ou d\'arrivée requise'
-            });
+        // Utiliser les alias si les paramètres principaux ne sont pas fournis
+        const depCity = departure_city || departure;
+        const arrCity = arrival_city || arrival;
+        const depDate = departure_date || date;
+        const minSeats = seats || min_seats;
+        
+        // Construire la requête MongoDB
+        let query = {};
+        
+        if (depCity) {
+            query.departure = new RegExp(depCity, 'i');
+        }
+        if (arrCity) {
+            query.arrival = new RegExp(arrCity, 'i');
+        }
+        if (depDate) {
+            const searchDate = new Date(depDate);
+            if (!isNaN(searchDate)) {
+                const startOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
+                const endOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate() + 1);
+                query.departureDate = {
+                    $gte: startOfDay,
+                    $lt: endOfDay
+                };
+            }
+        }
+        if (minSeats) {
+            query.availableSeats = { $gte: parseInt(minSeats) || 1 };
+        }
+        if (max_price) {
+            query.price = { $lte: parseFloat(max_price) };
+        }
+        if (ecological_only === 'true') {
+            query.isEcologic = true;
         }
         
-        const searchParams = {
-            departure_city,
-            arrival_city,
-            departure_date,
-            max_price: max_price ? parseFloat(max_price) : null,
-            ecological_only: ecological_only === 'true',
-            min_seats: parseInt(min_seats) || 1
-        };
+        // Exclure les trajets passés et annulés
+        const now = new Date();
+        if (!query.departureDate) {
+            query.departureDate = { $gte: now };
+        }
+        query.status = { $ne: 'cancelled' };
         
-        const rides = await RideSQL.search(searchParams);
+        const rides = await Ride.find(query)
+            .populate('driver', 'pseudo')
+            .populate('vehicle', 'brand model energy')
+            .sort({ departureDate: 1, departureTime: 1 });
         
         res.json({
             success: true,
             data: rides,
-            count: rides.length,
-            filters: searchParams
+            rides: rides, // Alias pour compatibilité
+            count: rides.length
         });
         
     } catch (error) {
         console.error('Erreur recherche trajets:', error);
         res.status(500).json({
             success: false,
-            message: 'Erreur serveur lors de la recherche'
+            message: 'Erreur serveur lors de la recherche',
+            error: error.message
         });
     }
 };
@@ -381,6 +420,89 @@ exports.bookRide = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Erreur serveur lors de la réservation'
+        });
+    }
+};
+
+// Récupérer les trajets proposés par l'utilisateur
+exports.getOfferedRides = async (req, res) => {
+    try {
+        const userId = req.user.id; // Utiliser l'ID MySQL
+        console.log('🔍 getOfferedRides - userId:', userId);
+
+        // Récupérer les trajets depuis MySQL
+        const rides = await RideSQL.getDriverRides(userId);
+        console.log('📊 Trajets trouvés:', rides.length);
+
+        // Transformer pour compatibilité frontend
+        const ridesFormatted = rides.map(r => {
+            console.log('🔄 Transformation trajet:', r.id, r.departure_city, '→', r.arrival_city);
+            // Extraire la date et l'heure du datetime MySQL
+            const datetime = new Date(r.departure_datetime);
+            const date = datetime.toISOString().split('T')[0];
+            const time = datetime.toTimeString().split(' ')[0].substring(0, 5);
+            
+            return {
+                _id: r.id,
+                departure: r.departure_city,
+                arrival: r.arrival_city,
+                departureDate: date,
+                departureTime: time,
+                status: r.status,
+                availableSeats: r.available_seats,
+                price: r.price_per_seat,
+                driver: {
+                    pseudo: 'Vous'
+                }
+            };
+        });
+
+        console.log('✅ Réponse formatée:', ridesFormatted.length, 'trajets');
+        res.json({
+            success: true,
+            rides: ridesFormatted,
+            count: ridesFormatted.length
+        });
+
+    } catch (error) {
+        console.error('❌ Erreur lors de la récupération des trajets proposés:', error);
+        console.error('Stack trace:', error.stack);
+        res.status(500).json({
+            success: false,
+            message: 'Erreur serveur lors de la récupération des trajets',
+            error: error.message
+        });
+    }
+};
+
+// Récupérer les trajets réservés par l'utilisateur
+exports.getBookedRides = async (req, res) => {
+    try {
+        const mongoId = req.user.mongo_id;
+
+        if (!mongoId) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID MongoDB manquant dans le token'
+            });
+        }
+
+        const rides = await Ride.find({ passengers: mongoId })
+            .populate('driver', 'pseudo email')
+            .populate('vehicle', 'brand model licensePlate')
+            .sort({ departureDate: 1 });
+
+        res.json({
+            success: true,
+            rides: rides,
+            count: rides.length
+        });
+
+    } catch (error) {
+        console.error('Erreur lors de la récupération des trajets réservés:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erreur serveur lors de la récupération des trajets'
         });
     }
 };

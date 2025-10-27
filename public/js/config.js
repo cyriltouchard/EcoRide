@@ -1,10 +1,10 @@
 // Configuration centralisée pour EcoRide
 window.EcoRideConfig = {
     // Configuration API
-    API_BASE_URL: `${window.location.protocol}//${window.location.hostname}:3002/api`,
+    API_BASE_URL: `${window.location.protocol}//${window.location.hostname}:3000/api`,
     
     // Configuration WebSocket (pour futures notifications temps réel)
-    WS_URL: `ws://${window.location.hostname}:3002`,
+    WS_URL: `ws://${window.location.hostname}:3000`,
     
     // Configuration application
     APP_NAME: 'EcoRide',

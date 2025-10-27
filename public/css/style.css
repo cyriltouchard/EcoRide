@@ -1420,11 +1420,19 @@ footer {
     padding: 20px;
     box-shadow: var(--shadow-small);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex; /* Mettre en ligne */
+    justify-content: space-between; /* Espacer le contenu et le bouton */
+    align-items: center; /* Centrer verticalement */
+    gap: 20px;
 }
 
 .ride-card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-medium);
+}
+
+.ride-card-content {
+    flex: 1; /* Prendre l'espace disponible */
 }
 
 .ride-card h3 {
@@ -1476,13 +1484,13 @@ footer {
 }
 
 .ride-actions {
-    margin-top: 15px;
+    margin-top: 0; /* Retirer la marge pour l'alignement */
     display: flex;
     gap: 10px;
+    flex-shrink: 0; /* Ne pas rétrécir */
 }
 
 .ride-actions .button {
-    flex-grow: 1;
     text-align: center;
 }
 
@@ -1508,9 +1516,19 @@ footer {
     background-color: var(--color-danger);
     color: white;
     border: none;
+    padding: 4px 8px; /* Encore plus petit */
+    font-size: 0.75rem; /* Texte encore plus petit */
 }
 .button-danger:hover {
     background-color: var(--color-danger-dark);
+}
+
+.cancel-ride-btn, .cancel-booking-btn {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    width: auto !important; /* Ne pas prendre toute la largeur */
+    max-width: 150px; /* Largeur maximale */
+    display: inline-block; /* Affichage inline */
 }
 
 /* Assurez-vous que vos variables CSS sont définies dans :root ou body */
