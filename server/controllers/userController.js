@@ -281,7 +281,7 @@ exports.updateUserType = async (req, res) => {
 };
 
 
-// --- Mettre à jour le profil utilisateur ---
+// --- Mettre Ã  jour le profil utilisateur ---
 exports.updateProfile = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -295,7 +295,7 @@ exports.updateProfile = async (req, res) => {
         
         const success = await UserSQL.updateProfile(userId, updateData);
         
-        res.json({ success: true, message: 'Profil mis à jour avec succès' });
+        res.json({ success: true, message: 'Profil mis Ã  jour avec succÃ©s' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -308,14 +308,14 @@ exports.updateProfilePicture = async (req, res) => {
         
         await UserSQL.updateProfile(userId, { profile_picture });
         
-        res.json({ success: true, message: 'Photo mise à jour' });
+        res.json({ success: true, message: 'Photo mise Ã  jour' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 };
 
 
-// --- Mettre à jour le profil utilisateur ---
+// --- Mettre Ã  jour le profil utilisateur ---
 exports.updateProfile = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -326,7 +326,7 @@ exports.updateProfile = async (req, res) => {
         if (phone !== undefined) updateData.phone = phone;
         if (bio !== undefined) updateData.bio = bio;
         await UserSQL.updateProfile(userId, updateData);
-        res.json({ success: true, message: 'Profil mis à jour' });
+        res.json({ success: true, message: 'Profil mis Ã  jour' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -337,7 +337,42 @@ exports.updateProfilePicture = async (req, res) => {
         const userId = req.user.id;
         const { profile_picture } = req.body;
         await UserSQL.updateProfile(userId, { profile_picture });
-        res.json({ success: true, message: 'Photo mise à jour' });
+        res.json({ success: true, message: 'Photo mise Ã  jour' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+// --- Devenir chauffeur ---
+exports.becomeDriver = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        
+        // RÃ©cupÃ©rer l'utilisateur actuel
+        const user = await UserSQL.findById(userId);
+        
+        if (!user) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Utilisateur non trouvÃ©' 
+            });
+        }
+        
+        // Mettre Ã  jour le type d'utilisateur
+        let newUserType = 'chauffeur';
+        if (user.user_type === 'passager') {
+            newUserType = 'chauffeur_passager';
+        }
+        
+        await UserSQL.updateUserType(userId, newUserType);
+        
+        res.json({ 
+            success: true, 
+            message: 'Vous Ãªtes maintenant chauffeur !',
+            data: {
+                user_type: newUserType
+            }
+        });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }

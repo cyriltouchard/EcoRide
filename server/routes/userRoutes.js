@@ -43,4 +43,9 @@ router.put('/profile-picture', authenticateToken, userController.updateProfilePi
 // @access  Private
 router.put('/type', authenticateToken, userController.updateUserType);
 
+// @route   POST api/users/become-driver
+// @desc    Devenir chauffeur (passager -> chauffeur_passager)
+// @access  Private
+router.post('/become-driver', authenticateToken, userController.becomeDriver);
+
 module.exports = router;

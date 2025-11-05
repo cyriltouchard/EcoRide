@@ -61,8 +61,8 @@ const requireAdmin = requireRole('admin');
 // Middleware pour les employés et admin
 const requireEmployee = requireRole(['employe', 'admin']);
 
-// Middleware pour les chauffeurs
-const requireDriver = requireRole(['chauffeur', 'chauffeur_passager']);
+// Middleware pour les chauffeurs (accepte aussi 'driver' pour compatibilité)
+const requireDriver = requireRole(['chauffeur', 'chauffeur_passager', 'driver', 'admin']);
 
 module.exports = {
     authenticateToken,
