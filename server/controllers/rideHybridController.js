@@ -87,18 +87,35 @@ exports.createRide = async (req, res) => {
             console.log('🔵 Création trajet MongoDB');
             const UserModel = require('../models/user');
             
+            // Validation stricte de driverId pour prévenir l'injection NoSQL
+            const sanitizedDriverId = parseInt(driverId, 10);
+            if (isNaN(sanitizedDriverId) || sanitizedDriverId <= 0) {
+                throw new Error('ID chauffeur invalide');
+            }
+            
             // Récupérer le mongo_id du chauffeur
             let mongoUserId = req.user.mongo_id;
             if (!mongoUserId) {
-                const existingUser = await UserModel.findOne({ sql_id: driverId });
+                const existingUser = await UserModel.findOne({ 
+                    sql_id: sanitizedDriverId  // Utiliser l'ID validé
+                });
                 if (existingUser) {
                     mongoUserId = existingUser._id;
                 }
             }
             
-            // Récupérer le véhicule MongoDB
+            // Validation stricte de vehicle_id pour prévenir l'injection NoSQL
+            // Convertir en entier pour s'assurer que c'est bien un nombre
+            const sanitizedVehicleId = parseInt(vehicle_id, 10);
+            if (isNaN(sanitizedVehicleId) || sanitizedVehicleId <= 0) {
+                throw new Error('ID de véhicule invalide');
+            }
+            
+            // Récupérer le véhicule MongoDB avec un ID sanitisé
             const VehicleMongo = require('../models/vehicleModel');
-            const vehicleMongo = await VehicleMongo.findOne({ sql_id: vehicle_id });
+            const vehicleMongo = await VehicleMongo.findOne({ 
+                sql_id: sanitizedVehicleId  // Utiliser l'ID validé
+            });
             
             // Créer le trajet dans MongoDB
             const Ride = require('../models/rideModel');

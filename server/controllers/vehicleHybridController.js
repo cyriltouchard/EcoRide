@@ -62,8 +62,17 @@ exports.addVehicle = async (req, res) => {
             console.log('🔵 Tentative création MongoDB - mongo_id:', req.user.mongo_id);
             if (!req.user.mongo_id) {
                 console.warn('⚠️  mongo_id manquant dans req.user, recherche dans MongoDB...');
+                
+                // Validation stricte de userId pour prévenir l'injection NoSQL
+                const sanitizedUserId = parseInt(userId, 10);
+                if (isNaN(sanitizedUserId) || sanitizedUserId <= 0) {
+                    throw new Error('ID utilisateur invalide');
+                }
+                
                 const UserModel = require('../models/user');
-                const existingUser = await UserModel.findOne({ sql_id: userId });
+                const existingUser = await UserModel.findOne({ 
+                    sql_id: sanitizedUserId  // Utiliser l'ID validé
+                });
                 if (existingUser) {
                     req.user.mongo_id = existingUser._id;
                     console.log('✅ mongo_id trouvé:', req.user.mongo_id);
