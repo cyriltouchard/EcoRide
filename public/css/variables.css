@@ -1,0 +1,45 @@
+/* ================================================================================================================================ */
+/* ========================================== ECORIDE - VARIABLES CSS (CHARTE GRAPHIQUE 2025) ==================================== */
+/* ================================================================================================================================ */
+
+/* Import des polices Google Fonts selon la charte */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap');
+
+:root {
+    /* Couleurs Primaires */
+    --color-primary: #27ae60;          /* Vert EcoRide */
+    --color-secondary: #3498db;        /* Bleu Technologie */
+    --color-white: #ffffff;            /* Blanc Pur */
+    
+    /* Couleurs Secondaires */
+    --color-background: #f8f9fa;       /* Gris Interface */
+    --color-text-secondary: #6c757d;   /* Gris Texte */
+    --color-text-primary: #343a40;     /* Gris Foncé */
+    
+    /* Couleurs d'État */
+    --color-success: #28a745;          /* Succès */
+    --color-warning: #ffc107;          /* Attention */
+    --color-danger: #dc3545;           /* Danger */
+    --color-info: #17a2b8;             /* Info */
+    
+    /* Espacement */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-xxl: 48px;
+    
+    /* Bordures */
+    --border-radius: 8px;
+    --border-radius-lg: 12px;
+    
+    /* Ombres */
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+    
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+}
