@@ -52,15 +52,27 @@ document.addEventListener('DOMContentLoaded', () => {
         stars.forEach((star) => {
             star.addEventListener('click', () => {
                 const value = parseInt(star.dataset.value);
-                input.value = value;
+                const currentValue = parseInt(input.value);
                 
-                stars.forEach((s, i) => {
-                    if (i < value) {
-                        s.classList.add('active');
-                    } else {
+                // Si on clique sur la même étoile, on désélectionne
+                if (currentValue === value) {
+                    input.value = '';
+                    stars.forEach(s => {
                         s.classList.remove('active');
-                    }
-                });
+                        s.style.color = '#ddd';
+                    });
+                } else {
+                    input.value = value;
+                    stars.forEach((s, i) => {
+                        if (i < value) {
+                            s.classList.add('active');
+                            s.style.color = '#ffc107';
+                        } else {
+                            s.classList.remove('active');
+                            s.style.color = '#ddd';
+                        }
+                    });
+                }
             });
 
             star.addEventListener('mouseenter', () => {
@@ -73,7 +85,13 @@ document.addEventListener('DOMContentLoaded', () => {
             container.addEventListener('mouseleave', () => {
                 const currentValue = parseInt(input.value) || 0;
                 stars.forEach((s, i) => {
-                    s.style.color = i < currentValue ? '#ffc107' : '#ddd';
+                    if (i < currentValue) {
+                        s.classList.add('active');
+                        s.style.color = '#ffc107';
+                    } else {
+                        s.classList.remove('active');
+                        s.style.color = '#ddd';
+                    }
                 });
             });
         });
@@ -211,6 +229,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Calculer la moyenne de toutes les notes
+            const punctuality = parseInt(document.getElementById('punctuality-rating').value) || 0;
+            const driving = parseInt(document.getElementById('driving-rating').value) || 0;
+            const cleanliness = parseInt(document.getElementById('cleanliness-rating').value) || 0;
+            const friendliness = parseInt(document.getElementById('friendliness-rating').value) || 0;
+            
+            const ratings = [rating, punctuality, driving, cleanliness, friendliness].filter(r => r > 0);
+            const average = (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(1);
+            
+            console.log(`📊 Moyenne des notes: ${average}/5 (basée sur ${ratings.length} critères)`);
+
             try {
                 const response = await fetch(`${API_BASE_URL}/reviews/driver`, {
                     method: 'POST',
@@ -234,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
 
                 if (data.success) {
-                    showNotification('✅ Avis publié avec succès !', 'success');
+                    showNotification(`✅ Avis publié avec succès ! Moyenne: ${average}⭐`, 'success');
                     document.getElementById('rating-modal').classList.remove('active');
                     loadEligibleRides();
                 } else {
@@ -262,6 +291,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Calculer la moyenne de toutes les notes
+            const ease = parseInt(document.getElementById('ease-rating').value) || 0;
+            const reliability = parseInt(document.getElementById('reliability-rating').value) || 0;
+            const service = parseInt(document.getElementById('service-rating').value) || 0;
+            const value = parseInt(document.getElementById('value-rating').value) || 0;
+            
+            const ratings = [overallRating, ease, reliability, service, value].filter(r => r > 0);
+            const average = (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(1);
+            
+            console.log(`📊 Moyenne des notes: ${average}/5 (basée sur ${ratings.length} critères)`);
+
             try {
                 const response = await fetch(`${API_BASE_URL}/reviews/site`, {
                     method: 'POST',
@@ -283,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
 
                 if (data.success) {
-                    showNotification('✅ Avis sur le site publié avec succès !', 'success');
+                    showNotification(`✅ Avis sur le site publié avec succès ! Moyenne: ${average}⭐`, 'success');
                     siteReviewForm.reset();
                     document.querySelectorAll('.star').forEach(star => star.classList.remove('active'));
                 } else {

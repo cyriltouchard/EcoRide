@@ -2,33 +2,71 @@
 <html lang="fr">
 
 <head>
+    <!-- Métas essentiels -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mes Avis - EcoRide</title>
+    <meta name="theme-color" content="#27ae60">
+
+    <!-- SEO -->
+    <title>Mes Avis - EcoRide | Notez vos trajets et chauffeurs</title>
+    <meta name="description"
+        content="Donnez votre avis sur vos trajets EcoRide. Notez les chauffeurs et partagez votre expérience avec la communauté.">
+    <meta name="author" content="EcoRide">
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="public/images/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="public/images/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="public/images/favicon.svg">
+
+    <!-- Préchargement des ressources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Poppins:wght@700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+
+    <!-- Styles -->
     <link rel="stylesheet" href="public/css/style.css">
     <link rel="stylesheet" href="public/css/avis.css">
     <link rel="stylesheet" href="public/css/performance.css">
 </head>
 
 <body>
+
     <header>
-        <nav>
-            <div class="logo">
-                <h1><span class="eco">Eco</span><span class="ride">Ride</span></h1>
-            </div>
-            <ul class="nav-links">
-                <li><a href="index.html">Accueil</a></li>
-                <li><a href="covoiturages.html">Covoiturages</a></li>
-                <li><a href="espace-utilisateur.html">Mon Espace</a></li>
-                <li><a href="avis.html" class="active">Avis</a></li>
-                <li><a href="#" id="nav-logout">Déconnexion</a></li>
-            </ul>
-            <div class="burger">
-                <div class="line1"></div>
-                <div class="line2"></div>
-                <div class="line3"></div>
-            </div>
-        </nav>
+        <div class="header-container">
+            <a href="index.html" class="logo-link">
+                <img src="public/images/logo.png" alt="Logo EcoRide">
+                <span class="logo-text">EcoRide</span>
+            </a>
+            <button class="hamburger-menu" aria-label="Ouvrir le menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+            <nav class="main-nav" aria-label="Navigation principale">
+                <ul>
+                    <li><a href="index.html">Accueil</a></li>
+                    <li><a href="covoiturages.html">Covoiturages</a></li>
+                    <li id="user-nav-links" class="hidden"><a href="proposer-covoiturage.html">Proposer un trajet</a>
+                    </li>
+                    <li id="user-nav-dashboard" class="hidden"><a href="espace-utilisateur.html">Mon Espace</a></li>
+                    <li id="user-nav-avis" class="hidden"><a href="avis.html" class="active">Avis</a></li>
+                    <li id="admin-nav-button" class="hidden"><a href="admin.html" class="admin-button"><i
+                                class="fas fa-cog"></i> Admin</a></li>
+                    <li id="guest-nav-button"><a href="connexion.html" class="auth-button">Se connecter</a></li>
+                    <li id="user-nav-button" class="hidden"><button id="logout-button"
+                            class="logout-button">Déconnexion</button></li>
+                </ul>
+            </nav>
+        </div>
     </header>
 
     <main>
@@ -239,15 +277,24 @@
     <footer>
         <div class="footer-content">
             <p>&copy; 2025 EcoRide. Tous droits réservés.</p>
-            <div class="footer-links">
-                <a href="mentions-legales.html">Mentions légales</a>
-                <a href="politique-confidentialite.html">Politique de confidentialité</a>
-                <a href="conditions-generales.html">CGU</a>
-                <a href="contact.html">Contact</a>
+            <nav>
+                <ul>
+                    <li><a href="mentions-legales.html">Mentions légales</a></li>
+                    <li><a href="conditions-generales.html">Conditions Générales</a></li>
+                    <li><a href="politique-confidentialite.html">Politique de Confidentialité</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="secure-payment-info">
+                <p>Paiement sécurisé par :</p>
+                <div>
+                    <img src="public/images/paiements-securises-paypal-768x159.png" alt="Paiement sécurisé">
+                </div>
             </div>
         </div>
     </footer>
 
+    <div id="notification-container"></div>
     <script src="public/js/common.js"></script>
     <script src="public/js/avis.js"></script>
 </body>

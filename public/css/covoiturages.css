@@ -110,7 +110,7 @@
 
 .filters-container h2::before {
     content: '\f0b0';
-    font-family: "Font Awesome 5 Free";
+    font-family:  Helvetica, Arial, Verdana, Tahoma, sans-serif;
     font-weight: 900;
     position: absolute;
     left: 0;

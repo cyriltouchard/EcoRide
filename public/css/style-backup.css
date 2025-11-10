@@ -175,7 +175,7 @@ nav a:hover::after {
 /* ================================================================================================================================ */
 
 .hamburger-menu {
-    display: none; /* Caché par défaut, visible sur les petites tailles */
+    display: none; 
     cursor: pointer;
     background: none;
     border: none;
@@ -184,7 +184,7 @@ nav a:hover::after {
     height: 30px;
     position: relative;
     z-index: 1010;
-    display: flex; /* Permet d'aligner les barres */
+    display: flex; 
     flex-direction: column;
     justify-content: space-around;
 }

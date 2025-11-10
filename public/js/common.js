@@ -187,6 +187,17 @@ const initNavigation = () => {
             setTimeout(() => window.location.href = 'index.html', 1500);
         });
     }
+    
+    // Gestionnaire pour le bouton de déconnexion de la navbar (avis.html, etc.)
+    const navLogoutButton = document.getElementById('nav-logout');
+    if (navLogoutButton) {
+        navLogoutButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('token');
+            showNotification("Vous avez été déconnecté.", "success");
+            setTimeout(() => window.location.href = 'index.html', 1500);
+        });
+    }
 };
 
 /**
