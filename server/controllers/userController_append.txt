@@ -1,0 +1,124 @@
+
+// --- Mettre à jour le profil utilisateur ---
+exports.updateProfile = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { pseudo, email, phone, bio } = req.body;
+        
+        console.log('📝 Mise à jour profil utilisateur:', userId, req.body);
+        
+        // Vérifier si le pseudo est déjà utilisé par un autre utilisateur
+        if (pseudo) {
+            const existingPseudo = await UserSQL.findByPseudo(pseudo);
+            if (existingPseudo && existingPseudo.id !== userId) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Ce pseudo est déjà utilisé par un autre utilisateur'
+                });
+            }
+        }
+        
+        // Vérifier si l'email est déjà utilisé par un autre utilisateur
+        if (email) {
+            const existingEmail = await UserSQL.findByEmail(email);
+            if (existingEmail && existingEmail.id !== userId) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Cet email est déjà utilisé par un autre utilisateur'
+                });
+            }
+        }
+        
+        // Mettre à jour dans MySQL
+        const updateData = {};
+        if (pseudo) updateData.pseudo = pseudo;
+        if (email) updateData.email = email;
+        if (phone !== undefined) updateData.phone = phone;
+        if (bio !== undefined) updateData.bio = bio;
+        
+        const success = await UserSQL.updateProfile(userId, updateData);
+        
+        if (!success) {
+            return res.status(400).json({
+                success: false,
+                message: 'Échec de la mise à jour'
+            });
+        }
+        
+        // Mettre à jour dans MongoDB si nécessaire
+        try {
+            const mongoUser = await User.findOne({ sql_id: userId });
+            if (mongoUser) {
+                if (pseudo) mongoUser.pseudo = pseudo;
+                if (email) mongoUser.email = email;
+                if (phone !== undefined) mongoUser.phone = phone;
+                if (bio !== undefined) mongoUser.bio = bio;
+                await mongoUser.save();
+            }
+        } catch (mongoError) {
+            console.log('⚠️ Mise à jour MongoDB échouée (non-critique):', mongoError.message);
+        }
+        
+        res.json({
+            success: true,
+            message: 'Profil mis à jour avec succès'
+        });
+        
+    } catch (err) {
+        console.error('❌ Erreur mise à jour profil:', err);
+        res.status(500).json({
+            success: false,
+            message: err.message || 'Erreur serveur'
+        });
+    }
+};
+
+// --- Mettre à jour la photo de profil ---
+exports.updateProfilePicture = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { profile_picture } = req.body;
+        
+        if (!profile_picture) {
+            return res.status(400).json({
+                success: false,
+                message: 'URL de la photo requise'
+            });
+        }
+        
+        console.log('📸 Mise à jour photo de profil:', userId, profile_picture);
+        
+        // Mettre à jour dans MySQL
+        const success = await UserSQL.updateProfile(userId, { profile_picture });
+        
+        if (!success) {
+            return res.status(400).json({
+                success: false,
+                message: 'Échec de la mise à jour'
+            });
+        }
+        
+        // Mettre à jour dans MongoDB si nécessaire
+        try {
+            const mongoUser = await User.findOne({ sql_id: userId });
+            if (mongoUser) {
+                mongoUser.profile_picture = profile_picture;
+                await mongoUser.save();
+            }
+        } catch (mongoError) {
+            console.log('⚠️ Mise à jour MongoDB échouée (non-critique):', mongoError.message);
+        }
+        
+        res.json({
+            success: true,
+            message: 'Photo de profil mise à jour avec succès'
+        });
+        
+    } catch (err) {
+        console.error('❌ Erreur mise à jour photo:', err);
+        res.status(500).json({
+            success: false,
+            message: err.message || 'Erreur serveur'
+        });
+    }
+};

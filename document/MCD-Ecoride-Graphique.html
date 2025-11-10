@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCD Graphique - Projet EcoRide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f4f7;
+            color: #334155;
+        }
+        h1, h2 {
+            font-family: 'Poppins', sans-serif;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-6xl text-center mb-6">
+        <h1 class="text-4xl font-bold text-slate-800">Modèle Conceptuel de Données (MCD)</h1>
+        <p class="mt-2 text-slate-600">Représentation graphique de la structure de la base de données EcoRide.</p>
+    </div>
+
+    <div class="w-full max-w-6xl h-[70vh] bg-white rounded-xl shadow-lg border border-slate-200 p-2">
+        <canvas id="mcd-canvas"></canvas>
+    </div>
+
+    <footer class="text-center mt-6 text-slate-500">
+        <p>&copy; 2025 EcoRide</p>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('mcd-canvas');
+        const ctx = canvas.getContext('2d');
+
+        const schema = {
+            entities: [
+                { name: 'UTILISATEUR', x: 50, y: 200, attributes: ['utilisateur_id (PK)', 'pseudo', 'email', 'mot_de_passe', 'role', 'credits', 'photo_profil_url', 'est_suspendu', 'created_at', 'updated_at'] },
+                { name: 'VEHICULE', x: 380, y: 20, attributes: ['vehicule_id (PK)', 'utilisateur_id (FK)', 'plaque_immatriculation', 'marque', 'modele', 'couleur', 'nombre_places', 'energie', 'photo_url'] },
+                { name: 'COVOITURAGE', x: 380, y: 400, attributes: ['covoiturage_id (PK)', 'conducteur_id (FK)', 'vehicule_id (FK)', 'lieu_depart', 'lieu_arrivee', 'date_depart', 'heure_depart', 'prix', 'places_totales', 'places_disponibles', 'description', 'is_ecologic', 'statut', 'created_at'] },
+                { name: 'RESERVATION', x: 720, y: 400, attributes: ['reservation_id (PK)', 'covoiturage_id (FK)', 'passager_id (FK)', 'nombre_places', 'statut', 'montant_paye', 'date_reservation'] },
+                { name: 'AVIS', x: 720, y: 200, attributes: ['avis_id (PK)', 'auteur_id (FK)', 'destinataire_id (FK)', 'covoiturage_id (FK)', 'note', 'commentaire', 'statut_moderation', 'created_at'] }
+            ],
+            relations: [
+                { from: 'UTILISATEUR', to: 'VEHICULE', label: 'POSSEDE', cardFrom: '1,1', cardTo: '0,n', fromAnchor: 'top', toAnchor: 'left' },
+                { from: 'UTILISATEUR', to: 'COVOITURAGE', label: 'PROPOSE', cardFrom: '1,1', cardTo: '0,n', fromAnchor: 'bottom', toAnchor: 'left' },
+                { from: 'UTILISATEUR', to: 'RESERVATION', label: 'EFFECTUE', cardFrom: '1,1', cardTo: '0,n', fromAnchor: 'right', toAnchor: 'left' },
+                { from: 'COVOITURAGE', to: 'RESERVATION', label: 'CONCERNE', cardFrom: '1,1', cardTo: '0,n', fromAnchor: 'right', toAnchor: 'left' },
+                { from: 'UTILISATEUR', to: 'AVIS', label: 'ECRIT', cardFrom: '1,1', cardTo: '0,n', fromAnchor: 'right', toAnchor: 'left' },
+                { from: 'UTILISATEUR', to: 'AVIS', label: 'RECOIT', cardFrom: '1,1', cardTo: '0,n', fromAnchor: 'right', toAnchor: 'bottom' },
+                { from: 'COVOITURAGE', to: 'AVIS', label: 'GENERE', cardFrom: '1,1', cardTo: '0,n', fromAnchor: 'top', toAnchor: 'bottom' },
+                { from: 'VEHICULE', to: 'COVOITURAGE', label: 'UTILISE_POUR', cardFrom: '1,1', cardTo: '0,n', fromAnchor: 'bottom', toAnchor: 'top' }
+            ]
+        };
+        
+        const entityDimensions = {};
+
+        function drawRoundedRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+
+        function drawEntity(ctx, entity, scale) {
+            const padding = 12 * scale.x;
+            const lineHeight = 16 * scale.x;
+            const titleHeight = 24 * scale.x;
+            const width = 260 * scale.x;
+            const height = titleHeight + (entity.attributes.length * lineHeight) + 2 * padding;
+            const x = entity.x * scale.x;
+            const y = entity.y * scale.y;
+
+            entityDimensions[entity.name] = { x, y, width, height };
+
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 2 * (window.devicePixelRatio || 1);
+            drawRoundedRect(ctx, x, y, width, height, 10 * scale.x);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#1e3a8a';
+            ctx.font = `bold ${15 * scale.x}px Poppins`;
+            ctx.textAlign = 'center';
+            ctx.fillText(entity.name, x + width / 2, y + padding + titleHeight / 2);
+
+            ctx.beginPath();
+            ctx.moveTo(x + padding, y + titleHeight + padding / 2);
+            ctx.lineTo(x + width - padding, y + titleHeight + padding / 2);
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 1 * (window.devicePixelRatio || 1);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#334155';
+            ctx.textAlign = 'left';
+            entity.attributes.forEach((attr, index) => {
+                ctx.font = attr.includes('(PK)') ? `bold ${12 * scale.x}px Roboto` : `${11 * scale.x}px Roboto`;
+                ctx.fillText(attr, x + padding, y + titleHeight + padding * 1.5 + (lineHeight * index));
+            });
+        }
+        
+        function getAnchorCoordinates(entityName, anchor) {
+            const dims = entityDimensions[entityName];
+            if (!dims) return { x: 0, y: 0 };
+            switch(anchor) {
+                case 'top': return { x: dims.x + dims.width / 2, y: dims.y };
+                case 'bottom': return { x: dims.x + dims.width / 2, y: dims.y + dims.height };
+                case 'left': return { x: dims.x, y: dims.y + dims.height / 2 };
+                case 'right': return { x: dims.x + dims.width, y: dims.y + dims.height / 2 };
+                case 'left_mid': return { x: dims.x, y: dims.y + dims.height / 2 + 20};
+                default: return { x: dims.x + dims.width / 2, y: dims.y + dims.height / 2 };
+            }
+        }
+
+        function drawRelationship(ctx, rel, scale) {
+            const start = getAnchorCoordinates(rel.from, rel.fromAnchor);
+            const end = getAnchorCoordinates(rel.to, rel.toAnchor);
+            
+            ctx.beginPath();
+            ctx.moveTo(start.x, start.y);
+            
+            const midX = (start.x + end.x) / 2;
+            const midY = (start.y + end.y) / 2;
+            const angle = Math.atan2(end.y - start.y, end.x - start.x);
+
+            ctx.lineTo(end.x, end.y);
+            ctx.strokeStyle = '#64748b';
+            ctx.lineWidth = 1.5 * (window.devicePixelRatio || 1);
+            ctx.stroke();
+
+            ctx.save();
+            ctx.translate(midX, midY);
+            ctx.rotate(angle);
+            ctx.fillStyle = '#475569';
+            ctx.font = `italic bold ${12 * scale.x}px Roboto`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(rel.label, 0, -5 * scale.x);
+            ctx.restore();
+            
+            ctx.fillStyle = '#0f172a';
+            ctx.font = `500 ${12 * scale.x}px Roboto`;
+            
+            ctx.textAlign = 'left';
+            ctx.fillText(rel.cardFrom, start.x + 8, start.y + 12);
+            ctx.textAlign = 'right';
+            ctx.fillText(rel.cardTo, end.x - 8, end.y + 12);
+        }
+        
+        function drawMCD() {
+            const dpr = window.devicePixelRatio || 1;
+            const parent = canvas.parentElement;
+            const rect = parent.getBoundingClientRect();
+            
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            
+            ctx.scale(dpr, dpr);
+            
+            const baseWidth = 1100;
+            const baseHeight = 700;
+            
+            const scaleX = parent.clientWidth / baseWidth;
+            const scaleY = parent.clientHeight / baseHeight;
+            const scale = { x: Math.min(scaleX, scaleY), y: Math.min(scaleX, scaleY) };
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            schema.entities.forEach(entity => drawEntity(ctx, entity, scale));
+            schema.relations.forEach(rel => drawRelationship(ctx, rel, scale));
+        }
+
+        window.addEventListener('resize', drawMCD);
+        drawMCD();
+
+    </script>
+</body>
+</html>
+

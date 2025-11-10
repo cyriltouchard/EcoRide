@@ -1,0 +1,183 @@
+/* ============================================================================================= */
+/* --------------------------- STYLES AMÉLIORÉS POUR LA PERFORMANCE ---------------------------- */
+/* ============================================================================================= */
+
+/* STYLES AMÉLIORÉS POUR LA PERFORMANCE - ECORIDE */
+/* Fichier: public/css/performance.css */
+
+/* Optimisations de performance CSS */
+
+/* Utiliser des polices système pour éviter le chargement */
+.system-font {
+    font-family: 
+        -apple-system, 
+        BlinkMacSystemFont, 
+        'Segoe UI', 
+        'Roboto', 
+        'Oxygen', 
+        'Ubuntu', 
+        'Cantarell', 
+        'Fira Sans', 
+        'Droid Sans', 
+        'Helvetica Neue', 
+        sans-serif;
+}
+
+/* Chargement progressif des images */
+.lazy-image {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.lazy-image.loaded {
+    opacity: 1;
+}
+
+/* Placeholder pour les images en cours de chargement */
+.image-placeholder {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Optimisations pour les animations */
+.smooth-animation {
+    will-change: transform;
+    transform: translateZ(0); /* Force hardware acceleration */
+}
+
+/* Styles pour les indicateurs de performance */
+.performance-badge {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 128, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    z-index: 9999;
+    transition: background-color 0.3s ease;
+}
+
+.performance-badge.warning {
+    background: rgba(255, 165, 0, 0.8);
+}
+
+.performance-badge.error {
+    background: rgba(255, 0, 0, 0.8);
+}
+
+/* Optimisations pour les formulaires */
+.form-group {
+    contain: layout; /* Isolation du layout pour les performances */
+}
+
+/* Styles pour le loader optimisé */
+.loading-spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #27ae60;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Préchargement des états hover */
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Optimisations pour les listes longues */
+.virtual-list {
+    overflow-y: auto;
+    height: 400px;
+}
+
+.virtual-list-item {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    contain: strict; /* Isolation complète pour les performances */
+}
+
+/* Styles pour les métriques de performance */
+.performance-metrics {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 12px;
+    max-width: 300px;
+    z-index: 9999;
+}
+
+.performance-metrics.hidden {
+    display: none;
+}
+
+.metric {
+    margin: 2px 0;
+}
+
+.metric-good { color: #4CAF50; }
+.metric-warning { color: #FF9800; }
+.metric-poor { color: #F44336; }
+
+/* Réduire la complexité des ombres */
+.simple-shadow {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Optimisations pour les transitions */
+.fast-transition {
+    transition: all 0.15s ease-out;
+}
+
+/* Media queries pour les performances sur mobile */
+@media (max-width: 768px) {
+    .performance-metrics {
+        font-size: 10px;
+        padding: 5px;
+    }
+    
+    /* Réduire les animations sur mobile pour économiser la batterie */
+    .reduce-motion {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Dark mode optimisé */
+@media (prefers-color-scheme: dark) {
+    .image-placeholder {
+        background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+    }
+}
+
+/* Préférence pour une motion réduite */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

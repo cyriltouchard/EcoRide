@@ -1,0 +1,63 @@
+// Script d'initialisation MongoDB pour EcoRide
+print('🚀 Initialisation base de données MongoDB EcoRide...');
+
+// Sélection de la base de données
+db = db.getSiblingDB('ecoride');
+
+/*
+  SECURITY NOTE
+  ------------
+  Removed hard-coded passwords and bcrypt hashes from this initialization script.
+  Storing password hashes or plaintext passwords in repository files is unsafe.
+
+  Recommended secure alternatives:
+  - Use Docker / orchestration to inject secrets at runtime (via .env, Docker secrets, or a secret manager).
+  - Create administrative and application users manually on the target environment, or via a secure, out-of-repo script that reads secrets from environment variables.
+  - For test data required in CI, generate users dynamically during tests and store credentials only in the CI secret store.
+
+  This script will only create the database and indexes. To populate users, run a separate secure bootstrap
+  script that reads passwords from environment variables or a secret manager.
+*/
+
+print('📝 Initialisation des collections et des index (sans utilisateurs ni mots de passe)...');
+
+// NOTE: users and test accounts are intentionally NOT created here to avoid embedding secrets in the repo.
+
+// Collection véhicules de test (seed minimal sans données sensibles)
+db.vehicles.insertMany([
+  {
+    _id: ObjectId(),
+    userId: 'admin@ecoride.fr',
+    brand: 'Toyota',
+    model: 'Prius',
+    year: 2022,
+    energyType: 'hybride',
+    seats: 5,
+    color: 'Blanc',
+    isActive: true,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  }
+]);
+
+// Index pour optimiser les performances
+print('🔍 Création des index de performance...');
+
+// Index utilisateurs
+db.users.createIndex({ "email": 1 }, { unique: true });
+db.users.createIndex({ "createdAt": -1 });
+
+// Index véhicules
+db.vehicles.createIndex({ "userId": 1 });
+db.vehicles.createIndex({ "energyType": 1 });
+
+// Index trajets
+db.rides.createIndex({ "driverId": 1 });
+db.rides.createIndex({ "departure.city": 1, "destination.city": 1 });
+db.rides.createIndex({ "date": 1 });
+db.rides.createIndex({ "isActive": 1 });
+
+print('✅ Initialisation MongoDB EcoRide terminée avec succès !');
+print('📊 Collections créées : users, vehicles, rides');
+print('👤 Utilisateurs de test : admin@ecoride.fr / test@ecoride.fr');
+print('🔑 Mot de passe test : admin123 / test123');

@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <!-- Métas essentiels -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#27ae60">
+
+    <!-- SEO -->
+    <title>Administration - EcoRide | Panneau d'administration</title>
+    <meta name="description" content="Panneau d'administration EcoRide pour la gestion de la plateforme.">
+    <meta name="author" content="EcoRide">
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="public/images/favicon.svg">
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="public/css/style.css">
+
+    <style>
+        /* Styles spécifiques pour le panneau admin */
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+            background-color: #f5f7fa;
+        }
+
+        .admin-sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #27ae60 0%, #219150 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .admin-logo img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .admin-logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .admin-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .admin-menu-item {
+            margin-bottom: 5px;
+        }
+
+        .admin-menu-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 15px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .admin-menu-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .admin-menu-btn.active {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+        }
+
+        .admin-menu-btn i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .admin-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 30px;
+        }
+
+        .admin-header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-header h1 {
+            font-size: 28px;
+            color: #2d3748;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .admin-user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .admin-user-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .admin-logout-btn {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .admin-logout-btn:hover {
+            background: #c53030;
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon.blue {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .stat-icon.green {
+            background: linear-gradient(135deg, #27ae60 0%, #219150 100%);
+            color: white;
+        }
+
+        .stat-icon.orange {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .stat-icon.purple {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2d3748;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .admin-section {
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .admin-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .admin-card h2 {
+            font-size: 22px;
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table thead {
+            background: #f7fafc;
+        }
+
+        .admin-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #4a5568;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .admin-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .admin-table tbody tr:hover {
+            background: #f7fafc;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .badge.warning {
+            background: #feebc8;
+            color: #7c2d12;
+        }
+
+        .badge.danger {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .badge.info {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        .btn-primary {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #219150;
+        }
+
+        .btn-danger {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c53030;
+        }
+
+        .btn-warning {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #dd6b20;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #27ae60;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        @media (max-width: 768px) {
+            .admin-sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+
+            .admin-content {
+                margin-left: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="admin-logo">
+                <img src="public/images/logo.png" alt="Logo EcoRide">
+                <span class="admin-logo-text">EcoRide Admin</span>
+            </div>
+
+            <ul class="admin-menu">
+                <li class="admin-menu-item">
+                    <button class="admin-menu-btn active" data-section="dashboard">
+                        <i class="fas fa-home"></i>
+                        <span>Tableau de bord</span>
+                    </button>
+                </li>
+                <li class="admin-menu-item">
+                    <button class="admin-menu-btn" data-section="users">
+                        <i class="fas fa-users"></i>
+                        <span>Utilisateurs</span>
+                    </button>
+                </li>
+                <li class="admin-menu-item">
+                    <button class="admin-menu-btn" data-section="rides">
+                        <i class="fas fa-car"></i>
+                        <span>Trajets</span>
+                    </button>
+                </li>
+                <li class="admin-menu-item">
+                    <button class="admin-menu-btn" data-section="reviews">
+                        <i class="fas fa-star"></i>
+                        <span>Avis</span>
+                    </button>
+                </li>
+                <li class="admin-menu-item">
+                    <button class="admin-menu-btn" data-section="employees">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Employés</span>
+                    </button>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-content">
+            <!-- Header -->
+            <div class="admin-header">
+                <h1 id="page-title">Tableau de bord</h1>
+                <div class="admin-user-info">
+                    <span class="admin-user-name" id="admin-name">Admin</span>
+                    <button class="admin-logout-btn" id="admin-logout">
+                        <i class="fas fa-sign-out-alt"></i> Déconnexion
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="admin-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-label">Utilisateurs Total</div>
+                        <div class="stat-value" id="stat-users">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <div class="stat-label">Trajets Total</div>
+                        <div class="stat-value" id="stat-rides">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="stat-label">Crédits Distribués</div>
+                        <div class="stat-value" id="stat-credits">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon purple">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-label">Avis en Attente</div>
+                        <div class="stat-value" id="stat-reviews">0</div>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <h2>Activité récente</h2>
+                    <div class="chart-container">
+                        <canvas id="activity-chart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Users Section -->
+            <section id="users" class="admin-section">
+                <div class="admin-card">
+                    <h2>Gestion des Utilisateurs</h2>
+                    <div style="overflow-x: auto;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Pseudo</th>
+                                    <th>Email</th>
+                                    <th>Rôle</th>
+                                    <th>Statut</th>
+                                    <th>Inscription</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 40px;">
+                                        <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #27ae60;"></i>
+                                        <p style="margin-top: 10px; color: #718096;">Chargement des utilisateurs...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Rides Section -->
+            <section id="rides" class="admin-section">
+                <div class="admin-card">
+                    <h2>Gestion des Trajets</h2>
+                    <div style="overflow-x: auto;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Départ</th>
+                                    <th>Arrivée</th>
+                                    <th>Chauffeur</th>
+                                    <th>Date</th>
+                                    <th>Prix</th>
+                                    <th>Places</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rides-table">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 40px;">
+                                        <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #27ae60;"></i>
+                                        <p style="margin-top: 10px; color: #718096;">Chargement des trajets...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reviews Section -->
+            <section id="reviews" class="admin-section">
+                <div class="admin-card">
+                    <h2>Gestion des Avis</h2>
+                    <div style="overflow-x: auto;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Auteur</th>
+                                    <th>Chauffeur</th>
+                                    <th>Note</th>
+                                    <th>Commentaire</th>
+                                    <th>Date</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reviews-table">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 40px;">
+                                        <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #27ae60;"></i>
+                                        <p style="margin-top: 10px; color: #718096;">Chargement des avis...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Employees Section -->
+            <section id="employees" class="admin-section">
+                <div class="admin-card">
+                    <h2>Créer un compte Employé</h2>
+                    <form id="employee-form">
+                        <div class="form-group">
+                            <label for="emp-pseudo">Pseudo</label>
+                            <input type="text" id="emp-pseudo" name="pseudo" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="emp-email">Email</label>
+                            <input type="email" id="emp-email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="emp-password">Mot de passe</label>
+                            <input type="password" id="emp-password" name="password" required minlength="8">
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> Créer l'employé
+                        </button>
+                    </form>
+                </div>
+
+                <div class="admin-card">
+                    <h2>Liste des Employés</h2>
+                    <div style="overflow-x: auto;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Pseudo</th>
+                                    <th>Email</th>
+                                    <th>Date de création</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employees-table">
+                                <tr>
+                                    <td colspan="3" style="text-align: center; padding: 40px;">
+                                        <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #27ae60;"></i>
+                                        <p style="margin-top: 10px; color: #718096;">Chargement des employés...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="notification-container"></div>
+
+    <!-- Chart.js for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+
+        // Vérification de l'authentification au chargement
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'connexion.html';
+                return;
+            }
+
+            // Vérifier si l'utilisateur est admin
+            verifyAdmin();
+
+            // Charger les données du dashboard
+            loadDashboardData();
+
+            // Gestionnaires d'événements
+            setupEventListeners();
+        });
+
+        // Vérifier si l'utilisateur est admin
+        async function verifyAdmin() {
+            try {
+                console.log('🔍 Vérification du rôle admin...');
+                const token = localStorage.getItem('token');
+                console.log('Token présent:', token ? 'OUI' : 'NON');
+
+                const response = await fetch(`${API_BASE_URL}/users/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                console.log('Status de la réponse:', response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Erreur API:', errorText);
+                    throw new Error('Non autorisé');
+                }
+
+                const data = await response.json();
+                console.log('Données utilisateur:', data);
+                console.log('Rôle de l\'utilisateur:', data.user_type);
+
+                if (data.user_type !== 'admin' && data.user_type !== 'employe') {
+                    console.warn('❌ Accès refusé - Rôle:', data.user_type);
+                    showNotification('Accès refusé : Vous n\'êtes pas administrateur. Votre rôle: ' + data.user_type, 'error');
+                    // Redirection désactivée temporairement pour déboguer
+                    // setTimeout(() => {
+                    //     window.location.href = 'index.html';
+                    // }, 2000);
+                    return;
+                }
+
+                console.log('✅ Accès autorisé');
+                document.getElementById('admin-name').textContent = data.pseudo || 'Admin';
+            } catch (error) {
+                console.error('❌ Erreur de vérification:', error);
+                showNotification('Erreur de connexion au serveur', 'error');
+                // Ne pas rediriger immédiatement en cas d'erreur réseau
+                // setTimeout(() => {
+                //     localStorage.removeItem('token');
+                //     window.location.href = 'connexion.html';
+                // }, 2000);
+            }
+        }
+
+        // Configurer les gestionnaires d'événements
+        function setupEventListeners() {
+            // Navigation dans le menu
+            document.querySelectorAll('.admin-menu-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const section = btn.getAttribute('data-section');
+                    switchSection(section);
+
+                    // Mettre à jour l'état actif
+                    document.querySelectorAll('.admin-menu-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+
+            // Déconnexion
+            document.getElementById('admin-logout').addEventListener('click', () => {
+                localStorage.removeItem('token');
+                window.location.href = 'connexion.html';
+            });
+
+            // Formulaire d'employé
+            document.getElementById('employee-form').addEventListener('submit', handleEmployeeCreation);
+        }
+
+        // Changer de section
+        function switchSection(sectionName) {
+            // Masquer toutes les sections
+            document.querySelectorAll('.admin-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Afficher la section sélectionnée
+            document.getElementById(sectionName).classList.add('active');
+
+            // Mettre à jour le titre
+            const titles = {
+                dashboard: 'Tableau de bord',
+                users: 'Gestion des Utilisateurs',
+                rides: 'Gestion des Trajets',
+                reviews: 'Gestion des Avis',
+                employees: 'Gestion des Employés'
+            };
+            document.getElementById('page-title').textContent = titles[sectionName];
+
+            // Charger les données de la section
+            loadSectionData(sectionName);
+        }
+
+        // Charger les données d'une section
+        async function loadSectionData(section) {
+            switch (section) {
+                case 'dashboard':
+                    loadDashboardData();
+                    break;
+                case 'users':
+                    loadUsers();
+                    break;
+                case 'rides':
+                    loadRides();
+                    break;
+                case 'reviews':
+                    loadReviews();
+                    break;
+                case 'employees':
+                    loadEmployees();
+                    break;
+            }
+        }
+
+        // Charger les données du dashboard
+        async function loadDashboardData() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/stats`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Erreur de chargement des stats');
+
+                const stats = await response.json();
+
+                // Mettre à jour les stats
+                document.getElementById('stat-users').textContent = stats.totalUsers || 0;
+                document.getElementById('stat-rides').textContent = stats.totalRides || 0;
+                document.getElementById('stat-credits').textContent = stats.totalCredits || 0;
+                document.getElementById('stat-reviews').textContent = stats.pendingReviews || 0;
+
+                // Créer le graphique
+                createActivityChart(stats.ridesByDay || []);
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur de chargement des statistiques', 'error');
+            }
+        }
+
+        // Créer le graphique d'activité
+        function createActivityChart(data) {
+            const ctx = document.getElementById('activity-chart');
+
+            // Détruire le graphique existant s'il y en a un
+            if (window.activityChart) {
+                window.activityChart.destroy();
+            }
+
+            const labels = data.map(d => {
+                const date = new Date(d.date);
+                return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+            });
+            const values = data.map(d => d.count);
+
+            window.activityChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Trajets créés',
+                        data: values,
+                        borderColor: '#27ae60',
+                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Charger les utilisateurs
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/users`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Erreur de chargement');
+
+                const users = await response.json();
+                displayUsers(users);
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur de chargement des utilisateurs', 'error');
+            }
+        }
+
+        // Afficher les utilisateurs
+        function displayUsers(users) {
+            const tbody = document.getElementById('users-table');
+
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">Aucun utilisateur trouvé</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = users.map(user => `
+                <tr>
+                    <td>${user.pseudo || 'N/A'}</td>
+                    <td>${user.email}</td>
+                    <td>
+                        <span class="badge ${user.user_type === 'admin' ? 'danger' : user.user_type === 'employe' ? 'warning' : 'info'}">
+                            ${user.user_type || 'utilisateur'}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge ${user.isSuspended ? 'danger' : 'success'}">
+                            ${user.isSuspended ? 'Suspendu' : 'Actif'}
+                        </span>
+                    </td>
+                    <td>${new Date(user.createdAt).toLocaleDateString('fr-FR')}</td>
+                    <td>
+                        ${user.user_type !== 'admin' ? `
+                            <button class="btn btn-sm ${user.isSuspended ? 'btn-primary' : 'btn-warning'}" 
+                                    onclick="toggleUserStatus(${user.id}, ${user.isSuspended})">
+                                <i class="fas fa-${user.isSuspended ? 'check' : 'ban'}"></i>
+                                ${user.isSuspended ? 'Activer' : 'Suspendre'}
+                            </button>
+                        ` : '<span style="color: #718096;">-</span>'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Basculer le statut d'un utilisateur
+        async function toggleUserStatus(userId, isSuspended) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/toggle-status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Erreur de mise à jour');
+
+                showNotification(
+                    isSuspended ? 'Utilisateur activé avec succès' : 'Utilisateur suspendu avec succès',
+                    'success'
+                );
+                loadUsers();
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur de mise à jour du statut', 'error');
+            }
+        }
+
+        // Charger les trajets
+        async function loadRides() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/rides/search?seats=1`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Erreur de chargement');
+
+                const rides = await response.json();
+                displayRides(rides);
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur de chargement des trajets', 'error');
+            }
+        }
+
+        // Afficher les trajets
+        function displayRides(rides) {
+            const tbody = document.getElementById('rides-table');
+
+            if (rides.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">Aucun trajet trouvé</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = rides.map(ride => `
+                <tr>
+                    <td>${ride.departure_city}</td>
+                    <td>${ride.arrival_city}</td>
+                    <td>${ride.driver?.pseudo || 'N/A'}</td>
+                    <td>${new Date(ride.departure_datetime).toLocaleDateString('fr-FR')}</td>
+                    <td>${ride.price}€</td>
+                    <td>${ride.available_seats}/${ride.available_seats}</td>
+                    <td>
+                        <span class="badge success">Actif</span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Charger les avis
+        async function loadReviews() {
+            // Pour l'instant, affichage d'un message
+            const tbody = document.getElementById('reviews-table');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">Fonctionnalité en cours de développement</td></tr>';
+        }
+
+        // Charger les employés
+        async function loadEmployees() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/users`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Erreur de chargement');
+
+                const users = await response.json();
+                const employees = users.filter(u => u.user_type === 'employe');
+                displayEmployees(employees);
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur de chargement des employés', 'error');
+            }
+        }
+
+        // Afficher les employés
+        function displayEmployees(employees) {
+            const tbody = document.getElementById('employees-table');
+
+            if (employees.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 40px;">Aucun employé trouvé</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = employees.map(emp => `
+                <tr>
+                    <td>${emp.pseudo || 'N/A'}</td>
+                    <td>${emp.email}</td>
+                    <td>${new Date(emp.createdAt).toLocaleDateString('fr-FR')}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Gérer la création d'employé
+        async function handleEmployeeCreation(e) {
+            e.preventDefault();
+
+            const formData = {
+                pseudo: document.getElementById('emp-pseudo').value,
+                email: document.getElementById('emp-email').value,
+                password: document.getElementById('emp-password').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/employees`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Erreur de création');
+                }
+
+                showNotification('Employé créé avec succès', 'success');
+                document.getElementById('employee-form').reset();
+                loadEmployees();
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification(error.message || 'Erreur de création de l\'employé', 'error');
+            }
+        }
+
+        // Fonction de notification
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notification-container');
+            if (!container) return;
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>

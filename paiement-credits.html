@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#27ae60">
+
+    <title>Paiement - EcoRide</title>
+    <meta name="description" content="Finalisez votre achat de crédits EcoRide.">
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Poppins:wght@700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="public/css/style.css">
+</head>
+
+<body class="payment-page">
+
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo-link">
+                <img src="public/images/logo.png" alt="Logo EcoRide">
+                <span class="logo-text">EcoRide</span>
+            </a>
+            <button class="hamburger-menu" aria-label="Ouvrir le menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+            <nav class="main-nav" aria-label="Navigation principale">
+                <ul>
+                    <li><a href="index.html">Accueil</a></li>
+                    <li><a href="acheter-credits.html">Retour</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="payment-main">
+        <div class="payment-container">
+
+            <!-- En-tête de la page -->
+            <div class="payment-header">
+                <a href="acheter-credits.html" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </a>
+                <h1>Finaliser votre achat</h1>
+                <p>Transaction sécurisée SSL <i class="fas fa-shield-alt"></i></p>
+            </div>
+
+            <!-- Contenu principal -->
+            <div class="payment-content">
+
+                <!-- Formulaire de paiement -->
+                <div class="payment-form-section">
+                    <form id="payment-form">
+
+                        <!-- Informations commande -->
+                        <div class="order-summary-mobile">
+                            <div class="summary-compact">
+                                <div class="summary-left">
+                                    <i class="fas fa-coins"></i>
+                                    <div>
+                                        <strong id="mobile-package-name">Pack Discovery</strong>
+                                        <span id="mobile-package-credits">10 crédits</span>
+                                    </div>
+                                </div>
+                                <div class="summary-price" id="mobile-total-price">5.00 €</div>
+                            </div>
+                        </div>
+
+                        <!-- Méthode de paiement -->
+                        <div class="form-block">
+                            <h2><i class="fas fa-credit-card"></i> Méthode de paiement</h2>
+
+                            <div class="payment-options">
+                                <label class="payment-option active">
+                                    <input type="radio" name="payment-method" value="card" checked>
+                                    <div class="option-content">
+                                        <i class="fas fa-credit-card"></i>
+                                        <span>Carte bancaire</span>
+                                    </div>
+                                </label>
+
+                                <label class="payment-option">
+                                    <input type="radio" name="payment-method" value="paypal">
+                                    <div class="option-content">
+                                        <i class="fab fa-paypal"></i>
+                                        <span>PayPal</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Formulaire carte bancaire -->
+                        <div id="card-form" class="form-block">
+                            <div class="form-field">
+                                <label>Numéro de carte</label>
+                                <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19"
+                                    required>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label>Expiration</label>
+                                    <input type="text" id="card-expiry" placeholder="MM/AA" maxlength="5" required>
+                                </div>
+                                <div class="form-field">
+                                    <label>CVV</label>
+                                    <input type="text" id="card-cvv" placeholder="123" maxlength="3" required>
+                                </div>
+                            </div>
+
+                            <div class="form-field">
+                                <label>Nom du titulaire</label>
+                                <input type="text" id="card-name" placeholder="Nom complet" required>
+                            </div>
+                        </div>
+
+                        <!-- Message PayPal -->
+                        <div id="paypal-message" class="form-block hidden">
+                            <div class="paypal-box">
+                                <i class="fab fa-paypal"></i>
+                                <p>Cliquez sur "Valider" pour être redirigé vers PayPal et finaliser votre paiement de
+                                    manière sécurisée.</p>
+                            </div>
+                        </div>
+
+                        <!-- Boutons -->
+                        <div class="form-actions">
+                            <button type="button" id="cancel-btn" class="btn btn-cancel">Annuler</button>
+                            <button type="submit" class="btn btn-submit">
+                                <i class="fas fa-lock"></i>
+                                Valider <span id="submit-price">5.00 €</span>
+                            </button>
+                        </div>
+
+                        <p class="form-notice">
+                            <i class="fas fa-info-circle"></i>
+                            Paiement sécurisé. Vos données sont cryptées.
+                        </p>
+                    </form>
+                </div>
+
+                <!-- Résumé de commande (sidebar desktop) -->
+                <div class="order-sidebar">
+                    <div class="sidebar-card">
+                        <h3><i class="fas fa-shopping-cart"></i> Récapitulatif</h3>
+
+                        <div class="order-item">
+                            <div class="item-badge">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div class="item-info">
+                                <strong id="sidebar-package-name">Pack Discovery</strong>
+                                <span id="sidebar-package-credits">10 crédits EcoRide</span>
+                            </div>
+                        </div>
+
+                        <div class="order-details">
+                            <div class="detail-line">
+                                <span>Prix unitaire</span>
+                                <span id="sidebar-unit-price">5.00 €</span>
+                            </div>
+                            <div class="detail-line">
+                                <span>Frais</span>
+                                <span>0.00 €</span>
+                            </div>
+                            <div class="detail-line total">
+                                <span>Total</span>
+                                <span id="sidebar-total-price">5.00 €</span>
+                            </div>
+                        </div>
+
+                        <div class="security-info">
+                            <i class="fas fa-shield-check"></i>
+                            <p>Paiement 100% sécurisé</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container footer-simple">
+            <p>&copy; 2025 EcoRide - Tous droits réservés</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="public/js/config.js"></script>
+    <script>
+        // Récupérer les paramètres de l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const packageType = urlParams.get('package') || 'discovery';
+        const credits = parseInt(urlParams.get('credits')) || 10;
+        const price = parseFloat(urlParams.get('price')) || 5.00;
+
+        console.log('📦 Package sélectionné:', { packageType, credits, price });
+
+        // Afficher les informations du package (tous les emplacements)
+        const packageName = packageType.charAt(0).toUpperCase() + packageType.slice(1);
+        const creditsText = credits + ' crédits';
+        const priceText = price.toFixed(2) + ' €';
+
+        // Mobile
+        document.getElementById('mobile-package-name').textContent = 'Pack ' + packageName;
+        document.getElementById('mobile-package-credits').textContent = creditsText;
+        document.getElementById('mobile-total-price').textContent = priceText;
+
+        // Sidebar
+        document.getElementById('sidebar-package-name').textContent = 'Pack ' + packageName;
+        document.getElementById('sidebar-package-credits').textContent = creditsText;
+        document.getElementById('sidebar-unit-price').textContent = priceText;
+        document.getElementById('sidebar-total-price').textContent = priceText;
+
+        // Bouton
+        document.getElementById('submit-price').textContent = priceText;
+
+        // Gestion du changement de méthode de paiement
+        const paymentMethods = document.querySelectorAll('input[name="payment-method"]');
+        const cardForm = document.getElementById('card-form');
+        const paypalMessage = document.getElementById('paypal-message');
+
+        paymentMethods.forEach(radio => {
+            radio.addEventListener('change', function () {
+                // Retirer la classe active de tous
+                document.querySelectorAll('.payment-option').forEach(label => {
+                    label.classList.remove('active');
+                });
+
+                // Ajouter active au parent du radio sélectionné
+                this.closest('.payment-option').classList.add('active');
+
+                // Afficher les bons champs
+                if (this.value === 'card') {
+                    cardForm.classList.remove('hidden');
+                    paypalMessage.classList.add('hidden');
+                } else {
+                    cardForm.classList.add('hidden');
+                    paypalMessage.classList.remove('hidden');
+                }
+            });
+        });
+
+        // Formatage automatique du numéro de carte
+        const cardNumberInput = document.getElementById('card-number');
+        if (cardNumberInput) {
+            cardNumberInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\s/g, '');
+                let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+                e.target.value = formattedValue;
+            });
+        }
+
+        // Formatage de la date d'expiration
+        const cardExpiryInput = document.getElementById('card-expiry');
+        if (cardExpiryInput) {
+            cardExpiryInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 2) {
+                    value = value.slice(0, 2) + '/' + value.slice(2, 4);
+                }
+                e.target.value = value;
+            });
+        }
+
+        // Gestion de la soumission du formulaire
+        document.getElementById('payment-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+
+            // Désactiver le bouton
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement en cours...';
+
+            console.log('💳 Traitement du paiement...', { packageType, credits, price, paymentMethod });
+
+            try {
+                // Simulation d'un délai de traitement
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // Appel API pour enregistrer les crédits
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/credits/purchase`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        packageType: packageType,
+                        credits: credits,
+                        amount: price,
+                        paymentMethod: paymentMethod
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    console.log('✅ Paiement réussi!', result);
+
+                    // Afficher un message de succès
+                    alert('✅ Paiement réussi ! Vos ' + credits + ' crédits ont été ajoutés à votre compte.');
+
+                    // Rediriger vers l'espace utilisateur
+                    window.location.href = 'espace-utilisateur.html';
+                } else {
+                    throw new Error(result.message || 'Erreur lors du paiement');
+                }
+
+            } catch (error) {
+                console.error('❌ Erreur de paiement:', error);
+                alert('❌ Erreur : ' + error.message);
+
+                // Réactiver le bouton
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-lock"></i> Payer maintenant';
+            }
+        });
+
+        // Bouton annuler
+        document.getElementById('cancel-btn').addEventListener('click', function () {
+            if (confirm('Voulez-vous vraiment annuler cette transaction ?')) {
+                window.location.href = 'acheter-credits.html';
+            }
+        });
+
+        // Vérifier l'authentification
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('⚠️ Vous devez être connecté pour effectuer un achat.');
+            window.location.href = 'connexion.html?redirect=acheter-credits.html';
+        }
+    </script>
+
+</body>
+
+</html>

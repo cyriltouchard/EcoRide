@@ -1,0 +1,81 @@
+# Ignorer les fichiers et dossiers non nécessaires dans l'image Docker
+
+# Logs et fichiers temporaires
+*.log
+logs/
+tmp/
+temp/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environnement et secrets
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+*.pem
+*.key
+
+# IDE et éditeurs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation (optionnel, selon besoins)
+README.md
+*.md
+
+# Tests
+coverage/
+.nyc_output/
+test/
+tests/
+*.test.js
+*.spec.js
+
+# Build artifacts
+dist/
+build/
+.cache/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Database files (ne pas inclure dans l'image)
+*.sqlite
+*.sqlite3
+*.db
+
+# Certificats et clés (sécurité)
+ssl/
+certs/
+*.crt
+*.cert
