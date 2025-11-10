@@ -1,0 +1,275 @@
+/* ================================================================================================================================ */
+/* ============================================== RESPONSIVE - MEDIA QUERIES ====================================================== */
+/* ================================================================================================================================ */
+
+/**
+ * Styles responsive pour mobile, tablette et desktop
+ * Mobile-first approach
+ */
+
+/* ========== TABLETTE ET EN-DESSOUS (max-width: 768px) ========== */
+@media (max-width: 768px) {
+    /* Header & Navigation */
+    header {
+        padding: 0 1rem;
+    }
+
+    .logo-text {
+        font-size: 1.5rem;
+    }
+
+    nav ul {
+        position: fixed;
+        top: 80px;
+        right: -100%;
+        width: 250px;
+        height: calc(100vh - 80px);
+        background-color: #2c3e50;
+        flex-direction: column;
+        padding: 2rem 1rem;
+        gap: 1rem;
+        transition: right 0.3s ease;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+    }
+
+    nav ul.active {
+        right: 0;
+    }
+
+    .hamburger-menu {
+        display: flex;
+    }
+
+    /* Typography */
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    h3 {
+        font-size: 1.2rem;
+    }
+
+    /* Main Content */
+    main {
+        padding: 1rem;
+    }
+
+    .container {
+        padding: 0 0.5rem;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        height: 50vh;
+    }
+
+    .hero-content {
+        padding: 1rem;
+    }
+
+    /* Cards */
+    .ride-card,
+    .vehicle-card {
+        padding: 1rem;
+    }
+
+    /* Buttons */
+    .participate-button {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+    }
+
+    .button {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+    }
+
+    /* Forms */
+    .auth-form {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+
+    /* Footer */
+    footer {
+        padding: 2rem 1rem 1rem;
+    }
+
+    .footer-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    /* Modales */
+    .modal-content {
+        width: 95%;
+        padding: 1.5rem;
+    }
+
+    /* Notifications */
+    #notification-container {
+        right: 10px;
+        left: 10px;
+    }
+
+    .notification {
+        min-width: auto;
+        max-width: 100%;
+    }
+
+    /* Tables */
+    table {
+        font-size: 0.85rem;
+    }
+
+    /* Grids */
+    .advantages-container,
+    .payment-logos {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+/* ========== MOBILE (max-width: 480px) ========== */
+@media (max-width: 480px) {
+    .logo-text {
+        font-size: 1.2rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+    }
+
+    h3 {
+        font-size: 1.1rem;
+    }
+
+    .hero-section {
+        height: 40vh;
+    }
+
+    .participate-button {
+        padding: 0.8rem 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .button {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    .auth-form {
+        padding: 1rem;
+    }
+
+    .modal-content {
+        padding: 1rem;
+    }
+
+    footer {
+        padding: 1.5rem 0.5rem 1rem;
+    }
+}
+
+/* ========== DESKTOP LARGE (min-width: 1200px) ========== */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1400px;
+    }
+
+    h1 {
+        font-size: 3rem;
+    }
+
+    h2 {
+        font-size: 2.5rem;
+    }
+
+    .hero-section {
+        height: 70vh;
+    }
+
+    .advantages-container {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* ========== PRINT ========== */
+@media print {
+    header,
+    footer,
+    .hamburger-menu,
+    .button,
+    #notification-container {
+        display: none !important;
+    }
+
+    body {
+        background-color: white;
+        color: black;
+    }
+
+    main {
+        padding: 0;
+    }
+
+    a {
+        color: black;
+        text-decoration: underline;
+    }
+}
+
+/* ========== ANIMATIONS SCROLL REVEAL ========== */
+.scroll-reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.scroll-reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ========== ACCESSIBILITÉ ========== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ========== DARK MODE SUPPORT ========== */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-background: #1a1a1a;
+        --color-text-primary: #e0e0e0;
+        --color-text-secondary: #b0b0b0;
+    }
+
+    body {
+        background-color: var(--color-background);
+        color: var(--color-text-primary);
+    }
+
+    .card,
+    .ride-card,
+    .vehicle-card,
+    .auth-form,
+    .modal-content {
+        background-color: #2a2a2a;
+        color: var(--color-text-primary);
+    }
+}

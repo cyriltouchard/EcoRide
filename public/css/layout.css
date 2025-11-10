@@ -1,0 +1,208 @@
+/* ================================================================================================================================ */
+/* ============================================== LAYOUT - STRUCTURE DE LA PAGE =================================================== */
+/* ================================================================================================================================ */
+
+/**
+ * Header, Navigation, Footer
+ * Structure principale de la mise en page
+ */
+
+/* ========== HEADER ========== */
+header {
+    background: linear-gradient(to right, #4CAF50 30%, #2196F3 30%);
+    color: var(--color-white);
+    height: 80px;
+    padding: 0 var(--spacing-lg);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: var(--shadow-md);
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 100%;
+}
+
+.logo-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #fff;
+    gap: 0.5rem;
+    z-index: 1;
+    height: 100%;
+}
+
+.logo-link img {
+    height: 40px;
+    width: auto;
+}
+
+.logo-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #fff;
+    line-height: 80px;
+}
+
+/* ========== NAVIGATION ========== */
+nav ul {
+    display: flex;
+    gap: 2rem;
+}
+
+nav a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+nav a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 3px;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #FFC107;
+    transition: width 0.3s ease;
+}
+
+nav a:hover::after {
+    width: 100%;
+}
+
+nav a.active {
+    font-weight: 700;
+}
+
+nav a.active::after {
+    width: 100%;
+}
+
+/* ========== MENU HAMBURGER (MOBILE) ========== */
+.hamburger-menu {
+    display: none;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    position: relative;
+    z-index: 1010;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.hamburger-menu .bar {
+    display: block;
+    width: 100%;
+    height: 3px;
+    background-color: #fff;
+    border-radius: 50px;
+    transition: all 0.3s ease-in-out;
+}
+
+.hamburger-menu.active .bar:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+.hamburger-menu.active .bar:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-menu.active .bar:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+/* ========== FOOTER ========== */
+footer {
+    background: linear-gradient(to right, #2c3e50, #34495e);
+    color: var(--color-white);
+    padding: 3rem 2rem 1.5rem;
+    margin-top: auto;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.footer-section h3 {
+    color: var(--color-white);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section ul li {
+    margin-bottom: 0.5rem;
+}
+
+.footer-section a {
+    color: #bdc3c7;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-section a:hover {
+    color: var(--color-white);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: #bdc3c7;
+    font-size: 0.9rem;
+}
+
+.secure-payment-info {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.secure-payment-info img {
+    max-width: 300px;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.secure-payment-info img:hover {
+    opacity: 1;
+}
+
+/* ========== MAIN CONTENT ========== */
+main {
+    flex: 1;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}

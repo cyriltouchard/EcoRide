@@ -1,0 +1,188 @@
+/* ================================================================================================================================ */
+/* ============================================== PAGES - STYLES SPÉCIFIQUES AUX PAGES ============================================ */
+/* ================================================================================================================================ */
+
+/**
+ * Styles spécifiques à chaque page
+ * À remplir selon les besoins
+ */
+
+/* ========== PAGE D'ACCUEIL ========== */
+.hero-section {
+    position: relative;
+    height: 60vh;
+    overflow: hidden;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.hero-section video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -1;
+    transform: translate(-50%, -50%);
+}
+
+.hero-content {
+    padding: 2rem;
+    border-radius: 10px;
+    z-index: 1;
+}
+
+.about-section {
+    padding: 4rem 2rem;
+    background-color: #fff;
+    border-bottom: 5px solid #4CAF50;
+    text-align: center;
+}
+
+.advantages-section {
+    padding: 4rem 2rem;
+    text-align: center;
+    background-color: #e6f3ff;
+}
+
+.advantages-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 2rem auto 0;
+}
+
+.advantage-item {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* ========== PAGE RECHERCHE / COVOITURAGES ========== */
+.search-page-hero {
+    background-color: #e6f3ff;
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.search-form {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: var(--color-white);
+    padding: 2rem;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.filters-sidebar {
+    background-color: var(--color-white);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 2rem;
+}
+
+/* ========== PAGE AUTHENTIFICATION ========== */
+.auth-container {
+    min-height: calc(100vh - 80px - 100px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+/* ========== PAGE DASHBOARD ========== */
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background-color: var(--color-white);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+}
+
+/* ========== PAGE DÉTAILS TRAJET ========== */
+.ride-details-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: var(--color-white);
+    padding: 2rem;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.driver-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: var(--color-background);
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+}
+
+.driver-photo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* ========== PAGE CONTACT ========== */
+.contact-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.contact-form {
+    background-color: var(--color-white);
+    padding: 2rem;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+/* ========== PAGES LÉGALES ========== */
+.legal-mentions-section,
+.privacy-policy-section,
+.terms-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: var(--color-white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+}
+
+.legal-mentions-section h2,
+.privacy-policy-section h2,
+.terms-section h2 {
+    color: var(--color-primary);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.legal-mentions-section ul,
+.privacy-policy-section ul,
+.terms-section ul {
+    list-style: disc;
+    padding-left: 2rem;
+}
