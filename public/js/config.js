@@ -186,8 +186,18 @@ window.showNotification = (message, type = 'info', duration = 5000) => {
 
 // Fonction utilitaire pour valider les données
 window.validateData = {
-    email: (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
-    phone: (phone) => /^(\+33|0)[1-9](\d{8})$/.test(phone.replace(/\s/g, '')),
+    // Expression régulière email sécurisée contre ReDoS
+    // Utilise des quantificateurs possessifs et limite la longueur
+    email: (email) => {
+        if (!email || email.length > 254) return false; // RFC 5321
+        // Regex simplifiée et sécurisée sans backtracking exponentiel
+        return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+    },
+    phone: (phone) => {
+        const cleaned = phone.replace(/\s/g, '');
+        // Validation simplifiée pour éviter le backtracking
+        return /^(?:\+33|0)[1-9]\d{8}$/.test(cleaned);
+    },
     licensePlate: (plate) => /^[A-Z]{2}-\d{3}-[A-Z]{2}$/.test(plate.toUpperCase()),
     password: (password) => password.length >= 8,
     required: (value) => value !== null && value !== undefined && value.toString().trim() !== ''

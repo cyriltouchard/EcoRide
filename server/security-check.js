@@ -44,6 +44,20 @@ const SECURITY_PATTERNS = [
         severity: 'HAUTE',
         description: 'Chaîne de connexion avec mot de passe',
         exclude: ['replace_with', 'your_password', 'password']
+    },
+    {
+        name: 'Regex vulnérable ReDoS (négation répétée)',
+        regex: /\/\[\^[^\]]+\]\+.*\[\^[^\]]+\]\+/g,
+        severity: 'MOYENNE',
+        description: 'Expression régulière potentiellement vulnérable au ReDoS (backtracking)',
+        exclude: ['SECURITY_PATTERNS', 'security-check.js']
+    },
+    {
+        name: 'Regex vulnérable ReDoS (quantificateurs imbriqués)',
+        regex: /\/\([^)]*[\*\+]\)[\*\+]/g,
+        severity: 'MOYENNE',
+        description: 'Quantificateurs imbriqués détectés (risque ReDoS)',
+        exclude: ['SECURITY_PATTERNS', 'security-check.js']
     }
 ];
 
@@ -56,7 +70,12 @@ const EXCLUDE_PATTERNS = [
     '.env.example',
     'security-check.js',
     'GUIDE-SECURITE-IDENTIFIANTS.md',
-    'SECURITE-CORRECTION-README.md'
+    'SECURITE-CORRECTION-README.md',
+    'RESUME-CORRECTIONS-SECURITE.md',
+    'SCRIPTS-SECURITE-README.md',
+    'QUICKSTART-SECURITE.md',
+    'SECURITE-REDOS-CORRECTION.md',
+    'CHANGELOG-SECURITE.md'
 ];
 
 // Extensions de fichiers à scanner
