@@ -624,3 +624,97 @@ footer {
     color: #666;
 }
 
+/* ================================================================
+   RESPONSIVE DESIGN - MENU MOBILE
+   ================================================================ */
+
+/* Tablettes et mobiles */
+@media screen and (max-width: 1024px) {
+    /* Afficher le bouton hamburger */
+    .hamburger-menu {
+        display: flex !important;
+    }
+
+    /* Cacher la navigation normale sur mobile */
+    .main-nav {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 280px;
+        height: 100vh;
+        background-color: #1e3a8a;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding-top: 80px;
+        transition: right 0.3s ease-in-out;
+        z-index: 1000;
+        box-shadow: -2px 0 10px rgba(0,0,0,0.3);
+    }
+
+    /* Navigation mobile active */
+    .main-nav.active {
+        right: 0;
+    }
+
+    /* Menu items en colonne */
+    .main-nav ul {
+        flex-direction: column;
+        width: 100%;
+        gap: 0;
+    }
+
+    .main-nav ul li {
+        width: 100%;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .main-nav ul li a {
+        display: block;
+        padding: 1rem 1.5rem;
+        width: 100%;
+        text-align: left;
+    }
+
+    .main-nav ul li a:hover {
+        background-color: rgba(255,255,255,0.1);
+    }
+
+    /* Boutons dans le menu mobile */
+    .auth-button,
+    .logout-button,
+    .admin-button {
+        margin: 1rem 1.5rem;
+        width: calc(100% - 3rem);
+        text-align: center;
+    }
+
+    /* Overlay sombre quand menu ouvert */
+    body.menu-open::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 999;
+    }
+}
+
+/* Smartphones */
+@media screen and (max-width: 768px) {
+    /* Header plus compact */
+    .header-container {
+        padding: 1rem;
+    }
+
+    .logo-text {
+        font-size: 1.3rem;
+    }
+
+    /* Menu mobile encore plus étroit */
+    .main-nav {
+        width: 250px;
+    }
+}
+

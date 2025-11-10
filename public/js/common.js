@@ -197,18 +197,33 @@ const initHamburgerMenu = () => {
     const navMenu = document.querySelector('.main-nav');
     
     if (hamburger && navMenu) {
-        hamburger.addEventListener('click', () => {
+        // Toggle menu au clic sur hamburger
+        hamburger.addEventListener('click', (e) => {
+            e.stopPropagation();
             navMenu.classList.toggle('active');
             hamburger.classList.toggle('active');
+            document.body.classList.toggle('menu-open');
         });
         
+        // Fermer menu en cliquant en dehors
         document.addEventListener('click', (event) => {
             if (navMenu.classList.contains('active') && 
                 !navMenu.contains(event.target) && 
                 !hamburger.contains(event.target)) {
                 navMenu.classList.remove('active');
                 hamburger.classList.remove('active');
+                document.body.classList.remove('menu-open');
             }
+        });
+
+        // Fermer menu en cliquant sur un lien
+        const navLinks = navMenu.querySelectorAll('a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+                hamburger.classList.remove('active');
+                document.body.classList.remove('menu-open');
+            });
         });
     }
 };

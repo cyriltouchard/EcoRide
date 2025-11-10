@@ -2,6 +2,15 @@
 /* ========================================= PAGE COVOITURAGES (covoiturages.html) =============================================== */
 /* ================================================================================================================================ */
 
+/* Box-sizing pour tous les éléments de la page */
+.search-page-hero *,
+.search-form-container *,
+.results-section *,
+.filters-container *,
+.results-list * {
+    box-sizing: border-box;
+}
+
 .search-page-hero {
     background-color: #e6f3ff;
     padding: 4rem 2rem;
@@ -15,6 +24,7 @@
     padding: 2rem;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    box-sizing: border-box;
 }
 
 /* Formulaire de recherche */
@@ -332,3 +342,196 @@
     box-shadow: 0 6px 16px rgba(33, 150, 243, 0.4);
     background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
 }
+
+/* ================================================================================================================================ */
+/* ========================================= RESPONSIVE MOBILE ======================================================== */
+/* ================================================================================================================================ */
+
+/* Tablettes et petits écrans */
+@media screen and (max-width: 1024px) {
+    .results-section {
+        flex-direction: column;
+        padding: 0 1rem;
+    }
+
+    .filters-container {
+        flex-basis: auto;
+        width: 100%;
+        margin-bottom: 2rem;
+    }
+
+    .results-list {
+        width: 100%;
+    }
+}
+
+/* Smartphones */
+@media screen and (max-width: 768px) {
+    .search-page-hero {
+        padding: 2rem 1rem;
+    }
+
+    .search-form-container {
+        padding: 1.5rem;
+        box-sizing: border-box;
+    }
+
+    .search-form {
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    .search-form input,
+    .passengers-field {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Bouton rechercher optimisé mobile */
+    .search-form button,
+    .search-form .button {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0.8rem 1rem;
+    }
+
+    .results-section {
+        margin: 2rem auto;
+        padding: 0 1rem;
+        gap: 1.5rem;
+    }
+
+    .filters-container {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        box-sizing: border-box;
+    }
+
+    .filters-container h2 {
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        padding-left: 1.5rem;
+    }
+
+    .filter-group {
+        margin-bottom: 1.5rem;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+
+    .filter-group label {
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .filter-group select,
+    .filter-group input {
+        font-size: 0.95rem;
+        padding: 0.7rem;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .filter-group input[type="number"] {
+        max-width: 100%;
+        text-align: left;
+    }
+
+    /* Boutons filtres en colonne sur mobile */
+    .apply-filters-button,
+    .button-secondary {
+        width: 100%;
+        margin-bottom: 0.75rem;
+        text-align: center;
+        box-sizing: border-box;
+        padding: 0.875rem 1rem;
+    }
+
+    .apply-filters-button:last-child,
+    .button-secondary:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Cards covoiturage optimisées mobile */
+    .covoiturage-card {
+        padding: 1rem;
+    }
+
+    .driver-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.75rem;
+    }
+
+    .driver-info {
+        text-align: center;
+    }
+
+    .driver-photo {
+        width: 70px;
+        height: 70px;
+    }
+
+    .card-body p {
+        font-size: 0.95rem;
+        text-align: center;
+    }
+
+    .card-actions {
+        justify-content: center;
+    }
+
+    .details-button {
+        width: 100%;
+        text-align: center;
+        padding: 0.9rem 1rem;
+    }
+}
+
+/* Très petits smartphones */
+@media screen and (max-width: 480px) {
+    .search-page-hero h1 {
+        font-size: 1.5rem;
+    }
+
+    .search-form-container {
+        padding: 1rem;
+    }
+
+    .results-section {
+        padding: 0 0.5rem;
+    }
+
+    .filters-container {
+        padding: 0.75rem;
+    }
+
+    .filters-container h2 {
+        font-size: 1.1rem;
+        padding-left: 1rem;
+    }
+
+    .covoiturage-card {
+        padding: 0.75rem;
+    }
+
+    .driver-photo {
+        width: 60px;
+        height: 60px;
+    }
+
+    .card-body p {
+        font-size: 0.9rem;
+    }
+
+    .details-button {
+        font-size: 0.9rem;
+        padding: 0.8rem;
+    }
+}
+
