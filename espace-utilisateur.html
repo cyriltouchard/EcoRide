@@ -70,6 +70,7 @@
                     </li>
                     <li id="user-nav-dashboard" class="hidden"><a href="espace-utilisateur.html" class="active">Mon
                             Espace</a></li>
+                    <li id="user-nav-avis" class="hidden"><a href="avis.html">Avis</a></li>
                     <li id="admin-nav-button" class="hidden"><a href="admin.html" class="admin-button"><i
                                 class="fas fa-cog"></i> Admin</a></li>
                     <li id="guest-nav-button"><a href="connexion.html" class="auth-button">Se connecter</a></li>
@@ -114,6 +115,18 @@
 
             <!-- Colonne de Droite : Contenu des Onglets -->
             <div class="dashboard-tabs-content">
+                <!-- Section Avis à donner (visible en haut) -->
+                <div id="pending-reviews-banner" class="pending-reviews-banner" style="display: none;">
+                    <div class="banner-content">
+                        <div class="banner-icon">⭐</div>
+                        <div class="banner-text">
+                            <h3>Vous avez des avis à donner !</h3>
+                            <p id="pending-count">Chargement...</p>
+                        </div>
+                        <a href="avis.html" class="banner-button">Voir les trajets à noter →</a>
+                    </div>
+                </div>
+
                 <div class="tabs">
                     <button class="tab-button active" data-tab="tab-vehicles">Mes Véhicules</button>
                     <button class="tab-button" data-tab="tab-offered-rides">Trajets Proposés</button>

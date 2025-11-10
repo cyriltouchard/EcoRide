@@ -249,6 +249,43 @@ const initScrollReveal = () => {
 };
 
 /**
+ * Charge et affiche le badge de notification pour les avis en attente
+ */
+const loadReviewsBadge = async () => {
+    const userToken = localStorage.getItem('token');
+    if (!userToken) return;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/reviews/eligible-rides`, {
+            headers: { 'x-auth-token': userToken }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const count = data.rides ? data.rides.length : 0;
+            
+            if (count > 0) {
+                // Chercher le lien "Avis" dans la navigation
+                const navLinks = document.querySelectorAll('.main-nav a');
+                navLinks.forEach(link => {
+                    if (link.textContent.trim() === 'Avis' || link.href.includes('avis.html')) {
+                        // Ajouter le badge si pas déjà présent
+                        if (!link.querySelector('.notification-badge')) {
+                            const badge = document.createElement('span');
+                            badge.className = 'notification-badge';
+                            badge.textContent = count;
+                            link.appendChild(badge);
+                        }
+                    }
+                });
+            }
+        }
+    } catch (error) {
+        console.log('Erreur chargement badge avis:', error);
+    }
+};
+
+/**
  * Initialise tous les composants communs de l'application
  */
 const initCommon = () => {
@@ -256,7 +293,9 @@ const initCommon = () => {
     initNavigation();
     initHamburgerMenu();
     initScrollReveal();
+    loadReviewsBadge();
 };
 
 // Initialiser au chargement du DOM
 document.addEventListener('DOMContentLoaded', initCommon);
+

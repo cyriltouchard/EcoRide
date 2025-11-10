@@ -265,6 +265,79 @@
 }
 
 /* ================================================================
+   BANNIÈRE AVIS EN ATTENTE
+   ================================================================ */
+
+.pending-reviews-banner {
+    background: linear-gradient(135deg, #FFF9C4 0%, #FFF59D 100%);
+    border: 2px solid #FFC107;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+    animation: slideInDown 0.5s ease-out;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.banner-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.banner-icon {
+    font-size: 3rem;
+    flex-shrink: 0;
+}
+
+.banner-text {
+    flex: 1;
+    min-width: 200px;
+}
+
+.banner-text h3 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.banner-text p {
+    margin: 0;
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.banner-button {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    white-space: nowrap;
+}
+
+.banner-button:hover {
+    background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+}
+
+/* ================================================================
    SYSTÈME D'ONGLETS
    ================================================================ */
 
@@ -349,6 +422,18 @@
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
     background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+}
+
+/* Bouton Noter chauffeur */
+.rate-driver-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.rate-driver-btn:hover {
+    transform: translateY(-2px);
 }
 
 /* Bouton secondaire (bleu) */

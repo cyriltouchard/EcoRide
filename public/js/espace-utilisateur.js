@@ -18,6 +18,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const fetchWithAuth = createFetchWithAuth(userToken);
 
     /**
+     * Charge le nombre de trajets à noter
+     */
+    const loadPendingReviews = async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/reviews/eligible-rides`, {
+                headers: { 'x-auth-token': userToken }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                const count = data.rides ? data.rides.length : 0;
+                
+                const banner = document.getElementById('pending-reviews-banner');
+                const countText = document.getElementById('pending-count');
+                
+                if (count > 0 && banner && countText) {
+                    countText.textContent = `${count} trajet${count > 1 ? 's' : ''} à noter`;
+                    banner.style.display = 'block';
+                }
+            }
+        } catch (error) {
+            console.log('Erreur chargement avis en attente:', error);
+        }
+    };
+
+    /**
      * Charge les données utilisateur
      */
     const fetchUserData = async () => {
@@ -168,6 +194,10 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <button class="cancel-ride-btn button button-danger" data-id="${ride._id}" ${!isCancellable ? 'disabled' : ''}>Annuler</button>
                                 </div>`;
                         } else {
+                            // Vérifier si le trajet est terminé et peut être noté
+                            const isCompleted = ride.status === 'completed' || ride.status === 'termine';
+                            const canRate = isCompleted && ride.driver && ride.driver.id;
+                            
                             cardHtml = `
                                 <div class="ride-card-content">
                                     <h3>${ride.departure} → ${ride.arrival}</h3>
@@ -177,6 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 </div>
                                 <div class="ride-actions">
                                     <button class="cancel-booking-btn button button-danger" data-id="${ride._id}" ${!isCancellable ? 'disabled' : ''}>Annuler</button>
+                                    ${canRate ? `<a href="avis.html" class="button button-primary rate-driver-btn" style="text-decoration: none;">⭐ Noter</a>` : ''}
                                 </div>`;
                         }
                         container.innerHTML += `<div class="ride-card">${cardHtml}</div>`;
@@ -575,6 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         fetchUserData();
+        loadPendingReviews();
         
         const savedTab = localStorage.getItem('activeTab') || 'tab-vehicles';
         const tabToActivate = document.querySelector(`.tab-button[data-tab="${savedTab}"]`);

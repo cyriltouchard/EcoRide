@@ -511,3 +511,10 @@
         grid-template-columns: 1fr;
     }
 }
+
+.information {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: #555;
+    text-align: center;
+}   
