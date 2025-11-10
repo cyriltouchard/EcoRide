@@ -1,0 +1,334 @@
+/* ================================================================================================================================ */
+/* ========================================= PAGE COVOITURAGES (covoiturages.html) =============================================== */
+/* ================================================================================================================================ */
+
+.search-page-hero {
+    background-color: #e6f3ff;
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.search-form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* Formulaire de recherche */
+.search-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+}
+
+.search-form input {
+    padding: 0.8rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 50px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.search-form input:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+
+.passengers-field {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 50px;
+    padding: 0.8rem 1rem;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.passengers-field:focus-within {
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+
+.passengers-icon {
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+    user-select: none;
+}
+
+.passengers-field input {
+    border: none;
+    padding: 0;
+    width: 80px;
+    text-align: center;
+    font-size: 1rem;
+    outline: none;
+}
+
+/* Section des résultats */
+.results-section {
+    display: flex;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 3rem auto;
+    gap: 2rem;
+    padding: 0 2rem;
+}
+
+.filters-container {
+    flex-basis: 300px;
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    border-left: 5px solid #4CAF50;
+}
+
+.filters-container h2 {
+    text-align: left;
+    margin-bottom: 2rem;
+    color: #1e3a8a;
+    position: relative;
+    padding-left: 2rem;
+}
+
+.filters-container h2::before {
+    content: '\f0b0';
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    position: absolute;
+    left: 0;
+    color: #4CAF50;
+    font-size: 1.5rem;
+}
+
+.filters-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.filter-group:last-child {
+    border-bottom: none;
+}
+
+.filter-group label {
+    font-weight: 500;
+}
+
+.filter-group input[type="number"],
+.filter-group input[type="checkbox"] {
+    margin-left: 1rem;
+}
+
+.filter-group input[type="number"] {
+    max-width: 80px;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-align: right;
+}
+
+/* Bouton "Appliquer les filtres" (vert) */
+.filters-form .apply-filters-button {
+    margin-top: 1.5rem;
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.filters-form .apply-filters-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+    background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+}
+
+.filters-form .apply-filters-button:active {
+    transform: translateY(0);
+}
+
+/* Bouton "Réinitialiser les filtres" (gris avec icône) */
+.filters-form .button.button-secondary,
+.filters-form #reset-filters-button {
+    margin-top: 0.75rem;
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.filters-form .button.button-secondary:hover,
+.filters-form #reset-filters-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
+    background: linear-gradient(135deg, #5a6268 0%, #545b62 100%);
+}
+
+.filters-form .button.button-secondary:active,
+.filters-form #reset-filters-button:active {
+    transform: translateY(0);
+}
+
+.filters-form .button.button-secondary i,
+.filters-form #reset-filters-button i {
+    font-size: 1rem;
+}
+
+.results-container {
+    flex: 1;
+}
+
+.covoiturage-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    transition: transform 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+}
+
+/* Bordure colorée en haut comme les autres cartes */
+.covoiturage-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #4CAF50, #2196F3);
+}
+
+.covoiturage-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    border-color: #4CAF50;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.driver-info {
+    text-align: left;
+    flex: 1;
+}
+
+.driver-rating {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.driver-rating .rating-value {
+    font-weight: 600;
+    color: #333;
+}
+
+.driver-rating .rating-count {
+    font-size: 0.85rem;
+    color: #999;
+}
+
+.driver-photo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #4CAF50;
+}
+
+.card-body p {
+    margin: 0.5rem 0;
+    text-align: left;
+}
+
+.card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.card-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.ecologic-badge {
+    display: inline-block;
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.details-button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.details-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(33, 150, 243, 0.4);
+    background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+}

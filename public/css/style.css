@@ -1,5 +1,5 @@
 /* ================================================================================================================================ */
-/* ========================================== ECORIDE - STYLES BASÉS SUR LA CHARTE GRAPHIQUE 2025 ================================ */
+/* ========================================== ECORIDE - STYLES COMMUNS (CHARTE GRAPHIQUE 2025) =================================== */
 /* ================================================================================================================================ */
 
 /* Import des polices Google Fonts selon la charte */
@@ -60,7 +60,7 @@ body {
     color: var(--color-text-primary);
     line-height: 1.6;
     scroll-behavior: smooth;
-    position: relative; /* Pour que le z-index fonctionne correctement */
+    position: relative;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -87,7 +87,6 @@ p {
 /* ================================================================================================================================= */
 /* ------------------------------------------------ Barre de navigation (Header) --------------------------------------------------- */
 /* ================================================================================================================================= */
-
 
 header {
     background: linear-gradient(to right, #4CAF50 30%, #2196F3 30%);
@@ -129,7 +128,7 @@ header {
     font-size: 2.2rem;
     font-weight: bold;
     color: #fff;
-    line-height: 80px; /* Pour centrer verticalement le texte avec la hauteur du header */
+    line-height: 80px;
 }
 
 nav ul {
@@ -141,7 +140,7 @@ nav ul {
 }
 
 nav li {
-    list-style: none; /* Assurez-vous que les puces ne s'affichent pas */
+    list-style: none;
 }
 
 nav a {
@@ -175,7 +174,7 @@ nav a:hover::after {
 /* ================================================================================================================================ */
 
 .hamburger-menu {
-    display: none; /* Caché par défaut, visible sur les petites tailles */
+    display: none;
     cursor: pointer;
     background: none;
     border: none;
@@ -184,7 +183,6 @@ nav a:hover::after {
     height: 30px;
     position: relative;
     z-index: 1010;
-    display: flex; /* Permet d'aligner les barres */
     flex-direction: column;
     justify-content: space-around;
 }
@@ -209,675 +207,6 @@ nav a:hover::after {
 }
 
 /* ================================================================================================================================ */
-/* -------------------------------------------- Sections de la page d'accueil------------------------------------------------------ */
-/* ================================================================================================================================ */
-
-.hero-section {
-    position: relative;
-    height: 60vh;
-    overflow: hidden;
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-
-.hero-section video {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    min-width: 100%;
-    min-height: 100%;
-    width: auto;
-    height: auto;
-    z-index: -1;
-    transform: translate(-50%, -50%);
-}
-
-.hero-content {
-    /* background-color: rgba(0, 0, 0, 0.5); - Overlay supprimé pour meilleure visibilité de la vidéo */
-    padding: 2rem;
-    border-radius: 10px;
-    z-index: 1;
-}
-
-.about-section {
-    padding: 4rem 2rem;
-    background-color: #fff;
-    border-bottom: 5px solid #4CAF50;
-    text-align: center;
-}
-
-.about-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-    gap: 2rem;
-}
-
-.about-content p {
-    max-width: 800px;
-}
-
-.images-container {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.images-container img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.advantages-section {
-    padding: 4rem 2rem;
-    text-align: center;
-    background-color: #e6f3ff;
-}
-
-.advantages-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-    max-width: 1200px;
-    margin: 2rem auto 0;
-}
-
-.advantage-item {
-    background-color: #fff;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-}
-
-.secure-payment-section {
-    padding: 4rem 2rem;
-    text-align: center;
-    background-color: #fff;
-    border-top: 5px solid #2196F3;
-}
-
-.secure-payment-container {
-    max-width: 900px;
-    margin: 0 auto;
-}
-
-.secure-payment-container h2 {
-    color: #1e3a8a;
-    margin-bottom: 1.5rem;
-}
-
-.secure-payment-container p {
-    font-size: 1.1rem;
-    margin-bottom: 2rem;
-    max-width: 700px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.payment-logos {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-    margin-bottom: 2rem;
-}
-
-.payment-logos img {
-    height: 40px;
-    width: auto;
-    filter: grayscale(80%);
-    opacity: 0.7;
-    transition: all 0.3s ease;
-}
-
-.payment-logos img:hover {
-    filter: grayscale(0%);
-    opacity: 1;
-}
-
-/* ================================================================================================================================ */
-/* --------------------------------------- Page Mentions Légales / Confidentialité ------------------------------------------------ */
-/* ================================================================================================================================ */
-
-.legal-mentions-section {
-    padding: 4rem 2rem;
-    background-color: #f8f9fa;
-    min-height: calc(100vh - 80px - 100px); /* Hauteur minimale moins header et footer */
-}
-
-.legal-mentions-container {
-    max-width: 900px;
-    margin: 0 auto;
-    background-color: #fff;
-    padding: 3rem;
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-}
-
-.legal-mentions-container h1 {
-    color: #1e3a8a;
-    margin-bottom: 2rem;
-    text-align: center;
-}
-
-.legal-mentions-container h2 {
-    color: #4CAF50;
-    margin-top: 2.5rem;
-    margin-bottom: 1rem;
-    text-align: left;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 0.5rem;
-}
-
-.legal-mentions-container p {
-    margin-bottom: 1rem;
-    line-height: 1.8;
-    color: #333;
-}
-
-.legal-mentions-container a {
-    color: #2196F3;
-    text-decoration: none;
-}
-
-.legal-mentions-container a:hover {
-    text-decoration: underline;
-}
-
-/* ================================================================================================================================ */
-/* ------------------------------------------------- Boutons Génériques ----------------------------------------------------------- */
-/* ================================================================================================================================ */
-
-/* --- Bouton principal (vert) - Ex: Participer --- */
-.participate-button {
-    background-color: #4CAF50;
-    color: #fff;
-    padding: 1.2rem 2.5rem;
-    border-radius: 50px;
-    text-decoration: none;
-    font-size: 1.2rem;
-    font-weight: bold;
-    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
-    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-    border: none;
-    cursor: pointer;
-    display: inline-block; /* Pour que padding et margin fonctionnent correctement sur un <a> */
-}
-
-.participate-button:hover {
-    background-color: #45a049;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
-}
-
-/* --- Bouton secondaire (jaune) - Ex: Rechercher, Détails, Appliquer les filtres --- */
-.search-form button,
-.details-button,
-.filters-form .apply-filters-button {
-    background-color: #FFC107;
-    color: #333;
-    padding: 1rem 2rem;
-    border-radius: 50px;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 1.2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-    border: none;
-    cursor: pointer;
-    display: inline-block;
-}
-
-.search-form button:hover,
-.details-button:hover,
-.filters-form .apply-filters-button:hover {
-    background-color: #e6a800;
-    transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* --- Style spécifique pour les boutons de filtres côte à côte --- */
-.filters-form .apply-filters-button,
-.filters-form .button.button-secondary {
-    margin-top: 1rem;
-    margin-right: 0.5rem;
-    display: inline-block;
-}
-
-.filters-form .button.button-secondary {
-    padding: 1rem 2rem;
-    font-size: 1.2rem;
-}
-
-/* --- Boutons d'authentification et de contact --- */
-.auth-button, .contact-button {
-    background-color: #4CAF50;
-    color: #fff;
-    padding: 1rem;
-    border: none;
-    border-radius: 5px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-    display: inline-block; /* Pour les liens avec cette classe */
-}
-
-.auth-button:hover, .contact-button:hover {
-    background-color: #45a049;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* --- Bouton pour ajouter un véhicule (dans le dashboard) --- */
-.add-button {
-    background-color: #4CAF50;
-    color: #fff;
-    width: 100%; /* S'étend sur toute la largeur de son conteneur */
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    margin-top: 1.5rem; /* Espace au-dessus */
-    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.add-button:hover {
-    background-color: #45a049;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* --- Bouton de déconnexion --- */
-.logout-button {
-    background-color: #f44336; /* Rouge */
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    margin-left: 1rem;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-.logout-button:hover {
-    background-color: #d32f2f; /* Rouge plus foncé */
-    transform: translateY(-2px);
-}
-
-/* --- Bouton Admin --- */
-.admin-button {
-    background-color: #ff9800; /* Orange */
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 5px;
-    font-weight: bold;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.admin-button:hover {
-    background-color: #f57c00; /* Orange plus foncé */
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.admin-button i {
-    font-size: 1rem;
-}
-
-
-/* ================================================================================================================================ */
-/* ---------------------------------------------- Page Trouver un Covoiturage------------------------------------------------------ */
-/* ================================================================================================================================ */
-
-.search-page-hero {
-    background-color: #e6f3ff;
-    padding: 4rem 2rem;
-    text-align: center;
-}
-
-.search-form-container {
-    max-width: 800px;
-    margin: 0 auto;
-    background-color: #fff;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-}
-
-
-/* ================================================================================================================================ */
-/* -----------------------------Formulaire de recherche (dans hero-section et covoiturages-page)----------------------------------- */
-/* ================================================================================================================================ */    
-
-.search-form {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    margin-top: 1.5rem;
-}
-
-.search-form input {
-    padding: 0.8rem 1rem;
-    border: 1px solid #ccc;
-    border-radius: 50px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-}
-
-.search-form input:focus {
-    outline: none;
-    border-color: #4CAF50;
-    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
-}
-
-/* Champ passagers avec icône intégrée */
-.passengers-field {
-    display: flex;
-    align-items: center;
-    border: 1px solid #ccc;
-    border-radius: 50px;
-    padding: 0.8rem 1rem;
-    background: white;
-    transition: all 0.3s ease;
-}
-
-.passengers-field:focus-within {
-    border-color: #4CAF50;
-    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
-}
-
-.passengers-icon {
-    font-size: 1.2rem;
-    margin-right: 0.5rem;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    user-select: none;
-}
-
-.passengers-field input {
-    border: none;
-    padding: 0;
-    width: 80px;
-    text-align: center;
-    font-size: 1rem;
-    outline: none;
-}
-
-.results-section {
-    display: flex;
-    justify-content: space-between;
-    max-width: 1200px;
-    margin: 3rem auto;
-    gap: 2rem;
-    padding: 0 2rem;
-}
-
-.filters-container {
-    flex-basis: 300px;
-    background-color: #fff;
-    padding: 1.5rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    border-left: 5px solid #4CAF50;
-}
-
-.filters-container h2 {
-    text-align: left;
-    margin-bottom: 2rem;
-    color: #1e3a8a;
-    position: relative;
-    padding-left: 2rem;
-}
-
-.filters-container h2::before {
-    content: '\f0b0'; /* Icône de filtre */
-    font-family: "Font Awesome 5 Free";
-    font-weight: 900;
-    position: absolute;
-    left: 0;
-    color: #4CAF50;
-    font-size: 1.5rem;
-}
-
-.filters-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.filter-group {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #eee;
-}
-
-.filter-group:last-child {
-    border-bottom: none;
-}
-
-.filter-group label {
-    font-weight: 500;
-}
-
-.filter-group input[type="number"],
-.filter-group input[type="checkbox"] {
-    margin-left: 1rem;
-}
-
-.filter-group input[type="number"] {
-    max-width: 80px;
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    text-align: right;
-}
-
-.filters-form .apply-filters-button {
-    margin-top: 2rem;
-    padding: 0.75rem 1.5rem; /* Ajustement du padding pour ce bouton spécifique */
-}
-
-.results-container {
-    flex: 1;
-}
-
-.no-results {
-    text-align: center;
-    color: #888;
-    padding: 2rem;
-    border: 1px dashed #ccc;
-    border-radius: 8px;
-    display: none; /* Cacher par défaut, JS le montrera si pas de résultats */
-}
-
-.covoiturage-card {
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    margin-bottom: 2rem;
-    padding: 1.5rem;
-    transition: transform 0.3s ease;
-}
-
-.covoiturage-card:hover {
-    transform: translateY(-5px);
-}
-
-.card-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 1rem;
-    margin-bottom: 1rem;
-}
-
-.driver-info {
-    text-align: left; /* Assure que le texte du conducteur est aligné à gauche */
-    flex: 1;
-}
-
-.driver-rating {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 4px;
-    font-size: 0.9rem;
-    color: #666;
-}
-
-.driver-rating .rating-value {
-    font-weight: 600;
-    color: #333;
-}
-
-.driver-rating .rating-count {
-    font-size: 0.85rem;
-    color: #999;
-}
-
-.driver-photo {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #4CAF50;
-}
-
-.card-body p {
-    margin: 0.5rem 0;
-}
-
-.ecologic-badge {
-    display: inline-block;
-    background-color: #4CAF50;
-    color: #fff;
-    padding: 0.25rem 0.75rem;
-    border-radius: 50px;
-    font-size: 0.8rem;
-    font-weight: bold;
-}
-
-.details-button {
-    float: right;
-    margin-top: 1rem;
-    font-size: 1rem; /* Légèrement plus petit pour les cartes */
-    padding: 0.6rem 1.2rem;
-}
-
-/* ================================================================================================================================ */
-/* ------------------------------------------- Page de détail du covoiturage ------------------------------------------------------ */
-/* ================================================================================================================================ */
-
-.detail-section {
-    padding: 4rem 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.detail-container {
-    display: flex;
-    flex-direction: column;
-    gap: 3rem;
-}
-
-.ride-details, .driver-vehicle-info, .driver-reviews {
-    background-color: #fff;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.ride-summary {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: 1rem;
-    text-align: center;
-    margin-top: 1.5rem;
-}
-
-.summary-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1.1rem;
-}
-
-.summary-item i {
-    font-size: 2rem;
-    color: #4CAF50;
-}
-
-.driver-vehicle-info {
-    display: flex;
-    gap: 2rem;
-    flex-wrap: wrap;
-}
-
-.driver-info-card, .vehicle-info-card {
-    flex: 1;
-    min-width: 300px;
-    padding: 1.5rem;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-}
-
-.driver-profile {
-    text-align: center;
-}
-
-.driver-profile img.driver-photo-lg {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #4CAF50;
-    margin-bottom: 1rem;
-}
-
-.driver-reviews {
-    text-align: left;
-}
-
-.review-card {
-    background-color: #f8f9fa;
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    border-left: 3px solid #2196F3;
-}
-
-.review-card p, .review-card .rating {
-    margin: 0;
-}
-
-.action-buttons {
-    text-align: center;
-    margin-top: 3rem;
-}
-
-/* ================================================================================================================================ */
 /* ----------------------------------------------------- Pied de page ------------------------------------------------------------- */
 /* ================================================================================================================================ */
 
@@ -890,7 +219,7 @@ footer {
     color: #fff;
     padding: 0.3rem 1rem;
     box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-    z-index: 1; /* Z-index faible pour que le chat soit au-dessus */
+    z-index: 1;
     font-size: 0.75rem;
     margin-top: auto;
 }
@@ -912,13 +241,13 @@ footer {
 }
 
 .footer-content ul {
-    list-style: none; /* Supprime les puces */
+    list-style: none;
     padding: 0;
     margin: 0;
-    display: flex; /* Aligner les liens */
+    display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
-    justify-content: center; /* Centrer sur mobile */
+    justify-content: center;
 }
 
 .footer-content a {
@@ -948,1070 +277,106 @@ footer {
 }
 
 .secure-payment-info {
-    text-align: center; /* Centrer le texte et l'image */
+    text-align: center;
 }
 
 .secure-payment-info img {
     height: 30px;
     margin-top: 5px;
-    width: auto; /* Ajuster la largeur automatiquement */
-    max-width: 100%; /* Empêcher le débordement */
-}
-
-
-/* ================================================================================================================================ */
-/* --------------------------------- Styles pour les pages d'authentification et de contact---------------------------------------- */
-/* ================================================================================================================================ */
-
-.auth-section, .contact-section, .offer-ride-section {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; /* Permet le scroll si le contenu est long */
-    min-height: calc(100vh - 80px - 100px); /* Hauteur minimale moins header et footer */
-    background-color: #f8f9fa;
-    padding: 4rem 2rem;
-}
-
-.auth-container, .contact-container, .offer-ride-container {
-    background-color: #fff;
-    padding: 3rem;
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-    max-width: 600px; /* Taille par défaut pour les formulaires */
-    width: 100%;
-    text-align: center;
-}
-
-/* --- Ajustement de la taille max pour offrir un covoiturage --- */
-.offer-ride-container {
-    max-width: 800px;
-}
-
-
-.auth-container h1, .contact-container h1, .offer-ride-container h1 {
-    margin-bottom: 1rem;
-    color: #1e3a8a;
-}
-
-.offer-ride-container .intro-text {
-    font-size: 1.1rem;
-    color: #555;
-    margin-bottom: 2.5rem;
-    line-height: 1.6;
-}
-
-.auth-form, .contact-form, .offer-ride-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    margin-top: 2rem;
-    text-align: left;
-}
-
-.offer-ride-form h2 {
-    color: #4CAF50;
-    text-align: left;
-    margin-bottom: 0.5rem;
-    margin-top: 2.5rem;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 0.5rem;
-}
-
-.form-group {
-    margin-bottom: 1rem; /* Ajustement pour éviter le double gap */
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: #333;
-}
-
-.form-group input:not([type="checkbox"]),
-.form-group textarea,
-.form-group select { /* Ajouté pour les selects */
-    width: calc(100% - 24px); /* Pour compenser le padding */
-    padding: 0.75rem 12px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    background-color: #fff; /* Assurer un fond blanc pour les selects */
-}
-
-.form-group input:focus:not([type="checkbox"]),
-.form-group textarea:focus,
-.form-group select:focus { /* Ajouté pour les selects */
-    outline: none;
-    border-color: #4CAF50;
-    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
-}
-
-.form-group textarea {
-    resize: vertical;
-}
-
-.form-group.checkbox-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 0.5rem;
-}
-
-.form-group.checkbox-group label {
-    margin-bottom: 0;
-}
-
-.form-group.checkbox-group input[type="checkbox"] {
     width: auto;
-    margin-left: 0;
-    transform: scale(1.2);
+    max-width: 100%;
 }
-
-.offer-ride-form .participate-button {
-    margin-top: 2.5rem;
-    width: auto;
-    align-self: center;
-}
-
-.auth-links {
-    margin-top: 1.5rem;
-}
-
-.auth-links a {
-    color: #2196F3;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.auth-links a:hover {
-    text-decoration: underline;
-}
-
 
 /* ================================================================================================================================ */
-/* -------------------------------------- Styles pour l'indicateur de force du mot de passe --------------------------------------- */
+/* ------------------------------------------------- Boutons Génériques ----------------------------------------------------------- */
 /* ================================================================================================================================ */
 
-.password-strength {
-    height: 10px;
-    background-color: #eee;
-    border-radius: 5px;
-    margin-top: 5px;
-    overflow: hidden;
-}
-
-.strength-bar {
-    display: block;
-    height: 100%;
-    width: 0%;
-    transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out;
-}
-
-.strength-text {
-    display: block;
-    margin-top: 5px;
-    font-size: 0.85rem;
-    color: #888;
-    text-align: right;
-}
-
-.strength-bar.weak { background-color: #ff4d4f; }
-.strength-bar.medium { background-color: #faad14; }
-.strength-bar.strong { background-color: #52c41a; }
-
-.strength-text.weak { color: #ff4d4f; }
-.strength-text.medium { color: #faad14; }
-.strength-text.strong { color: #52c41a; }
-
-
-/* ================================================================================================================================ */
-/* -------------------------------------------- Scroll Reveal Animations ---------------------------------------------------------- */
-/* ================================================================================================================================ */
-
-.scroll-reveal {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-
-.scroll-reveal.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-
-/* ================================================================================================================================ */
-/* ------------------------- Styles pour l'Espace Utilisateur (Tableau de Bord) --------------------------------------------------- */
-/* ================================================================================================================================ */
-
-.dashboard-header {
-    background-color: #e6f3ff;
-    text-align: center;
-    padding: 3rem 2rem;
-    border-bottom: 5px solid #4CAF50;
-}
-
-.dashboard-header h1 {
-    margin: 0;
-}
-
-.credits-display {
-    background-color: #fff;
-    color: #333;
-    padding: 0.75rem 1.5rem;
-    border-radius: 50px;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 1rem;
-    font-size: 1.1rem;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.credits-display i {
-    color: #FFC107;
-    margin-right: 0.5rem;
-}
-
-.cart-icon-button {
-    background: #4CAF50;
-    color: white;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    font-size: 1.1rem;
-}
-
-.cart-icon-button:hover {
-    background: #45a049;
-    transform: scale(1.1);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-}
-
-.cart-icon-button i {
-    margin: 0;
-    color: white;
-}
-
-.dashboard-content {
-    padding: 3rem 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 2rem;
-}
-
-.dashboard-card {
-    background-color: #fff;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-}
-
-.dashboard-card h2 {
-    text-align: left;
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.dashboard-card h2 i {
-    color: #4CAF50;
-}
-
-/* --- Liste de véhicules --- */
-.vehicle-list {
-    display: grid; /* Utilisez grid pour aligner les cartes de véhicules */
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Adaptatif */
-    gap: 15px;
-    margin-top: 15px;
-}
-
-.vehicle-card {
-    background-color: #f8f9fa; /* Couleur de fond légèrement différente */
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    transition: transform 0.2s ease-in-out;
-}
-
-.vehicle-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.vehicle-card h3 {
-    color: #2196F3; /* Couleur de titre pour les véhicules */
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 1.2rem;
-    text-align: left;
-}
-
-.vehicle-card p {
-    margin: 5px 0;
-    font-size: 0.95rem;
-    color: #555;
-    text-align: left;
-}
-
-
-.ride-item, .vehicle-item, .ride-item-past {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    border-radius: 5px;
-    background-color: #f8f9fa;
-    margin-bottom: 1rem;
-}
-
-.details-button-small {
-    background-color: #2196F3;
-    color: #fff;
-    padding: 0.5rem 1rem;
-    border-radius: 50px;
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: bold;
-}
-
-
-.no-items-message {
-    color: #888;
-    text-align: center;
-    padding: 1rem;
-    border: 1px dashed #ccc;
-    border-radius: 5px;
-    margin-top: 20px;
-    font-style: italic;
-}
-
-
-/* ================================================================================================================================ */
-/* -------------------------------------------------- Styles pour le Modal -------------------------------------------------------- */
-/* ================================================================================================================================ */
-
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-    opacity: 0;
-    pointer-events: none; /* Empêche les interactions quand invisible */
-    transition: opacity 0.3s ease;
-}
-
-.modal-overlay.active {
-    opacity: 1;
-    pointer-events: auto; /* Permet les interactions quand visible */
-}
-
-.modal-content {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 500px;
-    position: relative;
-    transform: translateY(-50px); /* Animation au début */
-    transition: transform 0.3s ease;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* Ombre pour la modale */
-}
-
-.modal-overlay.active .modal-content {
-    transform: translateY(0); /* Animation d'arrivée */
-}
-
-.close-modal-btn {
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    font-size: 2.5rem;
-    cursor: pointer;
-    color: #888;
-    transition: color 0.3s ease;
-}
-
-.close-modal-btn:hover {
-    color: #333;
-}
-
-/* Styles spécifiques au formulaire dans la modale */
-.modal-content .auth-form { /* Cible le formulaire avec la classe auth-form à l'intérieur de la modale */
-    margin-top: 1.5rem;
-    gap: 1rem; /* Moins d'espace pour les inputs dans la modale pour qu'elle soit plus compacte */
-}
-
-.modal-content .auth-form .form-group input,
-.modal-content .auth-form .form-group select {
-    width: calc(100% - 20px); /* Ajuster la largeur avec le padding */
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 1rem;
-}
-
-.modal-content .auth-form button.auth-button {
-    margin-top: 1.5rem; /* Espacement au-dessus du bouton */
-    width: auto; /* Pour ne pas qu'il prenne toute la largeur */
-    align-self: center; /* Centrer le bouton */
-    padding: 10px 20px;
-}
-
-
-/* ================================================================================================================================ */
-/* --------------------------------------------- Media Queries (Responsive Design) ------------------------------------------------ */
-/* ================================================================================================================================ */
-
-@media screen and (max-width: 768px) {
-    .hamburger-menu {
-        display: flex; /* Afficher le menu hamburger sur mobile */
-    }
-
-    .main-nav {
-        position: fixed;
-        top: 0;
-        right: 0;
-        width: 100%;
-        height: 100vh;
-        background-color: #2196F3;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        transform: translateX(100%);
-        transition: transform 0.3s ease-in-out;
-        z-index: 1005;
-    }
-
-    .main-nav.active {
-        transform: translateX(0);
-    }
-
-    .main-nav ul {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .main-nav li {
-        margin: 1.5rem 0;
-    }
-
-    .search-form {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .results-section {
-        flex-direction: column;
-    }
-
-    .filters-container {
-        flex-basis: auto;
-        width: 100%;
-        margin-bottom: 2rem;
-    }
-
-    .footer-content {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .footer-content ul {
-        flex-direction: column;
-        gap: 0.5rem;
-        margin-top: 1rem;
-    }
-
-    .secure-payment-info {
-        margin-top: 1rem;
-    }
-
-    .dashboard-grid {
-        grid-template-columns: 1fr; /* Une seule colonne sur mobile */
-    }
-
-    .dashboard-card {
-        padding: 1.5rem;
-    }
-
-    .dashboard-card h2 {
-        font-size: 1.3rem;
-    }
-
-    .modal-content {
-        width: 95%; /* Un peu plus large sur très petits écrans */
-        padding: 1.5rem;
-    }
-}
-
-@media screen and (max-width: 600px) {
-    header {
-        padding: 0 1rem;
-    }
-    .logo-text {
-        font-size: 1.8rem;
-    }
-    .hero-content {
-        padding: 1.5rem;
-    }
-    .search-form input, .search-form button {
-        width: calc(100% - 2rem); /* Pleine largeur pour les inputs */
-    }
-    
-    .passengers-field {
-        width: calc(100% - 2rem);
-        justify-content: center;
-    }
-    
-    .passengers-field input {
-        width: 100px;
-    }
-    
-    .payment-logos {
-        gap: 1rem;
-    }
-    .payment-logos img {
-        height: 30px;
-    }
-    .legal-mentions-container, .auth-container, .contact-container, .offer-ride-container {
-        padding: 1.5rem;
-    }
-    h1 {
-        font-size: 1.8rem;
-    }
-    h2 {
-        font-size: 1.3rem;
-    }
-    .form-group input:not([type="checkbox"]),
-    .form-group textarea,
-    .form-group select {
-        width: calc(100% - 20px);
-        padding: 0.6rem 10px;
-    }
-}
-
-/* ============================================================================================================== */
-/* -------------------------  Styles pour les sections Trajets et Onglets  -------------------------------------- */
-/* ============================================================================================================== */
-
-.tabs {
-    display: flex;
-    margin-bottom: 20px;
-    border-bottom: 2px solid var(--color-grey-light);
-}
-
-.tab-button {
-    background-color: transparent;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    font-size: 1rem;
-    color: var(--color-text-dark);
-    font-weight: bold;
-    border-bottom: 2px solid transparent;
-    transition: all 0.3s ease;
-}
-
-.tab-button:hover {
-    color: var(--color-primary);
-}
-
-.tab-button.active {
-    color: var(--color-primary);
-    border-bottom-color: var(--color-primary);
-}
-
-.tab-content {
-    display: none; /* Cache tous les contenus d'onglets par défaut */
-    padding-top: 20px;
-}
-
-.tab-content.active {
-    display: block; /* Affiche le contenu de l'onglet actif */
-}
-
-.ride-list {
-    display: grid;
-    gap: 20px;
-    /* Rendre la grille responsive */
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-}
-
-.ride-card {
-    background-color: #f8f9fa; /* Même fond que vehicle-card */
-    border: 1px solid #dee2e6; /* Même bordure que vehicle-card */
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Même ombre que vehicle-card */
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    display: flex; /* Mettre en ligne */
-    justify-content: space-between; /* Espacer le contenu et le bouton */
-    align-items: center; /* Centrer verticalement */
-    gap: 20px;
-}
-
-.ride-card:hover {
-    transform: translateY(-3px); /* Même effet que vehicle-card */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Même ombre hover que vehicle-card */
-}
-
-.ride-card-content {
-    flex: 1; /* Prendre l'espace disponible */
-}
-
-.ride-card h3 {
-    color: var(--color-primary);
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 1.3rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.ride-card h3 .fa-arrow-right {
-    color: var(--color-secondary);
-}
-
-.ride-card p {
-    margin-bottom: 8px;
-    color: var(--color-text-dark);
-}
-
-.ride-card p strong {
-    color: var(--color-primary-dark);
-}
-
-.ride-status {
-    padding: 3px 8px;
-    border-radius: var(--border-radius);
-    font-weight: bold;
-    font-size: 0.9em;
-    color: white;
-}
-
-.ride-status.status-scheduled {
-    background-color: #4CAF50; /* Vert */
-}
-
-.ride-status.status-started {
-    background-color: #FFC107; /* Jaune */
-    color: var(--color-text-dark);
-}
-
-.ride-status.status-completed {
-    background-color: #607D8B; /* Gris-bleu */
-}
-
-.ride-status.status-cancelled {
-    background-color: #F44336; /* Rouge */
-}
-
-.ride-actions {
-    margin-top: 0; /* Retirer la marge pour l'alignement */
-    display: flex;
-    gap: 10px;
-    flex-shrink: 0; /* Ne pas rétrécir */
-}
-
-.ride-actions .button {
-    text-align: center;
-}
-
-/* Ajustements pour les cartes dans le dashboard-card my-trips */
-.dashboard-card.my-trips {
-    grid-column: span 2; /* Pour que la section prenne deux colonnes */
-    padding: 20px; /* Assurez-vous d'avoir un padding si ce n'est pas déjà le cas */
-}
-
-/* Styles pour les messages d'information */
-.info-message {
-    font-style: italic;
-    color: var(--color-text-light);
-    text-align: center;
-    padding: 20px;
-    border: 1px dashed var(--color-grey);
-    border-radius: var(--border-radius);
-    margin-top: 20px;
-}
-
-/* Boutons spécifiques aux actions (réutilisant .button-danger) */
-.button-danger {
-    background-color: var(--color-danger);
-    color: white;
-    border: none;
-    padding: 4px 8px; /* Encore plus petit */
-    font-size: 0.75rem; /* Texte encore plus petit */
-}
-.button-danger:hover {
-    background-color: var(--color-danger-dark);
-}
-
-.cancel-ride-btn, .cancel-booking-btn {
-    padding: 4px 8px;
-    font-size: 0.75rem;
-    width: auto !important; /* Ne pas prendre toute la largeur */
-    max-width: 150px; /* Largeur maximale */
-    display: inline-block; /* Affichage inline */
-}
-
-/* Assurez-vous que vos variables CSS sont définies dans :root ou body */
-:root {
-    --color-primary: #4CAF50; /* Vert */
-    --color-primary-dark: #388E3C;
-    --color-secondary: #FFC107; /* Jaune */
-    --color-accent: #2196F3; /* Bleu */
-    --color-text-dark: #333;
-    --color-text-light: #666;
-    --color-background: #f4f7f6;
-    --color-background-card: #ffffff;
-    --color-grey: #ccc;
-    --color-grey-light: #eee;
-    --color-danger: #f44336; /* Rouge */
-    --color-danger-dark: #d32f2f;
-
-    --border-radius: 8px;
-    --shadow-small: 0 2px 5px rgba(0, 0, 0, 0.1);
-    --shadow-medium: 0 4px 10px rgba(0, 0, 0, 0.15);
-    --shadow-large: 0 8px 20px rgba(0, 0, 0, 0.2);
-}
-
-/* Styles de base pour les boutons pour qu'ils soient cohérents */
-.button {
-    display: inline-block;
-    padding: 10px 15px;
-    border-radius: var(--border-radius);
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    border: 1px solid transparent;
-}
-
-.button:hover {
-    transform: translateY(-2px);
-}
-
-.button-primary {
-    background-color: var(--color-primary);
-    color: white;
-}
-
-.button-primary:hover {
-    background-color: var(--color-primary-dark);
-}
-
-/* Styles des boutons Modifier/Supprimer des véhicules pour s'adapter */
-.vehicle-actions .button {
-    padding: 8px 12px; /* Un peu moins de padding pour être compact */
-    font-size: 0.9rem;
-}
-
-/* Styles pour les statuts de trajet */
-.ride-status {
-    font-weight: bold;
-    padding: 3px 8px;
-    border-radius: var(--border-radius); /* Assurez-vous que --border-radius est défini dans vos variables CSS */
-    color: white; /* Couleur du texte par défaut pour les statuts */
-    display: inline-block; /* Pour que le padding et le border-radius s'appliquent bien */
-    min-width: 80px; /* Donne une largeur minimale pour une meilleure consistance visuelle */
-    text-align: center; /* Centre le texte dans la pastille */
-}
-
-.status-open {
-    background-color: #28a745; /* Vert vif pour "Ouvert" */
-    color: white;
-}
-
-.status-full {
-    background-color: #dc3545; /* Rouge vif pour "Complet" */
-    color: white;
-}
-
-.status-canceled {
-    background-color: #6c757d; /* Gris pour "Annulé" */
-    color: white;
-}
-
-.status-booked {
-    background-color: #007bff; /* Bleu pour "Réservé" (pour les trajets réservés par l'utilisateur) */
-    color: white;
-}
-
-.status-completed {
-    background-color: #ffc107; /* Jaune/Orange pour "Terminé" */
-    color: #343a40; /* Texte foncé sur fond clair */
-}
-
-/* Styles pour les boutons désactivés (pour améliorer la lisibilité) */
-.ride-actions button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-    opacity: 0.7;
-    filter: grayscale(50%); /* Légèrement grisé pour indiquer qu'il est inactif */
-}
-
-/* Styles pour la page de recherche de covoiturage */
-.search-ride-page .search-section,
-.search-ride-page .results-section {
-    background-color: var(--white);
-    padding: 30px;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-light);
-    margin-bottom: 30px;
-}
-
-.search-ride-page .search-section h2,
-.search-ride-page .results-section h3 {
-    color: var(--primary-color);
-    margin-bottom: 25px;
-    text-align: center;
-}
-
-.search-ride-page .form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    align-items: flex-end; /* Aligne les boutons et inputs en bas */
-}
-
-.search-ride-page .form-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.search-ride-page .form-group label {
-    margin-bottom: 8px;
-    font-weight: bold;
-    color: var(--text-color-dark);
-}
-
-.search-ride-page .form-group input[type="text"],
-.search-ride-page .form-group input[type="date"],
-.search-ride-page .form-group input[type="number"] {
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    font-size: 1rem;
-    width: 100%;
-    box-sizing: border-box; /* Inclut padding et border dans la largeur */
-}
-
-.search-ride-page .form-grid button {
-    grid-column: span 2; /* Le bouton prend 2 colonnes sur les écrans plus larges */
-    margin-top: 15px; /* Espace au-dessus du bouton */
-}
-
-@media (max-width: 768px) {
-    .search-ride-page .form-grid button {
-        grid-column: span 1; /* Sur petits écrans, le bouton prend 1 colonne */
-    }
-}
-
-/* Styles pour la liste des résultats de covoiturage */
-.ride-list {
-    display: grid;
-    gap: 20px;
-}
-
-.ride-card.search-result {
-    background-color: var(--white);
-    padding: 20px;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-light);
-    border-left: 5px solid var(--secondary-color); /* Bande de couleur pour les différencier */
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-
-.ride-card.search-result:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-hover);
-}
-
-.ride-card.search-result h3 {
-    color: var(--primary-color);
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.ride-card.search-result h3 i {
-    color: var(--secondary-color);
-    margin: 0 10px;
-}
-
-.ride-card.search-result p {
-    margin-bottom: 5px;
-    color: var(--text-color-dark);
-}
-
-.ride-card.search-result .button {
-    margin-top: 15px;
-    width: auto; /* Le bouton ne prend pas toute la largeur par défaut */
-    padding: 10px 20px;
-}
-
-/* Styles pour la modale de détails de trajet */
-.modal-actions {
-    margin-top: 20px;
-    text-align: right;
-}
-
-#modal-ride-details p {
-    margin-bottom: 10px;
-}
-
-#modal-ride-details strong {
-    color: var(--primary-color);
-}
-
-.modal-actions #book-ride-btn {
-    margin-left: auto; /* Aligne le bouton à droite */
-    display: block; /* Pour que le margin-left auto fonctionne */
-}
-
-.info-message {
-    padding: 10px;
-    border-radius: var(--border-radius);
-    margin-top: 15px;
-    font-size: 0.95rem;
-    text-align: center;
-    color: var(--text-color-dark); /* Par défaut */
-    background-color: var(--light-grey);
-}
-
-.info-message.error {
-    background-color: #f8d7da; /* Rouge clair */
-    color: #721c24; /* Texte rouge foncé */
-    border: 1px solid #f5c6cb;
-}
-.info-message.success {
-    background-color: #d4edda; /* Vert clair */
-    color: #155724; /* Texte vert foncé */
-    border: 1px solid #c3e6cb;
-}
-
-
-
-
-/* ==================================================================================================================================== */
-/* ---------------------------------- NOUVEAUX STYLES POUR LA PAGE MON ESPACE (DASHBOARD)  -------------------------------------------- */
-/* ==================================================================================================================================== */
-
-.dashboard-main-content {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-    padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-.profile-sidebar {
-    flex: 1;
-    min-width: 280px;
-}
-
-.profile-card {
-    background-color: #fff;
-    border-radius: 12px;
-    padding: 2rem;
-    text-align: center;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    position: sticky;
-    top: 100px; /* Header height + margin */
-}
-
-.profile-picture-container {
-    position: relative;
-    width: 120px;
-    height: 120px;
-    margin: 0 auto 1.5rem;
-}
-
-.profile-picture {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid #fff;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.edit-picture-btn {
-    position: absolute;
-    bottom: 5px;
-    right: 5px;
+/* Bouton principal (vert) */
+.participate-button {
     background-color: #4CAF50;
-    color: white;
+    color: #fff;
+    padding: 1.2rem 2.5rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
     border: none;
-    border-radius: 50%;
-    width: 35px;
-    height: 35px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    transition: background-color 0.3s ease;
+    display: inline-block;
 }
 
-.edit-picture-btn:hover {
+.participate-button:hover {
     background-color: #45a049;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
 }
 
-.profile-card h2 {
-    margin-bottom: 0.5rem;
-    font-size: 1.5rem;
-    color: #1e3a8a;
+/* Bouton secondaire (jaune) */
+.search-form button,
+.details-button,
+.filters-form .apply-filters-button {
+    background-color: #FFC107;
+    color: #333;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+    cursor: pointer;
+    display: inline-block;
 }
 
-.profile-card p {
-    color: #666;
-    margin-bottom: 0;
-    word-break: break-all;
+.search-form button:hover,
+.details-button:hover,
+.filters-form .apply-filters-button:hover {
+    background-color: #e6a800;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-.dashboard-tabs-content {
-    flex: 3;
-    min-width: 300px;
+/* Boutons d'authentification et de contact */
+.auth-button, .contact-button {
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 1rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    display: inline-block;
 }
 
-.dashboard-card .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
+.auth-button:hover, .contact-button:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.dashboard-card .card-header h2 {
-    margin: 0;
-    text-align: left;
+/* Bouton pour ajouter un véhicule */
+.add-button {
+    background-color: #4CAF50;
+    color: #fff;
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 1.5rem;
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.add-button:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .add-button-small {
@@ -2029,29 +394,56 @@ footer {
     background-color: #45a049;
 }
 
-@media (max-width: 900px) {
-    .dashboard-main-content {
-        flex-direction: column;
-    }
-    .profile-card {
-        position: static;
-    }
+/* Bouton de déconnexion */
+.logout-button {
+    background-color: #f44336;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 1rem;
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-/* ================================================================================================================================ */
-/* ============================================ PAGE D'ACHAT DE CRÉDITS =========================================================== */
+.logout-button:hover {
+    background-color: #d32f2f;
+    transform: translateY(-2px);
+}
 
+/* Bouton Admin */
+.admin-button {
+    background-color: #ff9800;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.admin-button:hover {
+    background-color: #f57c00;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.admin-button i {
+    font-size: 1rem;
+}
 
 /* ================================================================================================================================ */
 /* ------------------------------------------------ Classes utilitaires ----------------------------------------------------------- */
 /* ================================================================================================================================ */
 
-/* Classe pour cacher les éléments */
 .hidden {
     display: none !important;
 }
 
-/* Classes pour l'affichage dynamique */
 .show {
     display: block !important;
 }
@@ -2068,7 +460,6 @@ footer {
     display: inline-block !important;
 }
 
-/* Classes pour les messages d'information */
 .info-message {
     color: #666;
     font-style: italic;
@@ -2098,7 +489,6 @@ footer {
     margin: 1rem 0;
 }
 
-/* Classes pour la navigation utilisateur */
 .user-nav-hidden {
     display: none;
 }
@@ -2108,1579 +498,129 @@ footer {
 }
 
 /* ================================================================================================================================ */
-/* ============================================ PAGE ACHAT DE CRÉDITS ============================================================= */
+/* ------------------------------------------------ Sections communes ------------------------------------------------------------- */
 /* ================================================================================================================================ */
 
-/* Hero Section */
-.credits-hero {
-    background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%);
-    padding: 3rem 0;
-    color: white;
-    text-align: center;
-}
-
-.credits-hero h1 {
-    color: white;
-    margin: 0 0 1rem 0;
-    font-size: 2.5rem;
+.auth-section, .contact-section, .offer-ride-section {
     display: flex;
-    align-items: center;
     justify-content: center;
-    gap: 1rem;
-}
-
-.hero-subtitle {
-    font-size: 1.1rem;
-    opacity: 0.95;
-    margin-bottom: 2rem;
-}
-
-.current-balance-card {
-    background: rgba(255, 255, 255, 0.15);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    border-radius: 15px;
-    padding: 1.5rem;
-    max-width: 600px;
-    margin: 0 auto;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.balance-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.balance-label {
-    font-size: 0.9rem;
-    opacity: 0.9;
-}
-
-.balance-amount {
-    font-size: 2rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.balance-amount i {
-    color: #FFC107;
-}
-
-/* Packages Section */
-.credits-packages-section {
-    padding: 3rem 0;
-    background: #f5f5f5;
-}
-
-.credits-packages-section h2 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 3rem;
-    font-size: 2rem;
-}
-
-.packages-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
-    margin-bottom: 3rem;
-}
-
-.credit-package {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-}
-
-.credit-package:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-
-.credit-package.popular {
-    border: 2px solid #4CAF50;
-    transform: scale(1.05);
-}
-
-.credit-package.popular:hover {
-    transform: scale(1.08) translateY(-5px);
-}
-
-.popular-badge {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: linear-gradient(135deg, #FF6B6B, #FFA726);
-    color: white;
-    padding: 0.4rem 1rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-}
-
-.package-header {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    padding: 2rem 1.5rem;
-    text-align: center;
-}
-
-.package-title {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.package-title i {
-    font-size: 1.8rem;
-    color: #4CAF50;
-}
-
-.package-title h3 {
-    margin: 0;
-    color: #333;
-    font-size: 1.5rem;
-}
-
-.package-amount {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #4CAF50;
-    margin-top: 0.5rem;
-}
-
-.package-body {
-    padding: 1.5rem;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.package-price {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.price-value {
-    display: block;
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #333;
-    margin-bottom: 0.3rem;
-}
-
-.price-detail {
-    display: block;
-    color: #666;
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
-}
-
-.price-save {
-    display: inline-block;
-    background: #FFF3CD;
-    color: #856404;
-    padding: 0.3rem 0.8rem;
-    border-radius: 15px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-top: 0.5rem;
-}
-
-.package-benefits {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 1.5rem 0;
-    flex: 1;
-}
-
-.package-benefits li {
-    padding: 0.6rem 0;
-    color: #555;
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    font-size: 0.95rem;
-}
-
-.package-benefits li i {
-    color: #4CAF50;
-    font-size: 1.1rem;
-    flex-shrink: 0;
-}
-
-.buy-button {
-    width: 100%;
-    padding: 1rem;
-    background: linear-gradient(135deg, #4CAF50, #45a049);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: auto;
-}
-
-.buy-button:hover {
-    background: linear-gradient(135deg, #45a049, #4CAF50);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
-}
-
-.buy-button i {
-    font-size: 1rem;
-}
-
-/* Fin Page Acheter Crédits */
-
-.buy-button:active {
-    transform: translateY(0);
-}
-
-.payment-info {
-    background: var(--color-white);
-    border-radius: var(--border-radius-lg);
-    padding: var(--spacing-xl);
-    margin: var(--spacing-xxl) 0;
-    box-shadow: var(--shadow-sm);
-    text-align: center;
-}
-
-.payment-info h3 {
-    color: var(--color-success);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-md);
-}
-
-.payment-info h3 i {
-    font-size: 1.5rem;
-}
-
-.payment-methods {
-    margin-top: var(--spacing-lg);
-}
-
-.payment-methods img {
-    max-width: 400px;
-    width: 100%;
-    height: auto;
-}
-
-.faq-section {
-    background: var(--color-white);
-    border-radius: var(--border-radius-lg);
-    padding: var(--spacing-xl);
-    margin: var(--spacing-xxl) 0;
-    box-shadow: var(--shadow-sm);
-}
-
-.faq-section h3 {
-    color: var(--color-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-lg);
-}
-
-.faq-item {
-    padding: var(--spacing-md) 0;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.faq-item:last-child {
-    border-bottom: none;
-}
-
-.faq-item strong {
-    color: var(--color-text-primary);
-    display: block;
-    margin-bottom: var(--spacing-sm);
-}
-
-.faq-item p {
-    color: var(--color-text-secondary);
-    margin: 0;
-    line-height: 1.6;
-}
-
-/* Modale de paiement */
-.payment-modal-content {
-    max-width: 600px;
-}
-
-.payment-summary {
-    background: var(--color-background);
-    border-radius: var(--border-radius);
-    padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-xl);
-}
-
-.payment-summary h3 {
-    color: var(--color-text-primary);
-    font-size: 1.2rem;
-    margin-bottom: var(--spacing-md);
-    text-align: left;
-}
-
-.summary-line {
-    display: flex;
-    justify-content: space-between;
-    padding: var(--spacing-sm) 0;
-    color: var(--color-text-primary);
-}
-
-.summary-line.total {
-    border-top: 2px solid #dee2e6;
-    margin-top: var(--spacing-sm);
-    padding-top: var(--spacing-md);
-    font-weight: 700;
-    font-size: 1.2rem;
-    color: var(--color-primary);
-}
-
-.payment-form h3 {
-    color: var(--color-text-primary);
-    font-size: 1.2rem;
-    margin-bottom: var(--spacing-lg);
-    text-align: left;
-}
-
-.payment-methods-selection {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-xl);
-}
-
-.payment-method-option {
-    cursor: pointer;
-}
-
-.payment-method-option input[type="radio"] {
-    display: none;
-}
-
-.method-card {
-    border: 2px solid #dee2e6;
-    border-radius: var(--border-radius);
-    padding: var(--spacing-lg);
-    text-align: center;
-    transition: all var(--transition-fast);
-    background: var(--color-white);
-}
-
-.payment-method-option input[type="radio"]:checked + .method-card {
-    border-color: var(--color-primary);
-    background: rgba(39, 174, 96, 0.05);
-}
-
-.method-card i {
-    font-size: 2rem;
-    color: var(--color-primary);
-    display: block;
-    margin-bottom: var(--spacing-sm);
-}
-
-.method-card span {
-    font-weight: 600;
-    color: var(--color-text-primary);
-}
-
-.payment-fields {
-    margin-bottom: var(--spacing-xl);
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-md);
-}
-
-.info-message {
-    background: #d1ecf1;
-    border: 1px solid #bee5eb;
-    border-radius: var(--border-radius);
-    padding: var(--spacing-md);
-    color: #0c5460;
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-}
-
-.info-message i {
-    font-size: 1.2rem;
-}
-
-.submit-payment-btn {
-    width: 100%;
-    padding: var(--spacing-md) var(--spacing-lg);
-    background: linear-gradient(135deg, var(--color-primary), #2ecc71);
-    color: var(--color-white);
-    border: none;
-    border-radius: var(--border-radius);
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all var(--transition-normal);
-    box-shadow: var(--shadow-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-sm);
-}
-
-.submit-payment-btn:hover {
-    background: linear-gradient(135deg, #229954, var(--color-primary));
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-2px);
-}
-
-.submit-payment-btn i {
-    font-size: 1.2rem;
-}
-
-/* Footer secure payment info */
-.secure-payment-info {
-    margin-top: var(--spacing-lg);
-    text-align: center;
-}
-
-.secure-payment-info p {
-    margin-bottom: var(--spacing-sm);
-    color: var(--color-text-secondary);
-    font-size: 0.9rem;
-}
-
-.secure-payment-info img {
-    max-width: 300px;
-    width: 100%;
-    height: auto;
-    opacity: 0.8;
-}
-
-/* ================================================================================================================================ */
-/* ------------------------------------------------- Styles pour les notes et avis ------------------------------------------------ */
-/* ================================================================================================================================ */
-
-.rating-stats-container {
-    margin-bottom: 2rem;
-}
-
-.rating-overview {
-    display: grid;
-    grid-template-columns: 200px 1fr;
-    gap: 2rem;
-    padding: 1.5rem;
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.rating-score {
-    text-align: center;
-    padding: 1rem;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-.score-number {
-    font-size: 3.5rem;
-    font-weight: 700;
-    color: #4CAF50;
-    line-height: 1;
-    margin-bottom: 0.5rem;
-}
-
-.score-stars {
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.score-count {
-    color: #666;
-    font-size: 0.9rem;
-}
-
-.rating-breakdown {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-}
-
-.rating-criteria {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-}
-
-.rating-criteria span {
-    color: #666;
-}
-
-.rating-criteria strong {
-    color: #333;
-    font-size: 1.1rem;
-}
-
-.no-rating-yet {
-    text-align: center;
-    padding: 3rem 2rem;
-    background: #f8f9fa;
-    border-radius: 12px;
-}
-
-.no-rating-yet p {
-    color: #666;
-    margin-bottom: 0.5rem;
-}
-
-.reviews-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.review-item {
-    background: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 1.25rem;
-    transition: all 0.3s ease;
-}
-
-.review-item:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    transform: translateY(-2px);
-}
-
-.review-header {
-    display: flex;
-    justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 0.75rem;
+    min-height: calc(100vh - 80px - 100px);
+    background-color: #f8f9fa;
+    padding: 4rem 2rem;
 }
 
-.review-stars {
-    font-size: 1rem;
-    margin-top: 0.25rem;
-}
-
-.review-date {
-    color: #999;
-    font-size: 0.85rem;
-}
-
-.review-comment {
-    color: #555;
-    line-height: 1.6;
-    margin: 0.75rem 0;
-    padding-left: 0.5rem;
-    border-left: 3px solid #4CAF50;
-}
-
-.review-trip {
-    color: #666;
-    font-size: 0.9rem;
-    margin-top: 0.5rem;
-}
-
-.review-trip i {
-    color: #4CAF50;
-    margin-right: 0.5rem;
-}
-
-@media (max-width: 768px) {
-    .rating-overview {
-        grid-template-columns: 1fr;
-    }
-    
-    .rating-breakdown {
-        grid-template-columns: 1fr;
-    }
-}
-/* Responsive pour tablettes */
-@media (max-width: 768px) {
-    .credits-info-banner {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .credits-packages {
-        grid-template-columns: 1fr;
-    }
-    
-    .payment-methods-selection {
-        grid-template-columns: 1fr;
-    }
-    
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* ================================================================================================================================ */
-/* --------------------------------------------------- PAGE AVIS (avis.html) ------------------------------------------------------ */
-/* ================================================================================================================================ */
-
-.reviews-container {
-    max-width: 1200px;
-    margin: 40px auto;
-    padding: 20px;
-}
-
-.reviews-tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 30px;
-    border-bottom: 2px solid #e0e0e0;
-}
-
-.tab-button {
-    padding: 12px 24px;
-    background: none;
-    border: none;
-    border-bottom: 3px solid transparent;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: 500;
-    color: #666;
-    transition: all 0.3s;
-}
-
-.tab-button.active {
-    color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
-}
-
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-.eligible-rides-list {
-    display: grid;
-    gap: 20px;
-}
-
-.ride-card {
-    background: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.ride-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.ride-route {
-    font-size: 18px;
-    font-weight: 600;
-    color: #333;
-}
-
-.ride-date {
-    color: #666;
-    font-size: 14px;
-}
-
-.driver-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.driver-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--primary-color);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-}
-
-.rate-button {
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background 0.3s;
-}
-
-.rate-button:hover {
-    background: var(--primary-hover);
-}
-
-.rating-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-}
-
-.rating-modal.active {
-    display: flex;
-}
-
-.rating-modal-content {
-    background: white;
-    border-radius: 16px;
-    padding: 30px;
+.auth-container, .contact-container, .offer-ride-container {
+    background-color: #fff;
+    padding: 3rem;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
     max-width: 600px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
+    width: 100%;
+    text-align: center;
 }
 
-.rating-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+.offer-ride-container {
+    max-width: 800px;
 }
 
-.rating-modal-title {
-    font-size: 24px;
-    font-weight: 600;
-    color: #333;
+.auth-container h1, .contact-container h1, .offer-ride-container h1 {
+    margin-bottom: 1rem;
+    color: #1e3a8a;
 }
 
-.close-modal {
-    background: none;
-    border: none;
-    font-size: 28px;
-    color: #999;
-    cursor: pointer;
-    line-height: 1;
-}
-
-.rating-form {
+/* Formulaires communs */
+.auth-form, .contact-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    text-align: left;
 }
 
-.rating-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+.auth-form .form-group,
+.contact-form .form-group {
+    margin-bottom: 1rem;
 }
 
-.rating-label {
+.auth-form .form-group label,
+.contact-form .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
     font-weight: 500;
     color: #333;
 }
 
-.star-rating {
-    display: flex;
-    gap: 8px;
-    font-size: 32px;
+.auth-form .form-group input,
+.contact-form .form-group input,
+.contact-form .form-group textarea {
+    width: calc(100% - 24px);
+    padding: 0.75rem 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
 }
 
-.star {
-    cursor: pointer;
-    color: #ddd;
-    transition: color 0.2s;
+.auth-form .form-group input:focus,
+.contact-form .form-group input:focus,
+.contact-form .form-group textarea:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
 }
 
-.star.active,
-.star:hover {
-    color: #ffc107;
-}
-
-.comment-textarea {
-    width: 100%;
-    min-height: 100px;
-    padding: 12px;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 14px;
+.contact-form .form-group textarea {
     resize: vertical;
 }
 
-.submit-review-btn {
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 14px 28px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: 500;
-    transition: background 0.3s;
+.auth-links {
+    margin-top: 1.5rem;
 }
 
-.submit-review-btn:hover {
-    background: var(--primary-hover);
-}
-
-.my-reviews-list {
-    display: grid;
-    gap: 20px;
-}
-
-.review-card {
-    background: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.review-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.review-rating {
-    display: flex;
-    gap: 4px;
-    color: #ffc107;
-}
-
-.review-date {
-    color: #999;
-    font-size: 14px;
-}
-
-.review-comment {
-    color: #666;
-    line-height: 1.6;
-}
-
-.no-reviews {
-    text-align: center;
-    padding: 60px 20px;
-    color: #999;
-}
-
-.no-reviews-icon {
-    font-size: 64px;
-    margin-bottom: 20px;
-}
-
-/* ================================================================================================================================ */
-/* --------------------------------------------------- MODALE DE PAIEMENT CRÉDITS ------------------------------------------------ */
-/* ================================================================================================================================ */
-
-.modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 9999;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    overflow-y: auto;
-}
-
-.payment-modal-content {
-    background: white;
-    border-radius: 15px;
-    padding: 30px;
-    max-width: 600px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    animation: slideDown 0.3s ease-out;
-}
-
-@keyframes slideDown {
-    from {
-        transform: translateY(-50px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-.close-modal-btn {
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    font-size: 30px;
-    color: #666;
-    cursor: pointer;
-    transition: color 0.3s;
-    line-height: 1;
-}
-
-.close-modal-btn:hover {
-    color: #e74c3c;
-}
-
-.payment-modal-content h2 {
-    color: #27ae60;
-    margin-bottom: 20px;
-    font-size: 24px;
-}
-
-.payment-summary {
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 25px;
-}
-
-.payment-summary h3 {
-    margin-bottom: 15px;
-    color: #2c3e50;
-    font-size: 18px;
-}
-
-.summary-line {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid #ddd;
-}
-
-.summary-line.total {
-    border-bottom: none;
-    font-weight: bold;
-    font-size: 18px;
-    color: #27ae60;
-    margin-top: 10px;
-}
-
-.payment-form h3 {
-    margin-bottom: 15px;
-    color: #2c3e50;
-    font-size: 18px;
-}
-
-.payment-methods-selection {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 25px;
-}
-
-.payment-method-option {
-    cursor: pointer;
-}
-
-.payment-method-option input[type="radio"] {
-    display: none;
-}
-
-.method-card {
-    border: 2px solid #ddd;
-    border-radius: 10px;
-    padding: 20px;
-    text-align: center;
-    transition: all 0.3s;
-}
-
-.payment-method-option input[type="radio"]:checked + .method-card {
-    border-color: #27ae60;
-    background: #e8f5e9;
-}
-
-.method-card i {
-    font-size: 30px;
-    color: #27ae60;
-    margin-bottom: 10px;
-}
-
-.payment-fields {
-    margin-bottom: 20px;
-}
-
-#paypal-payment-fields {
-    display: none;
-}
-
-.payment-form .form-group {
-    margin-bottom: 15px;
-}
-
-.payment-form .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    color: #2c3e50;
-    font-weight: 500;
-}
-
-.payment-form .form-group input {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
-    transition: border-color 0.3s;
-    box-sizing: border-box;
-}
-
-.payment-form .form-group input:focus {
-    outline: none;
-    border-color: #27ae60;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 15px;
-}
-
-.info-message {
-    background: #e3f2fd;
-    padding: 15px;
-    border-radius: 8px;
-    color: #1976d2;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.submit-payment-btn {
-    width: 100%;
-    padding: 15px;
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-
-.submit-payment-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
-}
-
-@media (max-width: 768px) {
-    .payment-methods-selection {
-        grid-template-columns: 1fr;
-    }
-    
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* ================================================================================================================================ */
-/* --------------------------------------------------- PAGE DE PAIEMENT CRÉDITS (REFONTE MODERNE) -------------------------------- */
-/* ================================================================================================================================ */
-
-.payment-page {
-    background: #f5f7fa;
-    min-height: 100vh;
-}
-
-.payment-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 30px 20px 60px 20px;
-}
-
-/* En-tête de la page */
-.payment-header {
-    text-align: center;
-    margin-bottom: 40px;
-}
-
-.back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: #666;
+.auth-links a {
+    color: #2196F3;
     text-decoration: none;
-    font-size: 14px;
-    margin-bottom: 20px;
-    transition: color 0.3s;
+    font-weight: 500;
 }
 
-.back-link:hover {
-    color: #27ae60;
+.auth-links a:hover {
+    text-decoration: underline;
 }
 
-.payment-header h1 {
-    font-size: 28px;
-    color: #2c3e50;
-    margin-bottom: 8px;
+/* Force du mot de passe */
+.password-strength {
+    height: 10px;
+    background-color: #eee;
+    border-radius: 5px;
+    margin-top: 0.5rem;
+    overflow: hidden;
 }
 
-.payment-header p {
-    color: #27ae60;
-    font-weight: 600;
+.password-strength-bar {
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease, background-color 0.3s ease;
 }
 
-.payment-header p i {
-    margin-left: 5px;
+.password-strength-bar.weak {
+    width: 33%;
+    background-color: #f44336;
 }
 
-/* Layout principal */
-.payment-content {
-    display: grid;
-    grid-template-columns: 1fr 380px;
-    gap: 30px;
-    align-items: start;
+.password-strength-bar.medium {
+    width: 66%;
+    background-color: #ff9800;
 }
 
-/* Section formulaire */
-.payment-form-section {
-    background: white;
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-}
-
-/* Résumé mobile (caché sur desktop) */
-.order-summary-mobile {
-    display: none;
-    margin-bottom: 25px;
-}
-
-.summary-compact {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
-    border-radius: 10px;
-    padding: 18px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: white;
-}
-
-.summary-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.summary-left i {
-    font-size: 28px;
-}
-
-.summary-left div {
-    display: flex;
-    flex-direction: column;
-}
-
-.summary-left strong {
-    font-size: 16px;
-}
-
-.summary-left span {
-    font-size: 13px;
-    opacity: 0.9;
-}
-
-.summary-price {
-    font-size: 24px;
-    font-weight: 700;
-}
-
-/* Blocs du formulaire */
-.form-block {
-    margin-bottom: 30px;
-}
-
-.form-block h2 {
-    font-size: 18px;
-    color: #2c3e50;
-    margin-bottom: 18px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.form-block h2 i {
-    color: #27ae60;
-}
-
-/* Options de paiement */
-.payment-options {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-}
-
-.payment-option {
-    cursor: pointer;
-}
-
-.payment-option input[type="radio"] {
-    display: none;
-}
-
-.option-content {
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    padding: 16px;
-    text-align: center;
-    transition: all 0.3s;
-    background: white;
-}
-
-.payment-option:hover .option-content {
-    border-color: #27ae60;
-}
-
-.payment-option.active .option-content {
-    border-color: #27ae60;
-    background: #e8f5e9;
-}
-
-.option-content i {
-    font-size: 28px;
-    color: #27ae60;
-    display: block;
-    margin-bottom: 8px;
-}
-
-.option-content span {
-    font-size: 14px;
-    font-weight: 600;
-    color: #2c3e50;
-}
-
-/* Champs de formulaire */
-.form-field {
-    margin-bottom: 18px;
-}
-
-.form-field label {
-    display: block;
-    font-size: 14px;
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 8px;
-}
-
-.form-field input {
+.password-strength-bar.strong {
     width: 100%;
-    padding: 14px 16px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 15px;
-    transition: border-color 0.3s;
-    box-sizing: border-box;
+    background-color: #4CAF50;
 }
 
-.form-field input:focus {
-    outline: none;
-    border-color: #27ae60;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-
-/* Message PayPal */
-.paypal-box {
-    background: linear-gradient(135deg, #e3f2fd, #f1f8fc);
-    border: 2px solid #90caf9;
-    border-radius: 10px;
-    padding: 25px;
-    text-align: center;
-}
-
-.paypal-box i {
-    font-size: 48px;
-    color: #0070ba;
-    margin-bottom: 15px;
-}
-
-.paypal-box p {
-    color: #555;
-    line-height: 1.6;
-    margin: 0;
-}
-
-/* Boutons d'action */
-.form-actions {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 12px;
-    margin-bottom: 20px;
-}
-
-.btn {
-    padding: 15px 25px;
-    border: none;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.btn-cancel {
-    background: #f5f5f5;
+.password-strength-text {
+    font-size: 0.9rem;
+    margin-top: 0.3rem;
     color: #666;
 }
 
-.btn-cancel:hover {
-    background: #e0e0e0;
-}
-
-.btn-submit {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
-    color: white;
-    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
-}
-
-.btn-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
-}
-
-.btn-submit:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.form-notice {
-    text-align: center;
-    font-size: 13px;
-    color: #999;
-    margin: 0;
-}
-
-.form-notice i {
-    color: #27ae60;
-    margin-right: 5px;
-}
-
-/* Sidebar récapitulatif (desktop uniquement) */
-.order-sidebar {
-    position: sticky;
-    top: 20px;
-}
-
-.sidebar-card {
-    background: white;
-    border-radius: 12px;
-    padding: 25px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-}
-
-.sidebar-card h3 {
-    font-size: 18px;
-    color: #2c3e50;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.sidebar-card h3 i {
-    color: #27ae60;
-}
-
-.order-item {
-    background: linear-gradient(135deg, #e8f5e9, #f1f8f4);
-    border-radius: 10px;
-    padding: 18px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.item-badge {
-    width: 50px;
-    height: 50px;
-    background: white;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    color: #27ae60;
-    flex-shrink: 0;
-}
-
-.item-info {
-    flex: 1;
-}
-
-.item-info strong {
-    display: block;
-    font-size: 16px;
-    color: #2c3e50;
-    margin-bottom: 4px;
-}
-
-.item-info span {
-    font-size: 13px;
-    color: #666;
-}
-
-.order-details {
-    padding: 15px 0;
-    margin-bottom: 20px;
-    border-top: 1px solid #f0f0f0;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.detail-line {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    font-size: 14px;
-    color: #555;
-}
-
-.detail-line.total {
-    font-size: 20px;
-    font-weight: 700;
-    color: #27ae60;
-    border-top: 2px solid #27ae60;
-    padding-top: 15px;
-    margin-top: 10px;
-}
-
-.security-info {
-    background: #e8f5e9;
-    border-radius: 8px;
-    padding: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    color: #27ae60;
-}
-
-.security-info i {
-    font-size: 20px;
-}
-
-.security-info p {
-    margin: 0;
-    font-weight: 600;
-    font-size: 14px;
-}
-
-.footer-simple {
-    text-align: center;
-    padding: 20px;
-}
-
-.hidden {
-    display: none !important;
-}
-
-/* RESPONSIVE DESIGN */
-@media (max-width: 992px) {
-    .payment-content {
-        grid-template-columns: 1fr;
-    }
-
-    .order-sidebar {
-        display: none;
-    }
-
-    .order-summary-mobile {
-        display: block;
-    }
-}
-
-@media (max-width: 576px) {
-    .payment-container {
-        padding: 20px 15px 40px 15px;
-    }
-
-    .payment-header h1 {
-        font-size: 24px;
-    }
-
-    .payment-form-section {
-        padding: 20px;
-    }
-
-    .payment-options {
-        grid-template-columns: 1fr;
-    }
-
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-
-    .form-actions {
-        grid-template-columns: 1fr;
-    }
-
-    .summary-compact {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-    }
-
-    .summary-price {
-        align-self: flex-end;
-    }
-}

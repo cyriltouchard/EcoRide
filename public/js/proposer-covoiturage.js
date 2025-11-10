@@ -1,0 +1,103 @@
+/**
+ * EcoRide - Page de proposition de covoiturage
+ * Gestion de la création de nouveaux trajets
+ * @file proposer-covoiturage.js
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (!document.body.classList.contains('offer-ride-page')) return;
+    
+    console.log('🚗 Page proposition de covoiturage initialisée');
+    
+    const userToken = localStorage.getItem('token');
+    
+    if (!userToken) {
+        showNotification("Vous devez être connecté pour accéder à cette page.", "error");
+        return setTimeout(() => window.location.href = 'connexion.html', 2000);
+    }
+
+    const fetchWithAuth = createFetchWithAuth(userToken);
+    const vehicleSelect = document.getElementById('vehicleSelect');
+    const noVehicleMessage = document.getElementById('no-vehicle-message');
+    const offerRideForm = document.getElementById('offer-ride-form');
+
+    /**
+     * Charge les véhicules de l'utilisateur
+     */
+    const loadUserVehiclesForRide = async () => {
+        if (!vehicleSelect || !noVehicleMessage) return;
+        
+        try {
+            const data = await fetchWithAuth(`${API_BASE_URL}/vehicles/me`);
+            console.log('🚗 Véhicules chargés:', data.vehicles);
+            
+            if (data.vehicles && data.vehicles.length > 0) {
+                vehicleSelect.innerHTML = '<option value="" disabled selected>-- Sélectionnez votre véhicule --</option>';
+                
+                data.vehicles.forEach(vehicle => {
+                    const vehicleId = vehicle.sql_id || vehicle._id;
+                    console.log(`  - ${vehicle.brand} ${vehicle.model}: sql_id=${vehicle.sql_id}, _id=${vehicle._id}, utilisé=${vehicleId}`);
+                    vehicleSelect.innerHTML += `<option value="${vehicleId}">${vehicle.brand} ${vehicle.model} (${vehicle.plate})</option>`;
+                });
+                
+                noVehicleMessage.style.display = 'none';
+                vehicleSelect.style.display = 'block';
+            } else {
+                vehicleSelect.innerHTML = '';
+                noVehicleMessage.style.display = 'block';
+                vehicleSelect.style.display = 'none';
+            }
+        } catch (error) {
+            showNotification(`Erreur chargement véhicules: ${error.message}`, 'error');
+        }
+    };
+
+    /**
+     * Gestion du formulaire de proposition
+     */
+    if (offerRideForm) {
+        offerRideForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(offerRideForm);
+            
+            const departureDate = formData.get('departureDate');
+            const departureTime = formData.get('departureTime');
+            const departure_datetime = `${departureDate} ${departureTime}:00`;
+            
+            const rideData = {
+                vehicle_id: formData.get('vehicleId'),
+                departure_city: formData.get('departure'),
+                arrival_city: formData.get('arrival'),
+                departure_address: formData.get('departure'),
+                arrival_address: formData.get('arrival'),
+                departure_datetime: departure_datetime,
+                estimated_arrival: departure_datetime,
+                price_per_seat: parseFloat(formData.get('price')),
+                available_seats: parseInt(formData.get('availableSeats'), 10)
+            };
+            
+            console.log('📤 Données envoyées:', rideData);
+            
+            if (!rideData.vehicle_id) {
+                return showNotification("Veuillez sélectionner un véhicule.", "error");
+            }
+            
+            try {
+                const response = await fetchWithAuth(`${API_BASE_URL}/rides`, {
+                    method: 'POST',
+                    body: JSON.stringify(rideData)
+                });
+                
+                console.log('✅ Trajet créé:', response);
+                showNotification('Covoiturage proposé avec succès !', 'success');
+                setTimeout(() => window.location.href = 'espace-utilisateur.html', 1500);
+            } catch (error) {
+                console.error('❌ Erreur création trajet:', error);
+                showNotification(`Erreur : ${error.message}`, 'error');
+            }
+        });
+    }
+
+    // Charger les véhicules au démarrage
+    loadUserVehiclesForRide();
+});

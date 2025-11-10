@@ -1,0 +1,852 @@
+/* ================================================================
+   Styles pour la page Espace Utilisateur (Dashboard)
+   ================================================================ */
+
+/* ================================================================
+   EN-TÊTE DU DASHBOARD
+   ================================================================ */
+
+.dashboard-header {
+    background: linear-gradient(135deg, #e6f3ff 0%, #d4e9ff 100%);
+    text-align: center;
+    padding: 3rem 2rem;
+    border-bottom: 5px solid #4CAF50;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.dashboard-header h1 {
+    margin: 0 0 1rem 0;
+    color: #1e3a8a;
+    font-size: 2.5rem;
+    font-weight: 600;
+}
+
+/* Badge de crédits */
+.credits-display {
+    background-color: #fff;
+    color: #333;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.credits-display:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+.credits-display i {
+    color: #FFC107;
+    font-size: 1.3rem;
+}
+
+/* Bouton panier flottant */
+.cart-icon-button {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    font-size: 1.2rem;
+}
+
+.cart-icon-button:hover {
+    background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.cart-icon-button i {
+    margin: 0;
+    color: white;
+}
+
+/* ================================================================
+   CONTENU PRINCIPAL - LAYOUT 2 COLONNES
+   ================================================================ */
+
+.dashboard-main-content {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    max-width: 1400px;
+    margin: 0 auto;
+    gap: 2rem;
+    padding: 3rem 2rem;
+    align-items: start;
+}
+
+/* Sidebar profil à gauche - Rectangle fixe */
+.profile-sidebar {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border: 1px solid #e0e0e0;
+    position: sticky;
+    top: 100px;
+}
+
+.profile-card {
+    text-align: center;
+}
+
+.profile-picture-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 1.5rem;
+}
+
+.profile-picture {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #4CAF50;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.edit-picture-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: #4CAF50;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 3px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.edit-picture-btn:hover {
+    background: #45a049;
+    transform: scale(1.1);
+}
+
+.profile-card h2 {
+    margin: 0 0 0.5rem 0;
+    color: #1e3a8a;
+    font-size: 1.5rem;
+}
+
+.profile-card p {
+    margin: 0.25rem 0;
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
+/* Contenu principal à droite - Grand rectangle avec onglets */
+.dashboard-tabs-content {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border: 1px solid #e0e0e0;
+    min-height: 600px;
+}
+
+.profile-card {
+    text-align: center;
+}
+
+.profile-picture-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 1.5rem;
+}
+
+.profile-picture {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #4CAF50;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.edit-picture-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: #4CAF50;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 3px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.edit-picture-btn:hover {
+    background: #45a049;
+    transform: scale(1.1);
+}
+
+.profile-info h2 {
+    margin: 0 0 0.5rem 0;
+    color: #1e3a8a;
+    font-size: 1.5rem;
+}
+
+.profile-info p {
+    margin: 0.25rem 0;
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
+/* Bouton "Modifier mon profil" stylé */
+.edit-profile-btn {
+    margin-top: 1.5rem;
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.edit-profile-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+    background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+}
+
+.edit-profile-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.edit-profile-btn i {
+    font-size: 1.1rem;
+}
+
+/* Contenu principal à droite - Grand rectangle */
+.dashboard-content {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border: 1px solid #e0e0e0;
+    min-height: 600px;
+}
+
+/* ================================================================
+   SYSTÈME D'ONGLETS
+   ================================================================ */
+
+.tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #e0e0e0;
+    flex-wrap: wrap;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    position: relative;
+}
+
+.tab-button:hover {
+    color: #4CAF50;
+    background-color: rgba(76, 175, 80, 0.05);
+}
+
+.tab-button.active {
+    color: #4CAF50;
+    border-bottom-color: #4CAF50;
+    font-weight: 600;
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ================================================================
+   BOUTONS GÉNÉRAUX
+   ================================================================ */
+
+/* Boutons standards */
+.button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    text-align: center;
+}
+
+/* Bouton primaire (vert) */
+.button-primary {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.button-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+    background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+}
+
+/* Bouton secondaire (bleu) */
+.button-secondary {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.button-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(33, 150, 243, 0.4);
+    background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+}
+
+/* Bouton danger/annuler (rouge) */
+.button-danger,
+.btn-cancel,
+.cancel-btn {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.button-danger:hover,
+.btn-cancel:hover,
+.cancel-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+}
+
+/* Bouton avec icône */
+.button i {
+    margin-right: 0.5rem;
+    font-size: 1.05rem;
+}
+
+/* États des boutons */
+.button:active {
+    transform: translateY(0);
+}
+
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* ================================================================
+   CARTES DE CONTENU
+   ================================================================ */
+
+.content-card {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    margin-bottom: 3rem;
+}
+
+.content-card h3 {
+    margin: 0 0 1.5rem 0;
+    color: #1e3a8a;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.content-card h3 i {
+    color: #4CAF50;
+    font-size: 1.3rem;
+}
+
+/* Bouton d'action principal */
+.add-button {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.add-button:hover {
+    background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+}
+
+.add-button i {
+    font-size: 1.1rem;
+}
+
+/* ================================================================
+   LISTE DE VÉHICULES
+   ================================================================ */
+
+.vehicle-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.vehicle-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.vehicle-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #4CAF50, #2196F3);
+}
+
+.vehicle-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    border-color: #4CAF50;
+}
+
+.vehicle-card h3 {
+    color: #1e3a8a;
+    margin: 0 0 1rem 0;
+    font-size: 1.3rem;
+    text-align: left;
+}
+
+.vehicle-card p {
+    margin: 0.5rem 0;
+    font-size: 0.95rem;
+    color: #555;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.vehicle-card p strong {
+    color: #333;
+}
+
+/* Actions véhicule */
+.vehicle-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.vehicle-actions .button {
+    flex: 1;
+    padding: 0.625rem 1rem;
+    font-size: 0.9rem;
+}
+
+/* Actions de trajets */
+.ride-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.ride-actions .button {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9rem;
+}
+
+/* ================================================================
+   LISTE DE TRAJETS
+   ================================================================ */
+
+.ride-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.ride-card {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Bordure colorée en haut comme les véhicules */
+.ride-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #4CAF50, #2196F3);
+}
+
+.ride-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-color: #4CAF50;
+}
+
+.ride-card-content {
+    flex: 1;
+}
+
+.ride-card-content h3 {
+    margin: 0 0 0.75rem 0;
+    color: #1e3a8a;
+    font-size: 1.2rem;
+    text-align: left;
+}
+
+.ride-card-content p {
+    margin: 0.25rem 0;
+    color: #6c757d;
+    font-size: 0.95rem;
+    text-align: left;
+}
+
+.ride-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+/* Badges de statut */
+.status-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-scheduled {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-completed {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+.status-cancelled {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Message "aucun élément" */
+.no-items-message {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+
+.no-items-message i {
+    font-size: 3rem;
+    color: #dee2e6;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+/* ================================================================
+   SYSTÈME DE MODALES
+   ================================================================ */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(3px);
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 2.5rem;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    transform: translateY(-50px) scale(0.9);
+    transition: transform 0.3s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.modal-overlay.active .modal-content {
+    transform: translateY(0) scale(1);
+}
+
+.modal-content h2 {
+    margin: 0 0 1.5rem 0;
+    color: #1e3a8a;
+    font-size: 1.8rem;
+}
+
+.close-modal-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f8f9fa;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.close-modal-btn:hover {
+    background: #e9ecef;
+    color: #333;
+    transform: rotate(90deg);
+}
+
+/* Formulaire dans modale */
+.modal-content .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.modal-content .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.modal-content .form-group input,
+.modal-content .form-group select,
+.modal-content .form-group textarea {
+    width: calc(100% - 24px);
+    padding: 0.75rem 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #fff;
+}
+
+.modal-content .form-group input:focus,
+.modal-content .form-group select:focus,
+.modal-content .form-group textarea:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+/* ================================================================
+   RESPONSIVE DESIGN
+   ================================================================ */
+
+@media screen and (max-width: 1024px) {
+    .dashboard-main-content {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-sidebar {
+        position: static;
+    }
+
+    .profile-picture-container {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .dashboard-header {
+        padding: 2rem 1rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 2rem;
+    }
+
+    .dashboard-main-content {
+        padding: 2rem 1rem;
+        gap: 1.5rem;
+    }
+
+    .dashboard-tabs-content {
+        padding: 1.5rem;
+    }
+
+    .tabs {
+        overflow-x: auto;
+        scrollbar-width: thin;
+    }
+
+    .tab-button {
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        white-space: nowrap;
+    }
+
+    .content-card {
+        margin-bottom: 2rem;
+    }
+
+    .vehicle-list {
+        grid-template-columns: 1fr;
+    }
+
+    .ride-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .ride-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 2rem 1.5rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .dashboard-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .credits-display {
+        font-size: 1rem;
+        padding: 0.6rem 1.2rem;
+    }
+
+    .content-card h3 {
+        font-size: 1.3rem;
+    }
+
+    .vehicle-card h3 {
+        font-size: 1.1rem;
+    }
+
+    .ride-card-content h3 {
+        font-size: 1.1rem;
+    }
+
+    .modal-content {
+        padding: 1.5rem 1rem;
+    }
+}

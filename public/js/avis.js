@@ -1,0 +1,302 @@
+/**
+ * EcoRide - Page des avis
+ * Gestion des notations et avis (chauffeurs et site)
+ * @file avis.js
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.location.pathname.includes('avis.html')) return;
+    
+    console.log('📋 Page avis initialisée');
+
+    const userToken = localStorage.getItem('token');
+    if (!userToken) {
+        showNotification("Vous devez être connecté pour accéder à cette page.", "error");
+        return setTimeout(() => window.location.href = 'connexion.html', 2000);
+    }
+
+    let currentRideData = null;
+
+    /**
+     * Gestion des onglets
+     */
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabName = button.dataset.tab;
+            
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            button.classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            if (tabName === 'eligible') {
+                loadEligibleRides();
+            }
+        });
+    });
+
+    /**
+     * Initialise le système de notation par étoiles
+     */
+    function initStarRating(containerId, inputId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        const input = document.getElementById(inputId);
+        const stars = container.querySelectorAll('.star');
+
+        stars.forEach((star) => {
+            star.addEventListener('click', () => {
+                const value = parseInt(star.dataset.value);
+                input.value = value;
+                
+                stars.forEach((s, i) => {
+                    if (i < value) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+
+            star.addEventListener('mouseenter', () => {
+                const value = parseInt(star.dataset.value);
+                stars.forEach((s, i) => {
+                    s.style.color = i < value ? '#ffc107' : '#ddd';
+                });
+            });
+
+            container.addEventListener('mouseleave', () => {
+                const currentValue = parseInt(input.value) || 0;
+                stars.forEach((s, i) => {
+                    s.style.color = i < currentValue ? '#ffc107' : '#ddd';
+                });
+            });
+        });
+    }
+
+    // Initialiser tous les systèmes de notation
+    initStarRating('overall-stars', 'overall-rating');
+    initStarRating('ease-stars', 'ease-rating');
+    initStarRating('reliability-stars', 'reliability-rating');
+    initStarRating('service-stars', 'service-rating');
+    initStarRating('value-stars', 'value-rating');
+    initStarRating('driver-overall-stars', 'driver-overall-rating');
+    initStarRating('punctuality-stars', 'punctuality-rating');
+    initStarRating('driving-stars', 'driving-rating');
+    initStarRating('cleanliness-stars', 'cleanliness-rating');
+    initStarRating('friendliness-stars', 'friendliness-rating');
+
+    /**
+     * Charge les trajets éligibles pour notation
+     */
+    async function loadEligibleRides() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/reviews/eligible-rides`, {
+                headers: { 'x-auth-token': userToken }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors du chargement des trajets');
+            }
+
+            const data = await response.json();
+            const container = document.getElementById('eligible-rides-container');
+
+            if (!data.rides || data.rides.length === 0) {
+                container.innerHTML = `
+                    <div class="no-reviews">
+                        <div class="no-reviews-icon">🚗</div>
+                        <h3>Aucun trajet à noter</h3>
+                        <p>Vous avez noté tous vos trajets récents !</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = data.rides.map(ride => `
+                <div class="ride-card">
+                    <div class="ride-info">
+                        <div>
+                            <div class="ride-route">
+                                ${ride.departure_city} → ${ride.arrival_city}
+                            </div>
+                            <div class="ride-date">
+                                ${new Date(ride.departure_datetime).toLocaleDateString('fr-FR', {
+                                    weekday: 'long',
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="driver-info">
+                        <div class="driver-avatar">
+                            ${ride.driver_pseudo ? ride.driver_pseudo.charAt(0).toUpperCase() : '?'}
+                        </div>
+                        <div>
+                            <strong>${ride.driver_pseudo || 'Chauffeur'}</strong>
+                        </div>
+                    </div>
+                    <button class="rate-button" onclick="openRatingModal(${ride.ride_id}, ${ride.driver_id}, ${ride.booking_id}, '${ride.driver_pseudo}', '${ride.departure_city}', '${ride.arrival_city}')">
+                        ⭐ Noter ce chauffeur
+                    </button>
+                </div>
+            `).join('');
+
+        } catch (error) {
+            console.error('Erreur chargement trajets:', error);
+            showNotification('Erreur lors du chargement des trajets', 'error');
+        }
+    }
+
+    /**
+     * Ouvre la modale de notation
+     */
+    window.openRatingModal = function(rideId, driverId, bookingId, driverPseudo, departureCity, arrivalCity) {
+        currentRideData = { rideId, driverId, bookingId, driverPseudo, departureCity, arrivalCity };
+        
+        document.getElementById('selected-ride-id').value = rideId;
+        document.getElementById('selected-driver-id').value = driverId;
+        document.getElementById('selected-booking-id').value = bookingId;
+        
+        document.getElementById('driver-display').innerHTML = `
+            <div style="padding: 15px; background: #f5f5f5; border-radius: 8px;">
+                <strong>Chauffeur:</strong> ${driverPseudo}<br>
+                <strong>Trajet:</strong> ${departureCity} → ${arrivalCity}
+            </div>
+        `;
+        
+        document.getElementById('driver-rating-form').reset();
+        document.querySelectorAll('.star').forEach(star => star.classList.remove('active'));
+        
+        document.getElementById('rating-modal').classList.add('active');
+    };
+
+    /**
+     * Ferme la modale
+     */
+    const closeModalBtn = document.querySelector('.close-modal');
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', () => {
+            document.getElementById('rating-modal').classList.remove('active');
+        });
+    }
+
+    const ratingModal = document.getElementById('rating-modal');
+    if (ratingModal) {
+        ratingModal.addEventListener('click', (e) => {
+            if (e.target.id === 'rating-modal') {
+                ratingModal.classList.remove('active');
+            }
+        });
+    }
+
+    /**
+     * Soumission de l'avis chauffeur
+     */
+    const driverRatingForm = document.getElementById('driver-rating-form');
+    if (driverRatingForm) {
+        driverRatingForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const rating = parseInt(document.getElementById('driver-overall-rating').value);
+            if (!rating) {
+                showNotification('Veuillez sélectionner une note globale', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/reviews/driver`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-auth-token': userToken
+                    },
+                    body: JSON.stringify({
+                        driverId: parseInt(document.getElementById('selected-driver-id').value),
+                        rideId: parseInt(document.getElementById('selected-ride-id').value),
+                        bookingId: parseInt(document.getElementById('selected-booking-id').value),
+                        rating: rating,
+                        punctualityRating: parseInt(document.getElementById('punctuality-rating').value) || null,
+                        drivingQualityRating: parseInt(document.getElementById('driving-rating').value) || null,
+                        vehicleCleanlinessRating: parseInt(document.getElementById('cleanliness-rating').value) || null,
+                        friendlinessRating: parseInt(document.getElementById('friendliness-rating').value) || null,
+                        comment: document.getElementById('driver-comment').value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification('✅ Avis publié avec succès !', 'success');
+                    document.getElementById('rating-modal').classList.remove('active');
+                    loadEligibleRides();
+                } else {
+                    showNotification(data.msg || 'Erreur lors de la publication de l\'avis', 'error');
+                }
+
+            } catch (error) {
+                console.error('Erreur publication avis:', error);
+                showNotification('Erreur lors de la publication de l\'avis', 'error');
+            }
+        });
+    }
+
+    /**
+     * Soumission de l'avis sur le site
+     */
+    const siteReviewForm = document.getElementById('site-review-form');
+    if (siteReviewForm) {
+        siteReviewForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const overallRating = parseInt(document.getElementById('overall-rating').value);
+            if (!overallRating) {
+                showNotification('Veuillez sélectionner une note globale', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/reviews/site`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-auth-token': userToken
+                    },
+                    body: JSON.stringify({
+                        overallRating: overallRating,
+                        easeOfUseRating: parseInt(document.getElementById('ease-rating').value) || null,
+                        reliabilityRating: parseInt(document.getElementById('reliability-rating').value) || null,
+                        customerServiceRating: parseInt(document.getElementById('service-rating').value) || null,
+                        valueForMoneyRating: parseInt(document.getElementById('value-rating').value) || null,
+                        comment: document.getElementById('site-comment').value,
+                        wouldRecommend: document.getElementById('would-recommend')?.checked || false
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification('✅ Avis sur le site publié avec succès !', 'success');
+                    siteReviewForm.reset();
+                    document.querySelectorAll('.star').forEach(star => star.classList.remove('active'));
+                } else {
+                    showNotification(data.msg || 'Erreur lors de la publication de l\'avis', 'error');
+                }
+
+            } catch (error) {
+                console.error('Erreur publication avis site:', error);
+                showNotification('Erreur lors de la publication de l\'avis', 'error');
+            }
+        });
+    }
+
+    // Charger les trajets éligibles au démarrage
+    loadEligibleRides();
+});

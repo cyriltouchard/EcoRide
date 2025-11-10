@@ -1,0 +1,49 @@
+/* ================================================================================================================================ */
+/* ===================================== PAGE CONDITIONS GÉNÉRALES (conditions-generales.html) =================================== */
+/* ================================================================================================================================ */
+
+/* Utilise les mêmes styles que mentions-legales.css */
+.legal-mentions-section {
+    padding: 4rem 2rem;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 80px - 100px);
+}
+
+.legal-mentions-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 3rem;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+.legal-mentions-container h1 {
+    color: #1e3a8a;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.legal-mentions-container h2 {
+    color: #4CAF50;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+.legal-mentions-container p {
+    margin-bottom: 1rem;
+    line-height: 1.8;
+    color: #333;
+}
+
+.legal-mentions-container a {
+    color: #2196F3;
+    text-decoration: none;
+}
+
+.legal-mentions-container a:hover {
+    text-decoration: underline;
+}
