@@ -167,24 +167,18 @@ CREATE TABLE credit_transactions (
     INDEX idx_transaction_type (transaction_type)
 );
 
--- ================================================
--- DONNÉES DE TEST (Optionnel pour développement)
--- ================================================
 
--- Création d'un utilisateur admin par défaut
-INSERT INTO users (pseudo, email, password_hash, user_type) VALUES 
-('admin', 'admin@ecoride.fr', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
+-- NOTE: Removed hard-coded password hashes and test accounts from the script for security reasons.
+-- If you require initial accounts for local development, create them securely outside of version control.
+-- Recommended approaches:
+-- 1) Create accounts manually on your local DB using a secure password and do NOT commit those statements.
+-- 2) Use a secure seeding script (outside the repo or ignored) that reads passwords from environment variables or a secret manager.
+-- Example (DO NOT commit real passwords):
+-- SET @admin_password_hash = 'REPLACE_WITH_BCRYPT_HASH_GENERATED_LOCALLY';
+-- INSERT INTO users (pseudo, email, password_hash, user_type) VALUES ('admin', 'admin@ecoride.fr', @admin_password_hash, 'admin');
+-- INSERT INTO user_credits (user_id, current_credits) VALUES ((SELECT id FROM users WHERE pseudo = 'admin'), 100);
 
--- Attribution des crédits admin
-INSERT INTO user_credits (user_id, current_credits) VALUES 
-((SELECT id FROM users WHERE pseudo = 'admin'), 100);
-
--- Utilisateur employé de test
-INSERT INTO users (pseudo, email, password_hash, user_type) VALUES 
-('employe1', 'employe@ecoride.fr', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'employe');
-
-INSERT INTO user_credits (user_id, current_credits) VALUES 
-((SELECT id FROM users WHERE pseudo = 'employe1'), 50);
+-- For CI: generate accounts dynamically during test runs and read credentials from the CI secret store.
 
 -- ================================================
 -- TRIGGERS pour maintenir la cohérence

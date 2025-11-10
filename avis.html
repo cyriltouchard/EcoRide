@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Avis - EcoRide</title>
+    <link rel="stylesheet" href="public/css/style.css">
+    <link rel="stylesheet" href="public/css/performance.css">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1><span class="eco">Eco</span><span class="ride">Ride</span></h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Accueil</a></li>
+                <li><a href="covoiturages.html">Covoiturages</a></li>
+                <li><a href="espace-utilisateur.html">Mon Espace</a></li>
+                <li><a href="avis.html" class="active">Avis</a></li>
+                <li><a href="#" id="nav-logout">Déconnexion</a></li>
+            </ul>
+            <div class="burger">
+                <div class="line1"></div>
+                <div class="line2"></div>
+                <div class="line3"></div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="reviews-container">
+            <h1>💬 Mes Avis</h1>
+
+            <div class="reviews-tabs">
+                <button class="tab-button active" data-tab="eligible">
+                    📋 Trajets à noter
+                </button>
+                <button class="tab-button" data-tab="my-reviews">
+                    ⭐ Mes avis donnés
+                </button>
+                <button class="tab-button" data-tab="site-review">
+                    🌐 Donner mon avis sur EcoRide
+                </button>
+            </div>
+
+            <!-- Tab 1: Trajets éligibles pour notation -->
+            <div id="eligible-tab" class="tab-content active">
+                <div id="eligible-rides-container" class="eligible-rides-list">
+                    <!-- Sera rempli dynamiquement -->
+                </div>
+            </div>
+
+            <!-- Tab 2: Mes avis donnés -->
+            <div id="my-reviews-tab" class="tab-content">
+                <div id="my-reviews-container" class="my-reviews-list">
+                    <!-- Sera rempli dynamiquement -->
+                </div>
+            </div>
+
+            <!-- Tab 3: Avis sur le site -->
+            <div id="site-review-tab" class="tab-content">
+                <div class="ride-card">
+                    <h2>Donnez votre avis sur EcoRide</h2>
+                    <form id="site-review-form" class="rating-form">
+                        <div class="rating-group">
+                            <label class="rating-label">Note globale *</label>
+                            <div class="star-rating" id="overall-stars">
+                                <span class="star" data-value="1">⭐</span>
+                                <span class="star" data-value="2">⭐</span>
+                                <span class="star" data-value="3">⭐</span>
+                                <span class="star" data-value="4">⭐</span>
+                                <span class="star" data-value="5">⭐</span>
+                            </div>
+                            <input type="hidden" id="overall-rating" required>
+                        </div>
+
+                        <div class="rating-group">
+                            <label class="rating-label">Facilité d'utilisation</label>
+                            <div class="star-rating" id="ease-stars">
+                                <span class="star" data-value="1">⭐</span>
+                                <span class="star" data-value="2">⭐</span>
+                                <span class="star" data-value="3">⭐</span>
+                                <span class="star" data-value="4">⭐</span>
+                                <span class="star" data-value="5">⭐</span>
+                            </div>
+                            <input type="hidden" id="ease-rating">
+                        </div>
+
+                        <div class="rating-group">
+                            <label class="rating-label">Fiabilité</label>
+                            <div class="star-rating" id="reliability-stars">
+                                <span class="star" data-value="1">⭐</span>
+                                <span class="star" data-value="2">⭐</span>
+                                <span class="star" data-value="3">⭐</span>
+                                <span class="star" data-value="4">⭐</span>
+                                <span class="star" data-value="5">⭐</span>
+                            </div>
+                            <input type="hidden" id="reliability-rating">
+                        </div>
+
+                        <div class="rating-group">
+                            <label class="rating-label">Service client</label>
+                            <div class="star-rating" id="service-stars">
+                                <span class="star" data-value="1">⭐</span>
+                                <span class="star" data-value="2">⭐</span>
+                                <span class="star" data-value="3">⭐</span>
+                                <span class="star" data-value="4">⭐</span>
+                                <span class="star" data-value="5">⭐</span>
+                            </div>
+                            <input type="hidden" id="service-rating">
+                        </div>
+
+                        <div class="rating-group">
+                            <label class="rating-label">Rapport qualité/prix</label>
+                            <div class="star-rating" id="value-stars">
+                                <span class="star" data-value="1">⭐</span>
+                                <span class="star" data-value="2">⭐</span>
+                                <span class="star" data-value="3">⭐</span>
+                                <span class="star" data-value="4">⭐</span>
+                                <span class="star" data-value="5">⭐</span>
+                            </div>
+                            <input type="hidden" id="value-rating">
+                        </div>
+
+                        <div class="rating-group">
+                            <label class="rating-label">Votre commentaire</label>
+                            <textarea id="site-comment" class="comment-textarea"
+                                placeholder="Partagez votre expérience avec EcoRide..."></textarea>
+                        </div>
+
+                        <div class="rating-group">
+                            <label>
+                                <input type="checkbox" id="would-recommend" checked>
+                                Je recommanderais EcoRide à mes amis
+                            </label>
+                        </div>
+
+                        <button type="submit" class="submit-review-btn">
+                            📝 Publier mon avis
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de notation chauffeur -->
+        <div id="rating-modal" class="rating-modal">
+            <div class="rating-modal-content">
+                <div class="rating-modal-header">
+                    <h2 class="rating-modal-title">Noter le chauffeur</h2>
+                    <button class="close-modal">&times;</button>
+                </div>
+
+                <form id="driver-rating-form" class="rating-form">
+                    <input type="hidden" id="selected-ride-id">
+                    <input type="hidden" id="selected-driver-id">
+                    <input type="hidden" id="selected-booking-id">
+
+                    <div id="driver-display" style="margin-bottom: 20px;"></div>
+
+                    <div class="rating-group">
+                        <label class="rating-label">Note globale *</label>
+                        <div class="star-rating" id="driver-overall-stars">
+                            <span class="star" data-value="1">⭐</span>
+                            <span class="star" data-value="2">⭐</span>
+                            <span class="star" data-value="3">⭐</span>
+                            <span class="star" data-value="4">⭐</span>
+                            <span class="star" data-value="5">⭐</span>
+                        </div>
+                        <input type="hidden" id="driver-overall-rating" required>
+                    </div>
+
+                    <div class="rating-group">
+                        <label class="rating-label">Ponctualité</label>
+                        <div class="star-rating" id="punctuality-stars">
+                            <span class="star" data-value="1">⭐</span>
+                            <span class="star" data-value="2">⭐</span>
+                            <span class="star" data-value="3">⭐</span>
+                            <span class="star" data-value="4">⭐</span>
+                            <span class="star" data-value="5">⭐</span>
+                        </div>
+                        <input type="hidden" id="punctuality-rating">
+                    </div>
+
+                    <div class="rating-group">
+                        <label class="rating-label">Qualité de conduite</label>
+                        <div class="star-rating" id="driving-stars">
+                            <span class="star" data-value="1">⭐</span>
+                            <span class="star" data-value="2">⭐</span>
+                            <span class="star" data-value="3">⭐</span>
+                            <span class="star" data-value="4">⭐</span>
+                            <span class="star" data-value="5">⭐</span>
+                        </div>
+                        <input type="hidden" id="driving-rating">
+                    </div>
+
+                    <div class="rating-group">
+                        <label class="rating-label">Propreté du véhicule</label>
+                        <div class="star-rating" id="cleanliness-stars">
+                            <span class="star" data-value="1">⭐</span>
+                            <span class="star" data-value="2">⭐</span>
+                            <span class="star" data-value="3">⭐</span>
+                            <span class="star" data-value="4">⭐</span>
+                            <span class="star" data-value="5">⭐</span>
+                        </div>
+                        <input type="hidden" id="cleanliness-rating">
+                    </div>
+
+                    <div class="rating-group">
+                        <label class="rating-label">Amabilité</label>
+                        <div class="star-rating" id="friendliness-stars">
+                            <span class="star" data-value="1">⭐</span>
+                            <span class="star" data-value="2">⭐</span>
+                            <span class="star" data-value="3">⭐</span>
+                            <span class="star" data-value="4">⭐</span>
+                            <span class="star" data-value="5">⭐</span>
+                        </div>
+                        <input type="hidden" id="friendliness-rating">
+                    </div>
+
+                    <div class="rating-group">
+                        <label class="rating-label">Votre commentaire</label>
+                        <textarea id="driver-comment" class="comment-textarea"
+                            placeholder="Partagez votre expérience avec ce chauffeur..."></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-review-btn">
+                        📝 Publier l'avis
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 EcoRide. Tous droits réservés.</p>
+            <div class="footer-links">
+                <a href="mentions-legales.html">Mentions légales</a>
+                <a href="politique-confidentialite.html">Politique de confidentialité</a>
+                <a href="conditions-generales.html">CGU</a>
+                <a href="contact.html">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="public/js/script.js"></script>
+</body>
+
+</html>

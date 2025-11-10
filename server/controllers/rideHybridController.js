@@ -14,6 +14,18 @@ const CreditModel = require('../models/creditModel');
 exports.createRide = async (req, res) => {
     try {
         const driverId = req.user.id;
+        const UserSQL = require('../models/userSQLModel');
+        
+        // Vérifier le rôle actuel de l'utilisateur
+        const currentUser = await UserSQL.findById(driverId);
+        
+        // Si l'utilisateur n'est pas déjà chauffeur, le promouvoir automatiquement
+        if (currentUser && currentUser.user_type === 'passager') {
+            console.log(`🚗 Promotion automatique de l'utilisateur ${driverId} en chauffeur_passager (création trajet)`);
+            await UserSQL.updateUserType(driverId, 'chauffeur_passager');
+            req.user.user_type = 'chauffeur_passager';
+        }
+        
         const {
             vehicle_id,
             departure_city,
@@ -67,8 +79,51 @@ exports.createRide = async (req, res) => {
             });
         }
         
-        // Créer le trajet
+        // Créer le trajet en MySQL
         const ride = await RideSQL.create(rideData);
+        
+        // Créer aussi dans MongoDB pour la recherche
+        try {
+            console.log('🔵 Création trajet MongoDB');
+            const UserModel = require('../models/user');
+            
+            // Récupérer le mongo_id du chauffeur
+            let mongoUserId = req.user.mongo_id;
+            if (!mongoUserId) {
+                const existingUser = await UserModel.findOne({ sql_id: driverId });
+                if (existingUser) {
+                    mongoUserId = existingUser._id;
+                }
+            }
+            
+            // Récupérer le véhicule MongoDB
+            const VehicleMongo = require('../models/vehicleModel');
+            const vehicleMongo = await VehicleMongo.findOne({ sql_id: vehicle_id });
+            
+            // Créer le trajet dans MongoDB
+            const Ride = require('../models/rideModel');
+            const rideMongo = new Ride({
+                driver: mongoUserId,
+                vehicle: vehicleMongo?._id,
+                departure: ride.departure_city,
+                arrival: ride.arrival_city,
+                departureAddress: ride.departure_address,
+                arrivalAddress: ride.arrival_address,
+                departureDate: new Date(ride.departure_datetime),
+                departureTime: new Date(ride.departure_datetime).toTimeString().slice(0, 5),
+                price: ride.price_per_seat,
+                availableSeats: ride.available_seats,
+                totalSeats: ride.total_seats || ride.available_seats,
+                status: 'active',
+                isEcologic: vehicle.energy_type === 'electrique' || vehicle.energy_type === 'hybride',
+                sql_id: ride.id
+            });
+            
+            await rideMongo.save();
+            console.log('✅ Trajet créé dans MongoDB:', rideMongo._id);
+        } catch (mongoError) {
+            console.error('❌ Erreur MongoDB trajet:', mongoError.message);
+        }
         
         // Prélever la commission plateforme
         await CreditModel.takePlatformCommission(
@@ -117,47 +172,22 @@ exports.searchRides = async (req, res) => {
         const depDate = departure_date || date;
         const minSeats = seats || min_seats;
         
-        // Construire la requête MongoDB
-        let query = {};
+        // Préparer les paramètres pour la recherche MySQL
+        const searchParams = {
+            departure_city: depCity,
+            arrival_city: arrCity,
+            departure_date: depDate,
+            max_price: max_price ? parseFloat(max_price) : null,
+            ecological_only: ecological_only === 'true',
+            min_seats: parseInt(minSeats) || 1
+        };
         
-        if (depCity) {
-            query.departure = new RegExp(depCity, 'i');
-        }
-        if (arrCity) {
-            query.arrival = new RegExp(arrCity, 'i');
-        }
-        if (depDate) {
-            const searchDate = new Date(depDate);
-            if (!isNaN(searchDate)) {
-                const startOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
-                const endOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate() + 1);
-                query.departureDate = {
-                    $gte: startOfDay,
-                    $lt: endOfDay
-                };
-            }
-        }
-        if (minSeats) {
-            query.availableSeats = { $gte: parseInt(minSeats) || 1 };
-        }
-        if (max_price) {
-            query.price = { $lte: parseFloat(max_price) };
-        }
-        if (ecological_only === 'true') {
-            query.isEcologic = true;
-        }
+        console.log('🔍 Recherche trajets avec:', searchParams);
         
-        // Exclure les trajets passés et annulés
-        const now = new Date();
-        if (!query.departureDate) {
-            query.departureDate = { $gte: now };
-        }
-        query.status = { $ne: 'cancelled' };
+        // Utiliser RideSQL pour rechercher dans MySQL
+        const rides = await RideSQL.search(searchParams);
         
-        const rides = await Ride.find(query)
-            .populate('driver', 'pseudo')
-            .populate('vehicle', 'brand model energy')
-            .sort({ departureDate: 1, departureTime: 1 });
+        console.log(`📊 Trajets trouvés: ${rides.length}`);
         
         res.json({
             success: true,
@@ -167,7 +197,7 @@ exports.searchRides = async (req, res) => {
         });
         
     } catch (error) {
-        console.error('Erreur recherche trajets:', error);
+        console.error('❌ Erreur recherche trajets:', error);
         res.status(500).json({
             success: false,
             message: 'Erreur serveur lors de la recherche',
@@ -471,37 +501,47 @@ exports.bookRide = async (req, res) => {
                 });
             }
 
-            if (ride.status !== 'active') {
+            console.log('📊 Trajet MySQL status:', ride.status);
+
+            // Les statuts valides pour une réservation sont: en_attente, confirme
+            if (ride.status !== 'en_attente' && ride.status !== 'confirme') {
                 return res.status(400).json({
                     success: false,
                     message: 'Ce trajet n\'est plus disponible'
                 });
             }
 
-            if (ride.driver_id === passengerId) {
+            if (ride.driver.id === passengerId) {
                 return res.status(400).json({
                     success: false,
                     message: 'Vous ne pouvez pas réserver votre propre trajet'
                 });
             }
 
-            if (ride.available_seats < passengers) {
+            if (ride.availableSeats < passengers) {
                 return res.status(400).json({
                     success: false,
                     message: 'Pas assez de places disponibles'
                 });
             }
 
-            // Créer la réservation
-            await RideSQL.updateAvailableSeats(rideId, ride.available_seats - passengers);
+            // Créer la réservation dans la table bookings
+            const booking = await RideSQL.createBooking(rideId, passengerId, passengers, ride.price);
+            
+            // Mettre à jour les places disponibles
+            await RideSQL.updateAvailableSeats(rideId, ride.availableSeats - passengers);
+            
+            console.log('✅ Réservation créée:', booking);
 
             return res.json({
                 success: true,
                 message: 'Réservation effectuée avec succès',
                 data: {
+                    bookingId: booking.id,
                     rideId,
                     passengers,
-                    remaining_seats: ride.available_seats - passengers
+                    totalCost: booking.total_cost,
+                    remaining_seats: ride.availableSeats - passengers
                 }
             });
         }
@@ -569,31 +609,62 @@ exports.getOfferedRides = async (req, res) => {
 // Récupérer les trajets réservés par l'utilisateur
 exports.getBookedRides = async (req, res) => {
     try {
-        const mongoId = req.user.mongo_id;
+        const passengerId = req.user.id;
 
-        if (!mongoId) {
-            return res.status(400).json({
-                success: false,
-                message: 'ID MongoDB manquant dans le token'
-            });
-        }
+        console.log('🔍 Récupération réservations pour passager:', passengerId);
 
-        const rides = await Ride.find({ passengers: mongoId })
-            .populate('driver', 'pseudo email')
-            .populate('vehicle', 'brand model licensePlate')
-            .sort({ departureDate: 1 });
+        // Récupérer les réservations depuis MySQL
+        const bookings = await RideSQL.getPassengerBookings(passengerId);
+        
+        console.log(`📊 Réservations trouvées: ${bookings.length}`);
 
         res.json({
             success: true,
-            rides: rides,
-            count: rides.length
+            rides: bookings,
+            count: bookings.length
         });
 
     } catch (error) {
-        console.error('Erreur lors de la récupération des trajets réservés:', error);
+        console.error('❌ Erreur lors de la récupération des trajets réservés:', error);
         res.status(500).json({
             success: false,
             message: 'Erreur serveur lors de la récupération des trajets'
+        });
+    }
+};
+
+// @route   DELETE /api/rides/bookings/:id
+// @desc    Annuler une réservation
+// @access  Private (passager propriétaire)
+exports.cancelBooking = async (req, res) => {
+    try {
+        const bookingId = parseInt(req.params.id);
+        const passengerId = req.user.id;
+        
+        if (isNaN(bookingId)) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID de réservation invalide'
+            });
+        }
+        
+        console.log('🚫 Annulation réservation:', bookingId, 'par passager:', passengerId);
+        
+        const result = await RideSQL.cancelBooking(bookingId, passengerId);
+        
+        console.log('✅ Réservation annulée, places restituées:', result.seats_restored);
+        
+        res.json({
+            success: true,
+            message: result.message,
+            data: result
+        });
+        
+    } catch (error) {
+        console.error('❌ Erreur annulation réservation:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Erreur serveur lors de l\'annulation'
         });
     }
 };

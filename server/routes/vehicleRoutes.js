@@ -12,9 +12,9 @@ const { authenticateToken, requireDriver } = require('../middleware/auth'); // N
 router.get('/me', authenticateToken, vehicleController.getVehicles);
 
 // @route   POST /api/vehicles
-// @desc    Ajouter un nouveau véhicule (US8 - chauffeur requis)
-// @access  Private (chauffeur)
-router.post('/', authenticateToken, requireDriver, vehicleController.addVehicle);
+// @desc    Ajouter un nouveau véhicule (promotion automatique en chauffeur)
+// @access  Private
+router.post('/', authenticateToken, vehicleController.addVehicle);
 
 // @route   GET /api/vehicles/:id
 // @desc    Obtenir un véhicule spécifique par ID
@@ -34,9 +34,9 @@ router.delete('/:id', authenticateToken, vehicleController.deleteVehicle);
 // --- Nouvelles routes pour US8 : Préférences chauffeur ---
 
 // @route   POST /api/vehicles/preferences
-// @desc    Définir les préférences de chauffeur (US8)
-// @access  Private (chauffeur requis)
-router.post('/preferences', authenticateToken, requireDriver, vehicleController.setDriverPreferences);
+// @desc    Définir les préférences de chauffeur (promotion automatique)
+// @access  Private
+router.post('/preferences', authenticateToken, vehicleController.setDriverPreferences);
 
 // @route   GET /api/vehicles/preferences
 // @desc    Obtenir les préférences de chauffeur

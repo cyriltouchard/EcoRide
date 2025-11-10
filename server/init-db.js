@@ -153,17 +153,15 @@ async function initializeDatabase() {
         `);
         console.log('✅ Trigger crédits automatiques créé');
         
-        // Créer un utilisateur admin par défaut
-        const [existing] = await connection.query('SELECT id FROM users WHERE email = "admin@ecoride.fr"');
-        if (existing.length === 0) {
-            await connection.query(`
-                INSERT INTO users (pseudo, email, password_hash, user_type) VALUES 
-                ('admin', 'admin@ecoride.fr', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin')
-            `);
-            console.log('✅ Utilisateur admin créé (admin@ecoride.fr / password)');
-        } else {
-            console.log('ℹ️ Utilisateur admin existe déjà');
-        }
+        // NOTE IMPORTANTE DE SÉCURITÉ:
+        // Ne JAMAIS hardcoder des mots de passe ou leurs hachages dans le code source.
+        // Pour créer un compte admin initial:
+        // 1. Utilisez la page de création de compte avec le type "admin"
+        // 2. Ou créez un script séparé avec des identifiants définis dans .env
+        // 3. Ou utilisez une interface d'administration sécurisée
+        
+        console.log('ℹ️ Pour créer un compte admin, utilisez la page de création de compte');
+        console.log('ℹ️ Les identifiants admin doivent être créés de manière sécurisée, jamais hardcodés');
         
         // Créer la vue v_user_profile pour les profils utilisateur
         await connection.query(`

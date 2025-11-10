@@ -68,7 +68,7 @@
                 <span class="bar"></span>
             </button>
 
-            <nav class="main-nav">
+            <nav class="main-nav" aria-label="Navigation principale">
                 <ul>
                     <li><a href="index.html">Accueil</a></li>
                     <li><a href="covoiturages.html" class="active">Covoiturages</a></li>
@@ -78,6 +78,9 @@
                     </li>
                     <li id="user-nav-dashboard" class="hidden">
                         <a href="espace-utilisateur.html">Mon Espace</a>
+                    </li>
+                    <li id="admin-nav-button" class="hidden">
+                        <a href="admin.html" class="admin-button"><i class="fas fa-cog"></i> Admin</a>
                     </li>
                     <li id="guest-nav-button">
                         <a href="connexion.html" class="auth-button">Se connecter</a>
@@ -100,8 +103,11 @@
                     <input type="text" id="search-arrival" name="arrival" placeholder="Adresse d'arrivée"
                         aria-label="Adresse d'arrivée">
                     <input type="date" id="search-date" name="date" aria-label="Date du trajet">
-                    <input type="number" id="search-seats" name="seats" placeholder="Nb. personnes"
-                        aria-label="Nombre de personnes" min="1" value="1">
+                    <div class="passengers-field">
+                        <span class="passengers-icon">👥</span>
+                        <input type="number" id="search-seats" name="seats" placeholder="Nombre"
+                            aria-label="Nombre de passagers" min="1" max="8" value="1">
+                    </div>
                     <button type="submit">Rechercher</button>
                 </form>
             </div>

@@ -91,7 +91,9 @@ class RideSQL {
         const [rows] = await pool.execute(
             `SELECT 
                 r.*,
+                u.id as driver_id,
                 u.pseudo as driver_pseudo,
+                u.profile_picture as driver_photo,
                 v.brand, v.model, v.color, v.energy_type,
                 CASE WHEN v.energy_type = 'electrique' THEN true ELSE false END as is_ecological,
                 uc.current_credits as driver_credits
@@ -103,7 +105,43 @@ class RideSQL {
             [rideId]
         );
         
-        return rows[0] || null;
+        if (!rows[0]) return null;
+        
+        const row = rows[0];
+        const datetime = new Date(row.departure_datetime);
+        
+        // Formater pour compatibilité frontend (format MongoDB-like)
+        return {
+            _id: row.id,
+            id: row.id,
+            driver: {
+                id: row.driver_id,
+                _id: row.driver_id,
+                pseudo: row.driver_pseudo,
+                profile_picture: row.driver_photo
+            },
+            vehicle: {
+                id: row.vehicle_id,
+                brand: row.brand,
+                model: row.model,
+                color: row.color,
+                energy: row.energy_type
+            },
+            departure: row.departure_city,
+            arrival: row.arrival_city,
+            departureAddress: row.departure_address,
+            arrivalAddress: row.arrival_address,
+            departureDate: row.departure_datetime,
+            departureTime: datetime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+            estimatedArrival: row.estimated_arrival,
+            price: row.price_per_seat,
+            availableSeats: row.available_seats,
+            totalSeats: row.total_seats,
+            status: row.status,
+            platformCommission: row.platform_commission,
+            isEcologic: row.is_ecological,
+            driverCredits: row.driver_credits
+        };
     }
     
     // Obtenir tous les trajets d'un chauffeur
@@ -146,9 +184,17 @@ class RideSQL {
         
         let query = `
             SELECT 
-                r.id, r.departure_city, r.arrival_city, r.departure_datetime, r.estimated_arrival,
-                r.price_per_seat, r.available_seats, r.total_seats,
+                r.id, 
+                r.driver_id,
+                r.departure_city, 
+                r.arrival_city, 
+                r.departure_datetime, 
+                r.estimated_arrival,
+                r.price_per_seat, 
+                r.available_seats, 
+                r.total_seats,
                 u.pseudo as driver_pseudo,
+                u.profile_picture as driver_photo,
                 v.brand, v.model, v.energy_type,
                 CASE WHEN v.energy_type = 'electrique' THEN true ELSE false END as is_ecological
             FROM rides r
@@ -188,7 +234,35 @@ class RideSQL {
         query += ' ORDER BY r.departure_datetime ASC';
         
         const [rows] = await pool.execute(query, params);
-        return rows;
+        
+        // Formater les résultats pour compatibilité frontend (format MongoDB-like)
+        return rows.map(row => {
+            const datetime = new Date(row.departure_datetime);
+            return {
+                _id: row.id,
+                id: row.id,
+                driver: {
+                    id: row.driver_id,
+                    _id: row.driver_id,
+                    pseudo: row.driver_pseudo,
+                    profile_picture: row.driver_photo
+                },
+                vehicle: {
+                    brand: row.brand,
+                    model: row.model,
+                    energy: row.energy_type
+                },
+                departure: row.departure_city,
+                arrival: row.arrival_city,
+                departureDate: row.departure_datetime,
+                departureTime: datetime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                estimatedArrival: row.estimated_arrival,
+                price: row.price_per_seat,
+                availableSeats: row.available_seats,
+                totalSeats: row.total_seats,
+                isEcologic: row.is_ecological
+            };
+        });
     }
     
     // Mettre à jour le statut d'un trajet (US11)
@@ -367,6 +441,161 @@ class RideSQL {
         } catch (error) {
             console.error('Erreur récupération trajets chauffeur:', error);
             throw error;
+        }
+    }
+    
+    // Obtenir toutes les réservations d'un passager
+    static async getPassengerBookings(passengerId) {
+        const [rows] = await pool.execute(
+            `SELECT 
+                b.id as booking_id,
+                b.seats_booked,
+                b.total_cost,
+                b.booking_status,
+                b.booking_date,
+                r.id as ride_id,
+                r.departure_city,
+                r.arrival_city,
+                r.departure_datetime,
+                r.price_per_seat,
+                r.status as ride_status,
+                u.id as driver_id,
+                u.pseudo as driver_pseudo,
+                u.profile_picture as driver_photo,
+                v.brand,
+                v.model,
+                v.energy_type
+            FROM bookings b
+            JOIN rides r ON b.ride_id = r.id
+            JOIN users u ON r.driver_id = u.id
+            JOIN vehicles v ON r.vehicle_id = v.id
+            WHERE b.passenger_id = ?
+            AND b.booking_status != 'annule'
+            ORDER BY r.departure_datetime DESC`,
+            [passengerId]
+        );
+        
+        // Formater les résultats pour compatibilité frontend
+        return rows.map(row => {
+            const datetime = new Date(row.departure_datetime);
+            return {
+                _id: row.booking_id,
+                id: row.booking_id,
+                rideId: row.ride_id,
+                driver: {
+                    id: row.driver_id,
+                    _id: row.driver_id,
+                    pseudo: row.driver_pseudo,
+                    profile_picture: row.driver_photo
+                },
+                vehicle: {
+                    brand: row.brand,
+                    model: row.model,
+                    energy: row.energy_type
+                },
+                departure: row.departure_city,
+                arrival: row.arrival_city,
+                departureDate: row.departure_datetime,
+                departureTime: datetime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                price: row.price_per_seat,
+                seatsBooked: row.seats_booked,
+                totalCost: row.total_cost,
+                status: row.booking_status,
+                rideStatus: row.ride_status,
+                bookingDate: row.booking_date
+            };
+        });
+    }
+    
+    // Créer une réservation
+    static async createBooking(rideId, passengerId, seatsBooked, pricePerSeat) {
+        const connection = await pool.getConnection();
+        
+        try {
+            await connection.beginTransaction();
+            
+            // Calculer le coût total
+            const totalCost = seatsBooked * pricePerSeat;
+            
+            // Créer la réservation
+            const [result] = await connection.execute(
+                `INSERT INTO bookings (ride_id, passenger_id, seats_booked, total_cost, booking_status)
+                 VALUES (?, ?, ?, ?, 'confirme')`,
+                [rideId, passengerId, seatsBooked, totalCost]
+            );
+            
+            await connection.commit();
+            
+            return {
+                id: result.insertId,
+                ride_id: rideId,
+                passenger_id: passengerId,
+                seats_booked: seatsBooked,
+                total_cost: totalCost,
+                booking_status: 'confirme'
+            };
+            
+        } catch (error) {
+            await connection.rollback();
+            throw error;
+        } finally {
+            connection.release();
+        }
+    }
+    
+    // Annuler une réservation
+    static async cancelBooking(bookingId, passengerId) {
+        const connection = await pool.getConnection();
+        
+        try {
+            await connection.beginTransaction();
+            
+            // Vérifier que la réservation appartient au passager
+            const [bookings] = await connection.execute(
+                `SELECT b.*, r.available_seats, r.total_seats 
+                 FROM bookings b 
+                 JOIN rides r ON b.ride_id = r.id
+                 WHERE b.id = ? AND b.passenger_id = ?`,
+                [bookingId, passengerId]
+            );
+            
+            if (!bookings[0]) {
+                throw new Error('Réservation non trouvée ou non autorisée');
+            }
+            
+            const booking = bookings[0];
+            
+            // Vérifier que la réservation n'est pas déjà annulée
+            if (booking.booking_status === 'annule') {
+                throw new Error('Cette réservation est déjà annulée');
+            }
+            
+            // Mettre à jour le statut de la réservation
+            await connection.execute(
+                `UPDATE bookings SET booking_status = 'annule' WHERE id = ?`,
+                [bookingId]
+            );
+            
+            // Remettre les places disponibles
+            const newAvailableSeats = booking.available_seats + booking.seats_booked;
+            await connection.execute(
+                `UPDATE rides SET available_seats = ? WHERE id = ?`,
+                [newAvailableSeats, booking.ride_id]
+            );
+            
+            await connection.commit();
+            
+            return {
+                success: true,
+                message: 'Réservation annulée avec succès',
+                seats_restored: booking.seats_booked
+            };
+            
+        } catch (error) {
+            await connection.rollback();
+            throw error;
+        } finally {
+            connection.release();
         }
     }
 

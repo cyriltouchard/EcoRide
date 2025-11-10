@@ -128,6 +128,17 @@ npm run docker:up
 # → MySQL Admin: http://localhost:8082
 ```
 
+#### Configuration des secrets pour Docker
+Ne placez PAS de mots de passe en clair dans le dépôt. Copiez le fichier `.env.example` à la racine du projet vers un fichier `.env` et remplissez les valeurs réelles :
+
+```bash
+cp .env.example .env
+# puis éditez .env et remplacez les placeholders par vos secrets
+```
+
+Le fichier `.env` est ignoré par Git (présent dans `.gitignore`). En production, préférez stocker vos secrets dans un coffre sécurisé (Vault, Azure Key Vault, AWS Secrets Manager) ou dans les variables d'environnement CI/CD.
+
+
 ### 4. Démarrage de MongoDB
 ```bash
 # Si MongoDB est installé localement

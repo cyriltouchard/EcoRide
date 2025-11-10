@@ -61,11 +61,16 @@ const corsOptions = {
             callback(new Error('Non autorisé par CORS'));
         }
     },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    credentials: true
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'x-auth-token', 'Authorization'],
+    credentials: true,
+    optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
+
+// Gérer explicitement les requêtes OPTIONS (preflight)
+app.options('*', cors(corsOptions));
 
 
 // Middleware pour parser le JSON
@@ -94,6 +99,12 @@ app.use('/api/rides', require('./routes/rideRoutes'));
 
 // Routes système de crédits
 app.use('/api/credits', require('./routes/creditRoutes'));
+
+// Routes avis et notations
+app.use('/api/reviews', require('./routes/reviewRoutes'));
+
+// Routes de contact
+app.use('/api/contact', require('./routes/contactRoutes'));
 
 // Routes de santé et monitoring
 app.use('/api', require('./routes/healthRoutes'));

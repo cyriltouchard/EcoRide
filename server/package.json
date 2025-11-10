@@ -9,7 +9,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "health": "curl -f http://localhost:3002/api/health || exit 1",
     "audit": "npm audit --audit-level moderate",
-    "security-check": "npm audit && echo 'Vérification sécurité terminée'",
+    "security-check": "node security-check.js",
+    "create-admin": "node create-admin.js",
     "db-init": "node init-db.js",
     "lint": "echo 'Configuration ESLint recommandée pour améliorer la qualité du code'"
   },

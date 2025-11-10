@@ -7,9 +7,9 @@ const { authenticateToken, requireDriver, requireAdmin } = require('../middlewar
 // --- Routes pour les covoiturages (US9) ---
 
 // @route   POST /api/rides
-// @desc    Créer un nouveau covoiturage (US9)
-// @access  Private (chauffeur requis)
-router.post('/', authenticateToken, requireDriver, rideController.createRide);
+// @desc    Créer un nouveau covoiturage (promotion automatique en chauffeur)
+// @access  Private
+router.post('/', authenticateToken, rideController.createRide);
 
 // @route   GET /api/rides/search
 // @desc    Rechercher des covoiturages (US3)
@@ -26,10 +26,15 @@ router.get('/offered', authenticateToken, rideController.getOfferedRides);
 // @access  Private
 router.get('/booked', authenticateToken, rideController.getBookedRides);
 
+// @route   DELETE /api/rides/bookings/:id
+// @desc    Annuler une réservation
+// @access  Private (passager propriétaire)
+router.delete('/bookings/:id', authenticateToken, rideController.cancelBooking);
+
 // @route   GET /api/rides/my-rides
-// @desc    Obtenir tous les trajets du chauffeur connecté (US9)
-// @access  Private (chauffeur requis)
-router.get('/my-rides', authenticateToken, requireDriver, rideController.getMyRides);
+// @desc    Obtenir tous les trajets du chauffeur connecté (accessible à tous)
+// @access  Private
+router.get('/my-rides', authenticateToken, rideController.getMyRides);
 
 // @route   GET /api/rides/statistics
 // @desc    Statistiques des trajets (admin)

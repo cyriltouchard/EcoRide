@@ -4,56 +4,26 @@ print('🚀 Initialisation base de données MongoDB EcoRide...');
 // Sélection de la base de données
 db = db.getSiblingDB('ecoride');
 
-// Création de l'utilisateur applicatif
-db.createUser({
-  user: 'ecoride_app',
-  pwd: 'ecoride_app_password',
-  roles: [
-    {
-      role: 'readWrite',
-      db: 'ecoride'
-    }
-  ]
-});
+/*
+  SECURITY NOTE
+  ------------
+  Removed hard-coded passwords and bcrypt hashes from this initialization script.
+  Storing password hashes or plaintext passwords in repository files is unsafe.
 
-// Insertion de données de test
-print('📝 Insertion des données de test...');
+  Recommended secure alternatives:
+  - Use Docker / orchestration to inject secrets at runtime (via .env, Docker secrets, or a secret manager).
+  - Create administrative and application users manually on the target environment, or via a secure, out-of-repo script that reads secrets from environment variables.
+  - For test data required in CI, generate users dynamically during tests and store credentials only in the CI secret store.
 
-// Collection utilisateurs de test
-db.users.insertMany([
-  {
-    _id: ObjectId(),
-    email: 'admin@ecoride.fr',
-    profile: {
-      firstName: 'Admin',
-      lastName: 'EcoRide',
-      phone: '0123456789'
-    },
-    password: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewfI0h3YPNK.KYme', // password: admin123
-    credits: 100,
-    role: 'admin',
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    _id: ObjectId(),
-    email: 'test@ecoride.fr',
-    profile: {
-      firstName: 'Test',
-      lastName: 'User',
-      phone: '0987654321'
-    },
-    password: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewfI0h3YPNK.KYme', // password: test123
-    credits: 20,
-    role: 'user',
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  }
-]);
+  This script will only create the database and indexes. To populate users, run a separate secure bootstrap
+  script that reads passwords from environment variables or a secret manager.
+*/
 
-// Collection véhicules de test
+print('📝 Initialisation des collections et des index (sans utilisateurs ni mots de passe)...');
+
+// NOTE: users and test accounts are intentionally NOT created here to avoid embedding secrets in the repo.
+
+// Collection véhicules de test (seed minimal sans données sensibles)
 db.vehicles.insertMany([
   {
     _id: ObjectId(),

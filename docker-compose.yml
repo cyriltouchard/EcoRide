@@ -7,16 +7,17 @@ services:
     container_name: ecoride-backend
     ports:
       - "3000:3000"
+    # Environment variables are read from the project .env file (do NOT commit secrets)
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - MONGODB_URI=mongodb://ecoride-mongo:27017/ecoride
+      - MONGODB_URI=mongodb://ecoride-mongo:27017/${MONGO_DATABASE:-ecoride}
       - MYSQL_HOST=ecoride-mysql
       - MYSQL_PORT=3306
-      - MYSQL_DATABASE=ecoride
-      - MYSQL_USER=ecoride_user
-      - MYSQL_PASSWORD=ecoride_secure_password
-      - JWT_SECRET=your_super_secret_jwt_key_change_in_production
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-ecoride}
+      - MYSQL_USER=${MYSQL_USER:-ecoride_user}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       ecoride-mongo:
         condition: service_healthy
@@ -41,9 +42,9 @@ services:
     ports:
       - "27017:27017"
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=admin_password
-      - MONGO_INITDB_DATABASE=ecoride
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE:-ecoride}
     volumes:
       - ecoride_mongo_data:/data/db
       - ./docker/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
@@ -64,10 +65,10 @@ services:
     ports:
       - "3306:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=root_secure_password
-      - MYSQL_DATABASE=ecoride
-      - MYSQL_USER=ecoride_user
-      - MYSQL_PASSWORD=ecoride_secure_password
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-ecoride}
+      - MYSQL_USER=${MYSQL_USER:-ecoride_user}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     volumes:
       - ecoride_mysql_data:/var/lib/mysql
       - ./docker/mysql-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -89,11 +90,11 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=admin_password
-      - ME_CONFIG_MONGODB_URL=mongodb://admin:admin_password@ecoride-mongo:27017/
-      - ME_CONFIG_BASICAUTH_USERNAME=admin
-      - ME_CONFIG_BASICAUTH_PASSWORD=admin
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${ME_CONFIG_MONGODB_ADMINUSERNAME:-admin}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${ME_CONFIG_MONGODB_ADMINPASSWORD}
+      - ME_CONFIG_MONGODB_URL=mongodb://admin:${ME_CONFIG_MONGODB_ADMINPASSWORD}@ecoride-mongo:27017/
+      - ME_CONFIG_BASICAUTH_USERNAME=${ME_CONFIG_BASICAUTH_USERNAME:-admin}
+      - ME_CONFIG_BASICAUTH_PASSWORD=${ME_CONFIG_BASICAUTH_PASSWORD}
     depends_on:
       - ecoride-mongo
     restart: unless-stopped
@@ -109,9 +110,9 @@ services:
     environment:
       - PMA_HOST=ecoride-mysql
       - PMA_PORT=3306
-      - PMA_USER=ecoride_user
-      - PMA_PASSWORD=ecoride_secure_password
-      - MYSQL_ROOT_PASSWORD=root_secure_password
+      - PMA_USER=${MYSQL_USER:-ecoride_user}
+      - PMA_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     depends_on:
       - ecoride-mysql
     restart: unless-stopped

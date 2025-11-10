@@ -46,6 +46,51 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================================================
     
     /**
+     * Fonction utilitaire : capitalise automatiquement la première lettre d'un texte
+     */
+    const capitalizeFirstLetter = (input) => {
+        if (!input.value) return;
+        const words = input.value.split(' ');
+        const capitalized = words.map(word => {
+            if (word.length === 0) return word;
+            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        });
+        input.value = capitalized.join(' ');
+    };
+    
+    /**
+     * Applique la capitalisation automatique aux champs de ville et véhicule
+     */
+    const initFieldsCapitalization = () => {
+        // Champs de ville
+        const cityFields = [
+            document.getElementById('search-departure'),
+            document.getElementById('search-arrival'),
+            document.getElementById('departure'),
+            document.getElementById('arrival')
+        ].filter(Boolean); // Garde seulement les champs qui existent
+        
+        // Champs de véhicule (marque et modèle)
+        const vehicleFields = [
+            document.getElementById('brand'),
+            document.getElementById('model'),
+            document.getElementById('edit-brand-modal'),
+            document.getElementById('edit-model-modal')
+        ].filter(Boolean);
+        
+        // Appliquer la capitalisation à tous les champs
+        const allFields = [...cityFields, ...vehicleFields];
+        
+        allFields.forEach(field => {
+            field.addEventListener('blur', () => capitalizeFirstLetter(field));
+            field.addEventListener('change', () => capitalizeFirstLetter(field));
+        });
+    };
+    
+    // Initialiser la capitalisation des champs
+    initFieldsCapitalization();
+    
+    /**
      * Affiche une notification non bloquante à l'écran.
      * Remplace les alert() pour une meilleure expérience utilisateur.
      */
@@ -102,6 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const userNavDashboard = document.getElementById('user-nav-dashboard');
     const userNavButton = document.getElementById('user-nav-button');
     const logoutButton = document.getElementById('logout-button');
+    const adminNavButton = document.getElementById('admin-nav-button');
 
     if (guestNavButton) {
         if (token) {
@@ -133,6 +179,27 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             userNavButton.classList.add('hidden');
         }
+    }
+
+    // Vérifier si l'utilisateur est admin pour afficher le bouton Admin
+    if (adminNavButton && token) {
+        fetch(`${API_BASE_URL}/users/me`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.user_type === 'admin' || data.user_type === 'employe') {
+                adminNavButton.classList.remove('hidden');
+            } else {
+                adminNavButton.classList.add('hidden');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors de la vérification du rôle:', error);
+            adminNavButton.classList.add('hidden');
+        });
     }
 
     if (logoutButton) {
@@ -249,6 +316,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (document.getElementById('user-email')) document.getElementById('user-email').textContent = data.email;
                 if (document.getElementById('user-credits')) document.getElementById('user-credits').textContent = data.credits || 0;
                 if (document.getElementById('user-pseudo-welcome')) document.getElementById('user-pseudo-welcome').textContent = data.pseudo;
+                // Mettre à jour aussi le profil dans la sidebar
+                if (document.getElementById('user-pseudo-profile')) document.getElementById('user-pseudo-profile').textContent = data.pseudo;
+                if (document.getElementById('user-email-profile')) document.getElementById('user-email-profile').textContent = data.email;
+                // Charger la photo de profil si elle existe
+                if (data.profile_picture && document.getElementById('profile-picture')) {
+                    document.getElementById('profile-picture').src = data.profile_picture;
+                }
             } catch (error) {
                 showNotification(`Erreur chargement profil: ${error.message}`, 'error');
             }
@@ -307,7 +381,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     const action = type === 'offered' ? 'trajet' : 'réservation';
                     if (confirm(`Êtes-vous sûr de vouloir annuler cette ${action} ?`)) {
                         try {
-                            await fetchWithAuth(`${API_BASE_URL}/rides/${event.target.dataset.id}`, { method: 'DELETE' });
+                            if (type === 'offered') {
+                                // Annuler un trajet proposé
+                                await fetchWithAuth(`${API_BASE_URL}/rides/${event.target.dataset.id}`, { method: 'DELETE' });
+                            } else {
+                                // Annuler une réservation
+                                await fetchWithAuth(`${API_BASE_URL}/rides/bookings/${event.target.dataset.id}`, { method: 'DELETE' });
+                            }
                             showNotification(`${action.charAt(0).toUpperCase() + action.slice(1)} annulé(e).`, 'success');
                             loadRides('offered');
                             loadRides('booked');
@@ -346,8 +426,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         activeRides.forEach(ride => {
                             const date = new Date(ride.departureDate).toLocaleDateString('fr-FR');
                             const statusText = statusMap[ride.status] || ride.status;
-                            // Autoriser l'annulation pour les statuts "en_attente" et "scheduled"
-                            const isCancellable = ride.status === 'scheduled' || ride.status === 'en_attente';
+                            
+                            // Autoriser l'annulation pour les réservations confirmées et les trajets en attente
+                            let isCancellable = false;
+                            if (type === 'offered') {
+                                // Pour les trajets proposés: autoriser annulation si en_attente ou scheduled
+                                isCancellable = ride.status === 'scheduled' || ride.status === 'en_attente';
+                            } else {
+                                // Pour les réservations: autoriser annulation si confirme et trajet pas encore terminé
+                                isCancellable = ride.status === 'confirme' || ride.status === 'scheduled' || ride.status === 'en_attente';
+                            }
                             
                             let cardHtml = '';
                             if (type === 'offered') {
@@ -487,15 +575,126 @@ document.addEventListener('DOMContentLoaded', () => {
                     contents.forEach(c => c.classList.remove('active'));
                     tab.classList.add('active');
                     document.getElementById(tab.dataset.tab).classList.add('active');
+                    
+                    // Sauvegarder l'onglet actif dans localStorage
+                    localStorage.setItem('activeTab', tab.dataset.tab);
+                    
                     if (tab.dataset.tab === 'tab-vehicles') loadUserVehicles();
                     if (tab.dataset.tab === 'tab-offered-rides') loadRides('offered');
                     if (tab.dataset.tab === 'tab-booked-rides') loadRides('booked');
+                    if (tab.dataset.tab === 'tab-my-ratings') loadMyRatings();
                 });
             });
+            
             fetchUserData();
-            const profileTab = document.querySelector('.tab-button[data-tab="tab-profile"]');
-            if (profileTab) {
-                profileTab.click();
+            
+            // Récupérer l'onglet actif depuis localStorage, ou utiliser 'tab-vehicles' par défaut
+            const savedTab = localStorage.getItem('activeTab') || 'tab-vehicles';
+            const tabToActivate = document.querySelector(`.tab-button[data-tab="${savedTab}"]`);
+            
+            if (tabToActivate) {
+                tabToActivate.click();
+            }
+        }
+
+        // ========== GESTION DES NOTES ET AVIS ==========
+        
+        async function loadMyRatings() {
+            try {
+                // Récupérer l'ID de l'utilisateur
+                const userData = await fetchWithAuth(`${API_BASE_URL}/users/me`);
+                const userId = userData.id || userData._id;
+                
+                // Charger les statistiques
+                const ratingResponse = await fetch(`${API_BASE_URL}/reviews/driver/${userId}/rating`);
+                const ratingData = await ratingResponse.json();
+                
+                // Charger les avis détaillés
+                const reviewsResponse = await fetch(`${API_BASE_URL}/reviews/driver/${userId}?limit=50`);
+                const reviewsData = await reviewsResponse.json();
+                
+                const statsContainer = document.getElementById('rating-stats');
+                const reviewsList = document.getElementById('my-reviews-list');
+                const noReviewsMsg = document.getElementById('no-reviews');
+                
+                if (!statsContainer || !reviewsList || !noReviewsMsg) return;
+                
+                // Afficher les statistiques
+                if (ratingData.success && ratingData.rating && ratingData.rating.total_reviews > 0) {
+                    const stats = ratingData.rating;
+                    const stars = '⭐'.repeat(Math.round(stats.avg_rating));
+                    
+                    statsContainer.innerHTML = `
+                        <div class="rating-overview">
+                            <div class="rating-score">
+                                <div class="score-number">${stats.avg_rating.toFixed(1)}</div>
+                                <div class="score-stars">${stars}</div>
+                                <div class="score-count">${stats.total_reviews} avis</div>
+                            </div>
+                            <div class="rating-breakdown">
+                                <div class="rating-criteria">
+                                    <span>⏰ Ponctualité:</span>
+                                    <strong>${stats.avg_punctuality ? stats.avg_punctuality.toFixed(1) : 'N/A'}/5</strong>
+                                </div>
+                                <div class="rating-criteria">
+                                    <span>🚗 Conduite:</span>
+                                    <strong>${stats.avg_driving_quality ? stats.avg_driving_quality.toFixed(1) : 'N/A'}/5</strong>
+                                </div>
+                                <div class="rating-criteria">
+                                    <span>✨ Propreté:</span>
+                                    <strong>${stats.avg_vehicle_cleanliness ? stats.avg_vehicle_cleanliness.toFixed(1) : 'N/A'}/5</strong>
+                                </div>
+                                <div class="rating-criteria">
+                                    <span>😊 Amabilité:</span>
+                                    <strong>${stats.avg_friendliness ? stats.avg_friendliness.toFixed(1) : 'N/A'}/5</strong>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    statsContainer.innerHTML = `
+                        <div class="no-rating-yet">
+                            <p>Vous n'avez pas encore reçu de notes.</p>
+                            <p>Proposez des trajets pour commencer à recevoir des avis !</p>
+                        </div>
+                    `;
+                }
+                
+                // Afficher les avis
+                if (reviewsData.success && reviewsData.reviews && reviewsData.reviews.length > 0) {
+                    noReviewsMsg.classList.add('hidden');
+                    reviewsList.innerHTML = reviewsData.reviews.map(review => {
+                        const stars = '⭐'.repeat(review.rating);
+                        const date = new Date(review.created_at).toLocaleDateString('fr-FR', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        });
+                        
+                        return `
+                            <div class="review-item">
+                                <div class="review-header">
+                                    <div>
+                                        <strong>${review.passenger_pseudo || 'Passager'}</strong>
+                                        <div class="review-stars">${stars}</div>
+                                    </div>
+                                    <span class="review-date">${date}</span>
+                                </div>
+                                ${review.comment ? `<p class="review-comment">${review.comment}</p>` : ''}
+                                ${review.departure_city && review.arrival_city ? 
+                                    `<p class="review-trip"><i class="fas fa-route"></i> ${review.departure_city} → ${review.arrival_city}</p>` 
+                                    : ''}
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    noReviewsMsg.classList.remove('hidden');
+                    reviewsList.innerHTML = '';
+                }
+                
+            } catch (error) {
+                console.error('Erreur chargement notes:', error);
+                showNotification('Erreur lors du chargement des notes', 'error');
             }
         }
 
@@ -506,6 +705,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const editPictureBtn = document.getElementById('edit-picture-btn');
         const closePictureModalBtn = document.getElementById('close-picture-modal-btn');
         const pictureForm = document.getElementById('picture-form');
+        const useFileBtn = document.getElementById('use-file-btn');
+        const useUrlBtn = document.getElementById('use-url-btn');
+        const fileUploadSection = document.getElementById('file-upload-section');
+        const urlUploadSection = document.getElementById('url-upload-section');
+
+        // Gérer le changement entre fichier et URL
+        if (useFileBtn && useUrlBtn && fileUploadSection && urlUploadSection) {
+            useFileBtn.addEventListener('click', () => {
+                fileUploadSection.style.display = 'block';
+                urlUploadSection.style.display = 'none';
+                useFileBtn.style.background = '#4CAF50';
+                useUrlBtn.style.background = '#2196F3';
+            });
+
+            useUrlBtn.addEventListener('click', () => {
+                fileUploadSection.style.display = 'none';
+                urlUploadSection.style.display = 'block';
+                useFileBtn.style.background = '#2196F3';
+                useUrlBtn.style.background = '#4CAF50';
+            });
+        }
 
         if (editPictureBtn && pictureModal) {
             editPictureBtn.addEventListener('click', () => {
@@ -530,9 +750,39 @@ document.addEventListener('DOMContentLoaded', () => {
         if (pictureForm) {
             pictureForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const imageUrl = document.getElementById('profileImageUrl').value;
+                
+                const fileInput = document.getElementById('profileImageFile');
+                const urlInput = document.getElementById('profileImageUrl');
                 
                 try {
+                    let imageUrl = '';
+                    
+                    // Si un fichier est sélectionné
+                    if (fileInput && fileInput.files && fileInput.files[0]) {
+                        const file = fileInput.files[0];
+                        
+                        // Vérifier la taille (max 5MB)
+                        if (file.size > 5 * 1024 * 1024) {
+                            showNotification('Le fichier est trop volumineux (max 5MB)', 'error');
+                            return;
+                        }
+                        
+                        // Convertir en base64
+                        const reader = new FileReader();
+                        imageUrl = await new Promise((resolve, reject) => {
+                            reader.onload = (e) => resolve(e.target.result);
+                            reader.onerror = reject;
+                            reader.readAsDataURL(file);
+                        });
+                    } 
+                    // Sinon utiliser l'URL
+                    else if (urlInput && urlInput.value) {
+                        imageUrl = urlInput.value;
+                    } else {
+                        showNotification('Veuillez sélectionner une image ou entrer une URL', 'warning');
+                        return;
+                    }
+                    
                     const response = await fetchWithAuth(`${API_BASE_URL}/users/profile-picture`, {
                         method: 'PUT',
                         body: JSON.stringify({ profile_picture: imageUrl })
@@ -711,7 +961,41 @@ document.addEventListener('DOMContentLoaded', () => {
         const noSearchResultsMessage = document.getElementById('no-search-results');
         let allRides = [];
 
-        const displaySearchResults = (rides) => {
+        // Fonction pour charger la note d'un chauffeur
+        const loadDriverRating = async (driverId) => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/reviews/driver/${driverId}/rating`);
+                const data = await response.json();
+                if (data.success && data.rating) {
+                    return data.rating;
+                }
+                return { avg_rating: 0, total_reviews: 0 };
+            } catch (error) {
+                console.error('Erreur chargement note chauffeur:', error);
+                return { avg_rating: 0, total_reviews: 0 };
+            }
+        };
+
+        // Fonction pour générer les étoiles
+        const generateStars = (rating) => {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            let stars = '';
+            
+            for (let i = 0; i < fullStars; i++) {
+                stars += '⭐';
+            }
+            if (hasHalfStar) {
+                stars += '⭐';
+            }
+            for (let i = fullStars + (hasHalfStar ? 1 : 0); i < 5; i++) {
+                stars += '☆';
+            }
+            
+            return stars;
+        };
+
+        const displaySearchResults = async (rides) => {
             if (!searchResultsList || !noSearchResultsMessage) return;
             searchResultsList.innerHTML = '';
             if (!rides || rides.length === 0) {
@@ -719,10 +1003,53 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             noSearchResultsMessage.style.display = 'none';
-            rides.forEach(ride => {
+            
+            // Charger les notes pour tous les chauffeurs
+            for (const ride of rides) {
                 const date = new Date(ride.departureDate).toLocaleDateString('fr-FR');
-                searchResultsList.innerHTML += `<div class="covoiturage-card"><div class="card-header"><img src="public/images/driver-default.jpeg" alt="Photo" class="driver-photo"><div class="driver-info"><strong>${ride.driver.pseudo}</strong></div></div><div class="card-body"><p><strong>Trajet:</strong> ${ride.departure} → ${ride.arrival}</p><p><strong>Date:</strong> ${date} à ${ride.departureTime}</p><p><strong>Prix:</strong> ${ride.price} €</p><a href="details-covoiturage.html?id=${ride._id}" class="details-button">Détails</a></div></div>`;
-            });
+                const driverId = ride.driver.id || ride.driver._id;
+                
+                // Photo du chauffeur avec timestamp unique pour éviter le cache
+                const timestamp = new Date().getTime();
+                let driverPhoto = 'public/images/driver-default.jpeg';
+                
+                if (ride.driver.profile_picture) {
+                    // Si l'image est en base64 (commence par data: ou /9j/), l'utiliser directement
+                    if (ride.driver.profile_picture.startsWith('data:image') || ride.driver.profile_picture.startsWith('/9j/')) {
+                        driverPhoto = ride.driver.profile_picture.startsWith('data:image') 
+                            ? ride.driver.profile_picture 
+                            : `data:image/jpeg;base64,${ride.driver.profile_picture}`;
+                    } else {
+                        // Sinon, c'est un chemin de fichier
+                        driverPhoto = `${API_BASE_URL.replace('/api', '')}${ride.driver.profile_picture}?t=${timestamp}`;
+                    }
+                }
+                
+                // Charger la note du chauffeur
+                const rating = await loadDriverRating(driverId);
+                const stars = generateStars(rating.avg_rating || 0);
+                const ratingDisplay = rating.total_reviews > 0 
+                    ? `<div class="driver-rating">${stars} <span class="rating-value">${rating.avg_rating.toFixed(1)}/5</span> <span class="rating-count">(${rating.total_reviews} avis)</span></div>`
+                    : `<div class="driver-rating"><span class="rating-count">Nouveau chauffeur</span></div>`;
+                
+                searchResultsList.innerHTML += `
+                    <div class="covoiturage-card">
+                        <div class="card-header">
+                            <img src="${driverPhoto}" alt="Photo ${ride.driver.pseudo}" class="driver-photo" onerror="this.src='public/images/driver-default.jpeg'">
+                            <div class="driver-info">
+                                <strong>${ride.driver.pseudo}</strong>
+                                ${ratingDisplay}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Trajet:</strong> ${ride.departure} → ${ride.arrival}</p>
+                            <p><strong>Date:</strong> ${date} à ${ride.departureTime}</p>
+                            <p><strong>Prix:</strong> ${ride.price} €</p>
+                            <a href="details-covoiturage.html?id=${ride._id}" class="details-button">Détails</a>
+                        </div>
+                    </div>
+                `;
+            }
         };
 
         if (mainSearchForm) {
@@ -770,8 +1097,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const loadRideDetails = async () => {
             try {
                 const response = await fetch(`${API_BASE_URL}/rides/${rideId}`);
-                const ride = await response.json();
-                if (!response.ok) throw new Error(ride.msg || "Trajet non trouvé");
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.msg || result.message || "Trajet non trouvé");
+
+                // Les données sont dans result.data
+                const ride = result.data || result;
+                
+                console.log('📦 Trajet chargé:', ride);
 
                 document.getElementById('ride-departure').textContent = ride.departure;
                 document.getElementById('ride-arrival').textContent = ride.arrival;
@@ -780,14 +1112,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('ride-price').textContent = ride.price;
                 document.getElementById('ride-seats').textContent = ride.availableSeats;
                 document.getElementById('driver-name').textContent = ride.driver.pseudo;
+                
+                // Charger la photo du chauffeur avec timestamp pour éviter le cache
+                const driverPhotoEl = document.getElementById('driver-photo-lg');
+                if (driverPhotoEl && ride.driver.profile_picture) {
+                    const timestamp = new Date().getTime();
+                    
+                    // Si l'image est en base64, l'utiliser directement
+                    if (ride.driver.profile_picture.startsWith('data:image') || ride.driver.profile_picture.startsWith('/9j/')) {
+                        driverPhotoEl.src = ride.driver.profile_picture.startsWith('data:image') 
+                            ? ride.driver.profile_picture 
+                            : `data:image/jpeg;base64,${ride.driver.profile_picture}`;
+                    } else {
+                        // Sinon, c'est un chemin de fichier
+                        driverPhotoEl.src = `${API_BASE_URL.replace('/api', '')}${ride.driver.profile_picture}?t=${timestamp}`;
+                    }
+                }
+                
                 document.getElementById('vehicle-model').textContent = ride.vehicle.model;
                 document.getElementById('vehicle-brand').textContent = ride.vehicle.brand;
+                
                 const button = document.getElementById('participate-button');
                 if (ride.availableSeats <= 0) {
                     button.disabled = true;
                     button.textContent = "Complet";
                 }
             } catch (error) {
+                console.error('❌ Erreur chargement trajet:', error);
                 showNotification(`Erreur de chargement: ${error.message}`, 'error');
             }
         };
@@ -838,7 +1189,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const token = localStorage.getItem('token');
             if (!token) {
                 if (currentCreditsSpan) {
-                    currentCreditsSpan.textContent = '0 crédit';
+                    currentCreditsSpan.textContent = '0';
                 }
                 showNotification('Veuillez vous connecter pour voir votre solde', 'warning');
                 setTimeout(() => window.location.href = 'connexion.html', 2000);
@@ -848,17 +1199,19 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const fetchWithAuth = createFetchWithAuth(token);
                 const response = await fetchWithAuth(`${API_BASE_URL}/users/me`);
+                const data = response.data || response; // Support both formats
                 
-                if (response && response.user) {
-                    const credits = response.user.credits || 0;
+                if (data) {
+                    const credits = data.credits || 0;
                     if (currentCreditsSpan) {
-                        currentCreditsSpan.textContent = `${credits} crédit${credits > 1 ? 's' : ''}`;
+                        currentCreditsSpan.textContent = credits;
                     }
+                    console.log('✅ Crédits chargés:', credits);
                 }
             } catch (error) {
-                console.error('Erreur lors du chargement des crédits:', error);
+                console.error('❌ Erreur lors du chargement des crédits:', error);
                 if (currentCreditsSpan) {
-                    currentCreditsSpan.textContent = '0 crédit';
+                    currentCreditsSpan.textContent = '0';
                 }
             }
         };
@@ -1036,6 +1389,986 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Charger le solde au chargement de la page
         loadCurrentCredits();
+    }
+
+    // =========================================================================
+    // 7. ESPACE CHAUFFEUR (espace-chauffeur.html)
+    // =========================================================================
+    
+    if (document.body.classList.contains('driver-space') || window.location.pathname.includes('espace-chauffeur')) {
+        // Variables globales pour l'espace chauffeur
+        let currentUser = null;
+        let vehicles = [];
+        let rides = [];
+
+        // Initialisation de la page chauffeur
+        function initDriverSpace() {
+            checkDriverAuthentication();
+            loadDriverData();
+            
+            // Configuration de la date minimum pour les trajets
+            const rideDateInput = document.getElementById('ride-date');
+            if (rideDateInput) {
+                const today = new Date().toISOString().split('T')[0];
+                rideDateInput.min = today;
+            }
+        }
+
+        // Vérification de l'authentification chauffeur
+        function checkDriverAuthentication() {
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (!token || !user.id) {
+                alert('Vous devez être connecté pour accéder à cette page.');
+                window.location.href = 'connexion.html';
+                return;
+            }
+            
+            // Vérifier si l'utilisateur est un chauffeur
+            if (user.role !== 'driver' && user.role !== 'admin') {
+                alert('Accès réservé aux chauffeurs. Veuillez vous inscrire comme chauffeur.');
+                window.location.href = 'espace-utilisateur.html';
+                return;
+            }
+            
+            currentUser = user;
+            updateDriverUserInfo();
+        }
+
+        // Mise à jour des informations utilisateur
+        function updateDriverUserInfo() {
+            if (currentUser) {
+                const driverNameEl = document.getElementById('driver-name');
+                if (driverNameEl) {
+                    driverNameEl.textContent = currentUser.name || 'Chauffeur';
+                }
+                loadDriverCreditBalance();
+            }
+        }
+
+        // Chargement du solde de crédits
+        async function loadDriverCreditBalance() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+                
+                const fetchWithAuth = createFetchWithAuth(token);
+                const response = await fetchWithAuth(`${API_BASE_URL}/credits/balance`);
+                
+                const credits = response.data ? response.data.current_credits : response.current_credits;
+                const creditBalanceEl = document.getElementById('credit-balance');
+                if (creditBalanceEl) {
+                    creditBalanceEl.textContent = `💰 ${credits || 0} crédits`;
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des crédits:', error);
+                const creditBalanceEl = document.getElementById('credit-balance');
+                if (creditBalanceEl) {
+                    creditBalanceEl.textContent = `💰 0 crédits`;
+                }
+            }
+        }
+
+        // Chargement des données du chauffeur
+        async function loadDriverData() {
+            await Promise.all([
+                loadDriverVehicles(),
+                loadDriverRides(),
+                loadDriverPreferences(),
+                loadDriverStatistics()
+            ]);
+        }
+
+        // Chargement des véhicules
+        async function loadDriverVehicles() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+                
+                const fetchWithAuth = createFetchWithAuth(token);
+                const data = await fetchWithAuth(`${API_BASE_URL}/vehicles/me`);
+                
+                vehicles = data.vehicles || [];
+                displayDriverVehicles();
+                updateDriverVehicleOptions();
+            } catch (error) {
+                console.error('Erreur lors du chargement des véhicules:', error);
+                vehicles = [];
+                displayDriverVehicles();
+            }
+        }
+
+        // Affichage des véhicules
+        function displayDriverVehicles() {
+            const container = document.getElementById('vehicles-container');
+            if (!container) return;
+            
+            if (vehicles.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i>🚗</i>
+                        <p>Aucun véhicule enregistré</p>
+                        <button class="btn btn-primary" onclick="showAddVehicleModal()">
+                            Ajouter votre premier véhicule
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = vehicles.map(vehicle => `
+                <div class="vehicle-item">
+                    <div class="vehicle-header">
+                        <h4>${vehicle.brand} ${vehicle.model} ${vehicle.year || ''}</h4>
+                        <span class="eco-badge">${getEnergyEmoji(vehicle.energy_type)} ${getEnergyLabel(vehicle.energy_type)}</span>
+                    </div>
+                    <p>
+                        🪑 ${vehicle.seats} places | 
+                        🎨 ${vehicle.color || 'N/A'} | 
+                        🔢 ${vehicle.license_plate || 'N/A'}
+                    </p>
+                    <div class="btn-group">
+                        <button class="btn btn-warning" onclick="editVehicle(${vehicle.id})">Modifier</button>
+                        <button class="btn btn-danger" onclick="deleteVehicle(${vehicle.id})">Supprimer</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Chargement des trajets
+        async function loadDriverRides() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+                
+                const fetchWithAuth = createFetchWithAuth(token);
+                const data = await fetchWithAuth(`${API_BASE_URL}/rides/my-rides`);
+                
+                rides = data || [];
+                displayDriverRides();
+            } catch (error) {
+                console.error('Erreur lors du chargement des trajets:', error);
+                rides = [];
+                displayDriverRides();
+            }
+        }
+
+        // Affichage des trajets
+        function displayDriverRides() {
+            const container = document.getElementById('rides-container');
+            if (!container) return;
+            
+            if (rides.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i>🛣️</i>
+                        <p>Aucun covoiturage créé</p>
+                        <button class="btn btn-primary" onclick="showCreateRideModal()">
+                            Créer votre premier trajet
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = rides.map(ride => `
+                <div class="ride-item">
+                    <div class="ride-header">
+                        <h4>${ride.departure_city} → ${ride.arrival_city}</h4>
+                        <span class="status-badge status-${ride.status}">${getStatusLabel(ride.status)}</span>
+                    </div>
+                    <p>
+                        📅 ${formatDate(ride.departure_date)} à ${ride.departure_time} | 
+                        💰 ${ride.price_per_passenger}€ | 
+                        🪑 ${ride.available_seats}/${ride.total_seats} places
+                    </p>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="viewRideDetails(${ride.id})">Détails</button>
+                        ${ride.status === 'active' ? `
+                            <button class="btn btn-warning" onclick="updateRideStatus(${ride.id}, 'started')">Démarrer</button>
+                            <button class="btn btn-danger" onclick="cancelRide(${ride.id})">Annuler</button>
+                        ` : ''}
+                        ${ride.status === 'started' ? `
+                            <button class="btn btn-success" onclick="updateRideStatus(${ride.id}, 'completed')">Terminer</button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Chargement des préférences chauffeur
+        async function loadDriverPreferences() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+                
+                const fetchWithAuth = createFetchWithAuth(token);
+                const preferences = await fetchWithAuth(`${API_BASE_URL}/vehicles/driver-preferences`);
+                
+                displayDriverPreferences(preferences);
+            } catch (error) {
+                console.error('Erreur lors du chargement des préférences:', error);
+                document.getElementById('driver-preferences').innerHTML = `
+                    <div class="empty-state">
+                        <p>Erreur lors du chargement des préférences</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Affichage des préférences
+        function displayDriverPreferences(preferences) {
+            const container = document.getElementById('preferences-grid');
+            if (!container) return;
+            
+            if (!preferences || Object.keys(preferences).length === 0) {
+                container.innerHTML = `
+                    <div class="preference-item">
+                        <p>Aucune préférence définie</p>
+                        <button class="btn btn-primary" onclick="showPreferencesModal()">Définir mes préférences</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="preference-item">
+                    <strong>🚭 Fumeurs</strong>
+                    <p>${getPreferenceLabel('smoking', preferences.smoking_allowed)}</p>
+                </div>
+                <div class="preference-item">
+                    <strong>🐾 Animaux</strong>
+                    <p>${getPreferenceLabel('pets', preferences.pets_allowed)}</p>
+                </div>
+                <div class="preference-item">
+                    <strong>💬 Conversation</strong>
+                    <p>${getPreferenceLabel('conversation', preferences.conversation_level)}</p>
+                </div>
+                <div class="preference-item">
+                    <strong>🎵 Musique</strong>
+                    <p>${getPreferenceLabel('music', preferences.music_preference)}</p>
+                </div>
+            `;
+        }
+
+        // Chargement des statistiques
+        async function loadDriverStatistics() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+                
+                const fetchWithAuth = createFetchWithAuth(token);
+                const stats = await fetchWithAuth(`${API_BASE_URL}/rides/statistics`);
+                
+                updateDriverStatistics(stats);
+            } catch (error) {
+                console.error('Erreur lors du chargement des statistiques:', error);
+                // Affichage des statistiques locales
+                updateDriverStatistics({
+                    totalVehicles: vehicles.length,
+                    activeRides: rides.filter(r => r.status === 'active').length,
+                    totalPassengers: 0,
+                    ecoScore: calculateDriverEcoScore()
+                });
+            }
+        }
+
+        // Mise à jour des statistiques
+        function updateDriverStatistics(stats) {
+            const totalVehiclesEl = document.getElementById('total-vehicles');
+            const activeRidesEl = document.getElementById('active-rides');
+            const totalPassengersEl = document.getElementById('total-passengers');
+            const ecoScoreEl = document.getElementById('eco-score');
+            
+            if (totalVehiclesEl) totalVehiclesEl.textContent = stats.totalVehicles || vehicles.length;
+            if (activeRidesEl) activeRidesEl.textContent = stats.activeRides || rides.filter(r => r.status === 'active').length;
+            if (totalPassengersEl) totalPassengersEl.textContent = stats.totalPassengers || 0;
+            if (ecoScoreEl) ecoScoreEl.textContent = stats.ecoScore || calculateDriverEcoScore();
+        }
+
+        // Calcul du score écologique
+        function calculateDriverEcoScore() {
+            const ecoPoints = vehicles.reduce((total, vehicle) => {
+                const points = {
+                    'electric': 100,
+                    'hybrid': 80,
+                    'gpl': 60,
+                    'gasoline': 40,
+                    'diesel': 30
+                };
+                return total + (points[vehicle.energy_type] || 0);
+            }, 0);
+            
+            return Math.round(ecoPoints / Math.max(vehicles.length, 1));
+        }
+
+        // Gestion des modaux
+        window.showAddVehicleModal = function() {
+            const modal = document.getElementById('add-vehicle-modal');
+            if (modal) modal.style.display = 'block';
+        };
+
+        window.showCreateRideModal = function() {
+            const modal = document.getElementById('create-ride-modal');
+            if (modal) modal.style.display = 'block';
+        };
+
+        window.showPreferencesModal = function() {
+            const modal = document.getElementById('preferences-modal');
+            if (modal) modal.style.display = 'block';
+        };
+
+        window.closeModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.style.display = 'none';
+        };
+
+        // Gestion des formulaires
+        const addVehicleForm = document.getElementById('add-vehicle-form');
+        if (addVehicleForm) {
+            addVehicleForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const vehicleData = {
+                    brand: document.getElementById('vehicle-brand').value,
+                    model: document.getElementById('vehicle-model').value,
+                    year: document.getElementById('vehicle-year').value || null,
+                    energy_type: document.getElementById('vehicle-energy').value,
+                    seats: parseInt(document.getElementById('vehicle-seats').value),
+                    color: document.getElementById('vehicle-color').value || null,
+                    license_plate: document.getElementById('vehicle-plate').value || null
+                };
+                
+                try {
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        alert('Vous devez être connecté');
+                        return;
+                    }
+                    
+                    const fetchWithAuth = createFetchWithAuth(token);
+                    await fetchWithAuth(`${API_BASE_URL}/vehicles`, {
+                        method: 'POST',
+                        body: JSON.stringify(vehicleData)
+                    });
+                    
+                    alert('Véhicule ajouté avec succès !');
+                    closeModal('add-vehicle-modal');
+                    addVehicleForm.reset();
+                    loadDriverVehicles();
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de l\'ajout du véhicule: ' + (error.message || 'Erreur inconnue'));
+                }
+            });
+        }
+
+        const createRideForm = document.getElementById('create-ride-form');
+        if (createRideForm) {
+            createRideForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const rideData = {
+                    vehicle_id: parseInt(document.getElementById('ride-vehicle').value),
+                    departure_city: document.getElementById('ride-departure').value,
+                    arrival_city: document.getElementById('ride-arrival').value,
+                    departure_date: document.getElementById('ride-date').value,
+                    departure_time: document.getElementById('ride-time').value,
+                    available_seats: parseInt(document.getElementById('ride-seats').value),
+                    price_per_passenger: parseFloat(document.getElementById('ride-price').value),
+                    description: document.getElementById('ride-description').value || null
+                };
+                
+                try {
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        alert('Vous devez être connecté');
+                        return;
+                    }
+                    
+                    const fetchWithAuth = createFetchWithAuth(token);
+                    await fetchWithAuth(`${API_BASE_URL}/rides`, {
+                        method: 'POST',
+                        body: JSON.stringify(rideData)
+                    });
+                    
+                    alert('Covoiturage créé avec succès !');
+                    closeModal('create-ride-modal');
+                    createRideForm.reset();
+                    loadDriverRides();
+                    loadDriverCreditBalance(); // Recharger le solde de crédits
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de la création du covoiturage: ' + (error.message || 'Erreur inconnue'));
+                }
+            });
+        }
+
+        const preferencesForm = document.getElementById('preferences-form');
+        if (preferencesForm) {
+            preferencesForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const preferencesData = {
+                    smoking_allowed: document.getElementById('pref-smoking').value,
+                    pets_allowed: document.getElementById('pref-pets').value,
+                    conversation_level: document.getElementById('pref-conversation').value,
+                    music_preference: document.getElementById('pref-music').value
+                };
+                
+                try {
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        alert('Vous devez être connecté');
+                        return;
+                    }
+                    
+                    const fetchWithAuth = createFetchWithAuth(token);
+                    await fetchWithAuth(`${API_BASE_URL}/vehicles/driver-preferences`, {
+                        method: 'POST',
+                        body: JSON.stringify(preferencesData)
+                    });
+                    
+                    alert('Préférences sauvegardées avec succès !');
+                    closeModal('preferences-modal');
+                    loadDriverPreferences();
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de la sauvegarde des préférences: ' + (error.message || 'Erreur inconnue'));
+                }
+            });
+        }
+
+        // Fonctions utilitaires
+        function updateDriverVehicleOptions() {
+            const select = document.getElementById('ride-vehicle');
+            if (!select) return;
+            
+            select.innerHTML = '<option value="">Sélectionnez un véhicule...</option>';
+            
+            vehicles.forEach(vehicle => {
+                const option = document.createElement('option');
+                option.value = vehicle.id;
+                option.textContent = `${vehicle.brand} ${vehicle.model} (${vehicle.seats} places)`;
+                select.appendChild(option);
+            });
+        }
+
+        function getEnergyEmoji(energyType) {
+            const emojis = {
+                'electric': '🔋',
+                'hybrid': '⚡',
+                'gasoline': '⛽',
+                'diesel': '🛢️',
+                'gpl': '🔥'
+            };
+            return emojis[energyType] || '🚗';
+        }
+
+        function getEnergyLabel(energyType) {
+            const labels = {
+                'electric': 'Électrique',
+                'hybrid': 'Hybride',
+                'gasoline': 'Essence',
+                'diesel': 'Diesel',
+                'gpl': 'GPL'
+            };
+            return labels[energyType] || energyType;
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                'active': 'Actif',
+                'started': 'En cours',
+                'completed': 'Terminé',
+                'cancelled': 'Annulé'
+            };
+            return labels[status] || status;
+        }
+
+        function getPreferenceLabel(type, value) {
+            const labels = {
+                smoking: {
+                    'no': '🚭 Non-fumeur',
+                    'yes': '🚬 Accepté',
+                    'outside': '🌬️ Pause possible'
+                },
+                pets: {
+                    'no': '🚫 Interdits',
+                    'small': '🐕 Petits seulement',
+                    'yes': '🐾 Acceptés'
+                },
+                conversation: {
+                    'quiet': '🤫 Silencieux',
+                    'moderate': '💬 Modéré',
+                    'talkative': '🗣️ Bavard'
+                },
+                music: {
+                    'no': '🔇 Pas de musique',
+                    'soft': '🎵 Douce',
+                    'choice': '🎶 Au choix',
+                    'driver': '🎸 Ma playlist'
+                }
+            };
+            return labels[type]?.[value] || value;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('fr-FR');
+        }
+
+        // Actions sur les véhicules et trajets
+        window.deleteVehicle = async function(vehicleId) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer ce véhicule ?')) return;
+            
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert('Vous devez être connecté');
+                    return;
+                }
+                
+                const fetchWithAuth = createFetchWithAuth(token);
+                await fetchWithAuth(`${API_BASE_URL}/vehicles/${vehicleId}`, {
+                    method: 'DELETE'
+                });
+                
+                alert('Véhicule supprimé avec succès !');
+                loadDriverVehicles();
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la suppression du véhicule: ' + (error.message || 'Erreur inconnue'));
+            }
+        };
+
+        window.cancelRide = async function(rideId) {
+            if (!confirm('Êtes-vous sûr de vouloir annuler ce trajet ?')) return;
+            
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert('Vous devez être connecté');
+                    return;
+                }
+                
+                const fetchWithAuth = createFetchWithAuth(token);
+                await fetchWithAuth(`${API_BASE_URL}/rides/${rideId}`, {
+                    method: 'DELETE'
+                });
+                
+                alert('Trajet annulé avec succès !');
+                loadDriverRides();
+                loadDriverCreditBalance(); // Recharger le solde
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de l\'annulation du trajet: ' + (error.message || 'Erreur inconnue'));
+            }
+        };
+
+        window.updateRideStatus = async function(rideId, newStatus) {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert('Vous devez être connecté');
+                    return;
+                }
+                
+                const fetchWithAuth = createFetchWithAuth(token);
+                await fetchWithAuth(`${API_BASE_URL}/rides/${rideId}/status`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                alert('Statut mis à jour avec succès !');
+                loadDriverRides();
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la mise à jour du statut: ' + (error.message || 'Erreur inconnue'));
+            }
+        };
+
+        window.viewRideDetails = function(rideId) {
+            window.location.href = `details-covoiturage.html?id=${rideId}`;
+        };
+
+        window.editVehicle = function(vehicleId) {
+            // TODO: Implémenter la modification de véhicule
+            alert('Fonctionnalité de modification en cours de développement');
+        };
+
+        // Fermer les modaux en cliquant à l'extérieur
+        window.onclick = function(event) {
+            const modals = document.getElementsByClassName('modal');
+            for (let modal of modals) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            }
+        };
+
+        // Initialiser l'espace chauffeur
+        initDriverSpace();
+    }
+
+    // =========================================================================
+    // 8. PAGE AVIS (avis.html)
+    // =========================================================================
+    
+    if (window.location.pathname.includes('avis.html')) {
+        console.log('📋 Page avis détectée');
+
+        let currentRideData = null; // Stocke les données du trajet en cours de notation
+
+        // Gestion des onglets
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabName = button.dataset.tab;
+                
+                // Désactiver tous les onglets
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Activer l'onglet sélectionné
+                button.classList.add('active');
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+                
+                // Charger les données si nécessaire
+                if (tabName === 'eligible') {
+                    loadEligibleRides();
+                }
+            });
+        });
+
+        // Fonction pour initialiser le système de notation par étoiles
+        function initStarRating(containerId, inputId) {
+            const container = document.getElementById(containerId);
+            const input = document.getElementById(inputId);
+            const stars = container.querySelectorAll('.star');
+
+            stars.forEach((star, index) => {
+                star.addEventListener('click', () => {
+                    const value = parseInt(star.dataset.value);
+                    input.value = value;
+                    
+                    // Mettre à jour l'affichage
+                    stars.forEach((s, i) => {
+                        if (i < value) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                });
+
+                // Effet hover
+                star.addEventListener('mouseenter', () => {
+                    const value = parseInt(star.dataset.value);
+                    stars.forEach((s, i) => {
+                        if (i < value) {
+                            s.style.color = '#ffc107';
+                        } else {
+                            s.style.color = '#ddd';
+                        }
+                    });
+                });
+
+                container.addEventListener('mouseleave', () => {
+                    const currentValue = parseInt(input.value) || 0;
+                    stars.forEach((s, i) => {
+                        if (i < currentValue) {
+                            s.style.color = '#ffc107';
+                        } else {
+                            s.style.color = '#ddd';
+                        }
+                    });
+                });
+            });
+        }
+
+        // Initialiser tous les systèmes de notation
+        initStarRating('overall-stars', 'overall-rating');
+        initStarRating('ease-stars', 'ease-rating');
+        initStarRating('reliability-stars', 'reliability-rating');
+        initStarRating('service-stars', 'service-rating');
+        initStarRating('value-stars', 'value-rating');
+        initStarRating('driver-overall-stars', 'driver-overall-rating');
+        initStarRating('punctuality-stars', 'punctuality-rating');
+        initStarRating('driving-stars', 'driving-rating');
+        initStarRating('cleanliness-stars', 'cleanliness-rating');
+        initStarRating('friendliness-stars', 'friendliness-rating');
+
+        // Charger les trajets éligibles pour notation
+        async function loadEligibleRides() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = 'connexion.html';
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE_URL}/reviews/eligible-rides`, {
+                    headers: {
+                        'x-auth-token': token
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erreur lors du chargement des trajets');
+                }
+
+                const data = await response.json();
+                const container = document.getElementById('eligible-rides-container');
+
+                if (!data.rides || data.rides.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-reviews">
+                            <div class="no-reviews-icon">🚗</div>
+                            <h3>Aucun trajet à noter</h3>
+                            <p>Vous avez noté tous vos trajets récents !</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = data.rides.map(ride => `
+                    <div class="ride-card">
+                        <div class="ride-info">
+                            <div>
+                                <div class="ride-route">
+                                    ${ride.departure_city} → ${ride.arrival_city}
+                                </div>
+                                <div class="ride-date">
+                                    ${new Date(ride.departure_datetime).toLocaleDateString('fr-FR', {
+                                        weekday: 'long',
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="driver-info">
+                            <div class="driver-avatar">
+                                ${ride.driver_pseudo ? ride.driver_pseudo.charAt(0).toUpperCase() : '?'}
+                            </div>
+                            <div>
+                                <strong>${ride.driver_pseudo || 'Chauffeur'}</strong>
+                            </div>
+                        </div>
+                        <button class="rate-button" onclick="openRatingModal(${ride.ride_id}, ${ride.driver_id}, ${ride.booking_id}, '${ride.driver_pseudo}', '${ride.departure_city}', '${ride.arrival_city}')">
+                            ⭐ Noter ce chauffeur
+                        </button>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Erreur chargement trajets:', error);
+                showNotification('Erreur lors du chargement des trajets', 'error');
+            }
+        }
+
+        // Ouvrir la modal de notation
+        window.openRatingModal = function(rideId, driverId, bookingId, driverPseudo, departureCity, arrivalCity) {
+            currentRideData = { rideId, driverId, bookingId, driverPseudo, departureCity, arrivalCity };
+            
+            document.getElementById('selected-ride-id').value = rideId;
+            document.getElementById('selected-driver-id').value = driverId;
+            document.getElementById('selected-booking-id').value = bookingId;
+            
+            document.getElementById('driver-display').innerHTML = `
+                <div style="padding: 15px; background: #f5f5f5; border-radius: 8px;">
+                    <strong>Chauffeur:</strong> ${driverPseudo}<br>
+                    <strong>Trajet:</strong> ${departureCity} → ${arrivalCity}
+                </div>
+            `;
+            
+            // Réinitialiser le formulaire
+            document.getElementById('driver-rating-form').reset();
+            document.querySelectorAll('.star').forEach(star => star.classList.remove('active'));
+            
+            document.getElementById('rating-modal').classList.add('active');
+        };
+
+        // Fermer la modal
+        document.querySelector('.close-modal').addEventListener('click', () => {
+            document.getElementById('rating-modal').classList.remove('active');
+        });
+
+        // Fermer en cliquant à l'extérieur
+        document.getElementById('rating-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'rating-modal') {
+                document.getElementById('rating-modal').classList.remove('active');
+            }
+        });
+
+        // Soumettre l'avis chauffeur
+        document.getElementById('driver-rating-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const rating = parseInt(document.getElementById('driver-overall-rating').value);
+            if (!rating) {
+                showNotification('Veuillez sélectionner une note globale', 'error');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/reviews/driver`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-auth-token': token
+                    },
+                    body: JSON.stringify({
+                        driverId: parseInt(document.getElementById('selected-driver-id').value),
+                        rideId: parseInt(document.getElementById('selected-ride-id').value),
+                        bookingId: parseInt(document.getElementById('selected-booking-id').value),
+                        rating: rating,
+                        punctualityRating: parseInt(document.getElementById('punctuality-rating').value) || null,
+                        drivingQualityRating: parseInt(document.getElementById('driving-rating').value) || null,
+                        vehicleCleanlinessRating: parseInt(document.getElementById('cleanliness-rating').value) || null,
+                        friendlinessRating: parseInt(document.getElementById('friendliness-rating').value) || null,
+                        comment: document.getElementById('driver-comment').value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification('✅ Avis publié avec succès !', 'success');
+                    document.getElementById('rating-modal').classList.remove('active');
+                    loadEligibleRides(); // Recharger la liste
+                } else {
+                    showNotification(data.msg || 'Erreur lors de la publication de l\'avis', 'error');
+                }
+
+            } catch (error) {
+                console.error('Erreur publication avis:', error);
+                showNotification('Erreur lors de la publication de l\'avis', 'error');
+            }
+        });
+
+        // Soumettre l'avis sur le site
+        document.getElementById('site-review-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const overallRating = parseInt(document.getElementById('overall-rating').value);
+            if (!overallRating) {
+                showNotification('Veuillez sélectionner une note globale', 'error');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/reviews/site`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-auth-token': token
+                    },
+                    body: JSON.stringify({
+                        overallRating: overallRating,
+                        easeOfUseRating: parseInt(document.getElementById('ease-rating').value) || null,
+                        reliabilityRating: parseInt(document.getElementById('reliability-rating').value) || null,
+                        customerServiceRating: parseInt(document.getElementById('service-rating').value) || null,
+                        valueForMoneyRating: parseInt(document.getElementById('value-rating').value) || null,
+                        comment: document.getElementById('site-comment').value,
+                        wouldRecommend: document.getElementById('would-recommend').checked
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification('✅ Avis sur le site publié avec succès !', 'success');
+                    document.getElementById('site-review-form').reset();
+                    document.querySelectorAll('.star').forEach(star => star.classList.remove('active'));
+                } else {
+                    showNotification(data.msg || 'Erreur lors de la publication de l\'avis', 'error');
+                }
+
+            } catch (error) {
+                console.error('Erreur publication avis site:', error);
+                showNotification('Erreur lors de la publication de l\'avis', 'error');
+            }
+        });
+
+        // Charger les trajets éligibles au démarrage
+        loadEligibleRides();
+    }
+
+    // =========================================================================
+    // GESTION DU FORMULAIRE DE CONTACT
+    // =========================================================================
+    const contactForm = document.querySelector('.contact-form');
+    if (contactForm) {
+        contactForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Récupérer les valeurs du formulaire
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const message = document.getElementById('message').value.trim();
+
+            // Validation côté client
+            if (!name || !email || !message) {
+                showNotification('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            // Validation de l'email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showNotification('Veuillez entrer une adresse email valide', 'error');
+                return;
+            }
+
+            try {
+                // Désactiver le bouton pendant l'envoi
+                const submitButton = contactForm.querySelector('button[type="submit"]');
+                const originalText = submitButton.textContent;
+                submitButton.disabled = true;
+                submitButton.textContent = 'Envoi en cours...';
+
+                // Envoyer le message à l'API
+                const response = await fetch(`${API_BASE_URL}/contact`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email, message })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showNotification(data.message || 'Votre message a été envoyé avec succès !', 'success');
+                    
+                    // Réinitialiser le formulaire
+                    contactForm.reset();
+                } else {
+                    showNotification(data.message || 'Erreur lors de l\'envoi du message', 'error');
+                }
+
+                // Réactiver le bouton
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+
+            } catch (error) {
+                console.error('❌ Erreur envoi formulaire contact:', error);
+                showNotification('Erreur lors de l\'envoi du message. Veuillez réessayer.', 'error');
+                
+                // Réactiver le bouton
+                const submitButton = contactForm.querySelector('button[type="submit"]');
+                submitButton.disabled = false;
+                submitButton.textContent = 'Envoyer';
+            }
+        });
     }
 });
 

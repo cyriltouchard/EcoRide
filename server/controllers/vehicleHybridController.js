@@ -7,10 +7,22 @@ const Vehicle = require('../models/vehicleModel'); // MongoDB pour données éte
 
 // @route   POST /api/vehicles
 // @desc    Ajouter un nouveau véhicule (US8)
-// @access  Private (chauffeur requis)
+// @access  Private (promotion automatique en chauffeur)
 exports.addVehicle = async (req, res) => {
     try {
         const userId = req.user.id;
+        const UserSQL = require('../models/userSQLModel');
+        
+        // Vérifier le rôle actuel de l'utilisateur
+        const currentUser = await UserSQL.findById(userId);
+        
+        // Si l'utilisateur n'est pas déjà chauffeur, le promouvoir automatiquement
+        if (currentUser && currentUser.user_type === 'passager') {
+            console.log(`🚗 Promotion automatique de l'utilisateur ${userId} en chauffeur_passager`);
+            await UserSQL.updateUserType(userId, 'chauffeur_passager');
+            req.user.user_type = 'chauffeur_passager'; // Mettre à jour dans la session
+        }
+        
         const {
             brand,
             model,
@@ -281,6 +293,18 @@ exports.deleteVehicle = async (req, res) => {
 exports.setDriverPreferences = async (req, res) => {
     try {
         const userId = req.user.id;
+        const UserSQL = require('../models/userSQLModel');
+        
+        // Vérifier le rôle actuel de l'utilisateur
+        const currentUser = await UserSQL.findById(userId);
+        
+        // Si l'utilisateur n'est pas déjà chauffeur, le promouvoir automatiquement
+        if (currentUser && currentUser.user_type === 'passager') {
+            console.log(`🚗 Promotion automatique de l'utilisateur ${userId} en chauffeur_passager (préférences)`);
+            await UserSQL.updateUserType(userId, 'chauffeur_passager');
+            req.user.user_type = 'chauffeur_passager';
+        }
+        
         const {
             smoking_allowed,
             pets_allowed,

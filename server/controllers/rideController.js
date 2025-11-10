@@ -84,11 +84,29 @@ const searchRides = async (req, res) => { // <-- CHANGEMENT ICI
         const { departure, arrival, date, seats } = req.query;
         let query = {};
 
-        if (departure) {
-            query.departure = new RegExp(departure, 'i');
+        // Security: do not build RegExp directly from user input (ReDoS risk).
+        // Escape regex metacharacters and limit the input length.
+        const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&');
+        const normalizeSearchInput = (s) => {
+            if (typeof s !== 'string') return null;
+            const trimmed = s.trim();
+            if (trimmed.length === 0) return null;
+            // Limit length to avoid extremely long patterns (ReDoS / performance)
+            const maxLen = 100;
+            return trimmed.length > maxLen ? trimmed.slice(0, maxLen) : trimmed;
+        };
+
+        const depSafe = normalizeSearchInput(departure);
+        if (depSafe) {
+            const escaped = escapeRegex(depSafe);
+            // Use anchored / substring match via $regex with escaped pattern
+            query.departure = { $regex: escaped, $options: 'i' };
         }
-        if (arrival) {
-            query.arrival = new RegExp(arrival, 'i');
+
+        const arrSafe = normalizeSearchInput(arrival);
+        if (arrSafe) {
+            const escaped = escapeRegex(arrSafe);
+            query.arrival = { $regex: escaped, $options: 'i' };
         }
         if (date) {
             const searchDate = new Date(date);

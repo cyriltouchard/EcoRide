@@ -5,6 +5,16 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator'); // Validation des requêtes
 
+// Helper: sanitize and validate inputs to avoid NoSQL injection
+const sanitizeString = (s) => (typeof s === 'string' ? s.trim() : '');
+const isValidEmail = (e) => {
+    if (typeof e !== 'string') return false;
+    const email = e.trim();
+    if (email.length === 0 || email.length > 254) return false;
+    // basic email pattern (not strict RFC) to validate input shape
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
 // --- Inscription HYBRIDE (MySQL + MongoDB) ---
 exports.register = async (req, res) => {
     try {
@@ -18,14 +28,21 @@ exports.register = async (req, res) => {
             });
         }
 
-        const { pseudo, email, password } = req.body;
+        let { pseudo, email, password } = req.body;
         
         // Validation des données
+        pseudo = sanitizeString(pseudo);
+        email = sanitizeString(email).toLowerCase();
+
         if (!pseudo || !email || !password) {
             return res.status(400).json({ 
                 success: false,
                 message: "Tous les champs sont requis" 
             });
+        }
+
+        if (!isValidEmail(email)) {
+            return res.status(400).json({ success: false, message: 'Email invalide' });
         }
         
         // Vérifier si l'email existe déjà en MySQL
@@ -120,7 +137,8 @@ exports.login = async (req, res) => {
             });
         }
 
-        const { email, password } = req.body;
+        let { email, password } = req.body;
+        email = sanitizeString(email).toLowerCase();
         
         if (!email || !password) {
             return res.status(400).json({ 
@@ -128,8 +146,12 @@ exports.login = async (req, res) => {
                 message: "Email et mot de passe requis" 
             });
         }
+        if (!isValidEmail(email)) {
+            return res.status(400).json({ success: false, message: 'Email invalide' });
+        }
         
         // Trouver l'utilisateur en MySQL
+        // Use sanitized email to query SQL
         const userSQL = await UserSQL.findByEmail(email);
         if (!userSQL) {
             return res.status(400).json({ 
@@ -148,7 +170,9 @@ exports.login = async (req, res) => {
         }
         
         // Trouver l'utilisateur MongoDB correspondant
-        const userMongo = await User.findOne({ email });
+    // Prevent NoSQL injection by ensuring email is a string and sanitized
+    const safeEmail = sanitizeString(email).toLowerCase();
+    const userMongo = await User.findOne({ email: safeEmail }).select('-password');
         
         // Générer le token JWT avec toutes les infos
         const token = jwt.sign(
@@ -221,6 +245,7 @@ exports.getUserProfile = async (req, res) => {
                 email: userSQL.email,
                 user_type: userSQL.user_type,
                 created_at: userSQL.created_at,
+                profile_picture: userSQL.profile_picture || null,
                 
                 // Système de crédits
                 credits: userSQL.current_credits || credits?.current_credits || 0,

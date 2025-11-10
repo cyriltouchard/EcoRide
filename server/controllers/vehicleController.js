@@ -1,19 +1,32 @@
 const Vehicle = require('../models/vehicleModel');
 const User = require('../models/userModel'); // Pas directement utilisé ici mais utile pour d'autres contrôleurs
 
+// Helper to sanitize user-controlled strings before using in DB queries
+const sanitizeString = (s) => (typeof s === 'string' ? s.trim() : '');
+const normalizePlate = (p) => {
+    const plate = sanitizeString(p).toUpperCase();
+    // Limit length to reasonable size to avoid abusive input
+    return plate.length > 20 ? plate.slice(0, 20) : plate;
+};
+
 // @route   POST /api/vehicles
 // @desc    Ajouter un nouveau véhicule
 // @access  Private
 exports.addVehicle = async (req, res) => {
-    const { brand, model, plate, energy, seats } = req.body;
+    let { brand, model, plate, energy, seats } = req.body;
     const userId = req.user.id;
 
     try {
+        brand = sanitizeString(brand);
+        model = sanitizeString(model);
+        plate = normalizePlate(plate);
+        energy = sanitizeString(energy);
+        seats = parseInt(seats, 10);
+
         if (!brand || !model || !plate || !energy || !seats) {
             return res.status(400).json({ msg: 'Veuillez remplir tous les champs obligatoires.' });
         }
-
-        const existingVehicle = await Vehicle.findOne({ userId, plate: plate.toUpperCase() });
+        const existingVehicle = await Vehicle.findOne({ userId, plate });
         if (existingVehicle) {
             return res.status(400).json({ msg: 'Vous avez déjà enregistré un véhicule avec cette immatriculation.' });
         }
@@ -22,7 +35,7 @@ exports.addVehicle = async (req, res) => {
             userId,
             brand,
             model,
-            plate: plate.toUpperCase(),
+            plate,
             energy,
             seats
         });
@@ -93,15 +106,14 @@ exports.getVehicleById = async (req, res) => {
 // @desc    Mettre à jour un véhicule existant (pour l'utilisateur connecté)
 // @access  Private
 exports.updateVehicle = async (req, res) => {
-    const { brand, model, plate, energy, seats } = req.body;
-
+    let { brand, model, plate, energy, seats } = req.body;
     // Construire l'objet du champ à mettre à jour
     const vehicleFields = {};
-    if (brand) vehicleFields.brand = brand;
-    if (model) vehicleFields.model = model;
-    if (plate) vehicleFields.plate = plate.toUpperCase(); // Assurer majuscules
-    if (energy) vehicleFields.energy = energy;
-    if (seats) vehicleFields.seats = seats;
+    if (brand) vehicleFields.brand = sanitizeString(brand);
+    if (model) vehicleFields.model = sanitizeString(model);
+    if (plate) vehicleFields.plate = normalizePlate(plate); // Assurer majuscules et longueur limitée
+    if (energy) vehicleFields.energy = sanitizeString(energy);
+    if (seats) vehicleFields.seats = parseInt(seats, 10);
 
     try {
         let vehicle = await Vehicle.findById(req.params.id);
@@ -116,8 +128,9 @@ exports.updateVehicle = async (req, res) => {
         }
 
         // Vérifier l'unicité de la plaque si elle est modifiée et différente de l'ancienne
-        if (plate && plate.toUpperCase() !== vehicle.plate) {
-            const existingVehicleWithNewPlate = await Vehicle.findOne({ userId: req.user.id, plate: plate.toUpperCase() });
+        if (plate && normalizePlate(plate) !== vehicle.plate) {
+            const newPlate = normalizePlate(plate);
+            const existingVehicleWithNewPlate = await Vehicle.findOne({ userId: req.user.id, plate: newPlate });
             if (existingVehicleWithNewPlate) {
                 return res.status(400).json({ msg: 'Vous avez déjà un autre véhicule avec cette immatriculation.' });
             }

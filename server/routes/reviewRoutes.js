@@ -1,13 +1,41 @@
 const express = require('express');
 const router = express.Router();
-const reviewController = require('../controllers/reviewController');
-const { auth, isEmployee } = require('../middleware/auth'); // Utilise le nouveau middleware isEmployee
+const reviewHybridController = require('../controllers/reviewHybridController');
+const { authenticateToken, requireRole } = require('../middleware/auth');
 
-// Toutes les routes ici sont protégées et nécessitent au minimum le rôle employé
-router.use(auth, isEmployee);
+// ================================================
+// ROUTES PUBLIQUES (Lecture des avis)
+// ================================================
 
-// Routes
-router.get('/pending', reviewController.getPendingReviews);
-router.put('/:id/status', reviewController.updateReviewStatus);
+// Obtenir les avis d'un chauffeur (public)
+router.get('/driver/:driverId', reviewHybridController.getDriverReviews);
+
+// Obtenir la note moyenne d'un chauffeur (public)
+router.get('/driver/:driverId/rating', reviewHybridController.getDriverRating);
+
+// Obtenir les avis du site (public)
+router.get('/site', reviewHybridController.getSiteReviews);
+
+// Obtenir les statistiques du site (public)
+router.get('/site/stats', reviewHybridController.getSiteStats);
+
+// ================================================
+// ROUTES PROTÉGÉES (Nécessitent authentification)
+// ================================================
+
+// Créer un avis sur un chauffeur
+router.post('/driver', authenticateToken, reviewHybridController.createDriverReview);
+
+// Créer un avis sur le site
+router.post('/site', authenticateToken, reviewHybridController.createSiteReview);
+
+// Obtenir les trajets éligibles pour notation
+router.get('/eligible-rides', authenticateToken, reviewHybridController.getEligibleRides);
+
+// Répondre à un avis
+router.post('/:reviewId/response', authenticateToken, reviewHybridController.respondToReview);
+
+// Signaler un avis
+router.post('/:reviewId/report', authenticateToken, reviewHybridController.reportReview);
 
 module.exports = router;

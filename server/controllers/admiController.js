@@ -2,13 +2,28 @@ const User = require('../models/userModel');
 const Ride = require('../models/rideModel');
 const Review = require('../models/reviewModel');
 
+// Helper: sanitize simple strings and validate emails to prevent NoSQL injection
+const sanitizeString = (s) => (typeof s === 'string' ? s.trim() : '');
+const isValidEmail = (e) => {
+    if (typeof e !== 'string') return false;
+    const email = e.trim();
+    if (email.length === 0 || email.length > 254) return false;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
 // Créer un employé
 exports.createEmployee = async (req, res) => {
-    const { pseudo, email, password } = req.body;
+    let { pseudo, email, password } = req.body;
     try {
         if (!pseudo || !email || !password) {
             return res.status(400).json({ msg: 'Veuillez remplir tous les champs.' });
         }
+        pseudo = sanitizeString(pseudo);
+        email = sanitizeString(email).toLowerCase();
+        if (!isValidEmail(email)) {
+            return res.status(400).json({ msg: 'Email invalide.' });
+        }
+
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ msg: 'Cet email est déjà utilisé.' });
