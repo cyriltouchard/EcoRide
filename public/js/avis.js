@@ -35,6 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (tabName === 'eligible') {
                 loadEligibleRides();
+            } else if (tabName === 'my-reviews') {
+                loadMyReviews();
             }
         });
     });
@@ -44,56 +46,73 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function initStarRating(containerId, inputId) {
         const container = document.getElementById(containerId);
-        if (!container) return;
+        if (!container) {
+            console.warn(`⚠️ Container non trouvé: ${containerId}`);
+            return;
+        }
         
         const input = document.getElementById(inputId);
+        if (!input) {
+            console.warn(`⚠️ Input non trouvé: ${inputId}`);
+            return;
+        }
+        
         const stars = container.querySelectorAll('.star');
+        console.log(`⭐ Initialisation ${containerId}: ${stars.length} étoiles trouvées`);
 
-        stars.forEach((star) => {
+        // Fonction pour mettre à jour l'affichage des étoiles
+        const updateStarsDisplay = (value) => {
+            stars.forEach((s, i) => {
+                if (i < value) {
+                    s.classList.add('active');
+                    s.style.color = '#ffc107';
+                    s.style.filter = 'grayscale(0%)';
+                } else {
+                    s.classList.remove('active');
+                    s.style.color = '#ddd';
+                    s.style.filter = 'grayscale(100%)';
+                }
+            });
+        };
+
+        // Initialiser toutes les étoiles en gris au départ
+        updateStarsDisplay(0);
+
+        stars.forEach((star, starIndex) => {
             star.addEventListener('click', () => {
                 const value = parseInt(star.dataset.value);
-                const currentValue = parseInt(input.value);
+                const currentValue = parseInt(input.value) || 0;
+                
+                console.log(`🖱️ Click sur étoile ${value} (valeur actuelle: ${currentValue})`);
                 
                 // Si on clique sur la même étoile, on désélectionne
                 if (currentValue === value) {
                     input.value = '';
-                    stars.forEach(s => {
-                        s.classList.remove('active');
-                        s.style.color = '#ddd';
-                    });
+                    updateStarsDisplay(0);
                 } else {
                     input.value = value;
-                    stars.forEach((s, i) => {
-                        if (i < value) {
-                            s.classList.add('active');
-                            s.style.color = '#ffc107';
-                        } else {
-                            s.classList.remove('active');
-                            s.style.color = '#ddd';
-                        }
-                    });
+                    updateStarsDisplay(value);
                 }
             });
 
             star.addEventListener('mouseenter', () => {
                 const value = parseInt(star.dataset.value);
                 stars.forEach((s, i) => {
-                    s.style.color = i < value ? '#ffc107' : '#ddd';
-                });
-            });
-
-            container.addEventListener('mouseleave', () => {
-                const currentValue = parseInt(input.value) || 0;
-                stars.forEach((s, i) => {
-                    if (i < currentValue) {
-                        s.classList.add('active');
+                    if (i < value) {
                         s.style.color = '#ffc107';
+                        s.style.filter = 'grayscale(0%)';
                     } else {
-                        s.classList.remove('active');
                         s.style.color = '#ddd';
+                        s.style.filter = 'grayscale(100%)';
                     }
                 });
             });
+        });
+
+        // Restaurer l'état réel quand la souris quitte le conteneur
+        container.addEventListener('mouseleave', () => {
+            const currentValue = parseInt(input.value) || 0;
+            updateStarsDisplay(currentValue);
         });
     }
 
@@ -335,6 +354,94 @@ document.addEventListener('DOMContentLoaded', () => {
                 showNotification('Erreur lors de la publication de l\'avis', 'error');
             }
         });
+    }
+
+    /**
+     * Charge les avis donnés par l'utilisateur
+     */
+    async function loadMyReviews() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/reviews/my-reviews`, {
+                headers: { 'x-auth-token': userToken }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors du chargement de vos avis');
+            }
+
+            const data = await response.json();
+            const container = document.getElementById('my-reviews-container');
+
+            if (!data.reviews || data.reviews.length === 0) {
+                container.innerHTML = `
+                    <div class="no-reviews">
+                        <div class="no-reviews-icon">📝</div>
+                        <h3>Aucun avis donné</h3>
+                        <p>Vous n'avez pas encore donné d'avis. Complétez un trajet pour pouvoir noter votre expérience !</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Afficher les avis
+            container.innerHTML = data.reviews.map(review => `
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="review-type">
+                            ${review.review_type === 'driver' ? 
+                                `<i class="fas fa-user-circle"></i> Avis chauffeur - ${review.driver_name || 'Chauffeur'}` : 
+                                `<i class="fas fa-star"></i> Avis sur EcoRide`
+                            }
+                        </div>
+                        <div class="review-date">
+                            ${new Date(review.created_at).toLocaleDateString('fr-FR')}
+                        </div>
+                    </div>
+                    
+                    ${review.review_type === 'driver' ? `
+                        <div class="review-ride-info">
+                            <i class="fas fa-route"></i>
+                            ${review.departure_city || 'Départ'} → ${review.arrival_city || 'Arrivée'}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="review-ratings">
+                        ${review.rating ? `
+                            <div class="rating-item">
+                                <span class="rating-label">Note globale:</span>
+                                <span class="rating-stars">${'⭐'.repeat(Math.round(review.rating))}</span>
+                                <span class="rating-value">${review.rating.toFixed(1)}</span>
+                            </div>
+                        ` : ''}
+                        
+                        ${review.review_type === 'driver' && review.punctuality ? `
+                            <div class="rating-item">
+                                <span class="rating-label">Ponctualité:</span>
+                                <span class="rating-stars">${'⭐'.repeat(review.punctuality)}</span>
+                            </div>
+                        ` : ''}
+                        
+                        ${review.review_type === 'driver' && review.driving_quality ? `
+                            <div class="rating-item">
+                                <span class="rating-label">Conduite:</span>
+                                <span class="rating-stars">${'⭐'.repeat(review.driving_quality)}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    ${review.comment ? `
+                        <div class="review-comment">
+                            <i class="fas fa-comment"></i>
+                            "${review.comment}"
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+
+        } catch (error) {
+            console.error('Erreur chargement avis:', error);
+            showNotification("Impossible de charger vos avis", "error");
+        }
     }
 
     // Charger les trajets éligibles au démarrage

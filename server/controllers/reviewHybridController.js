@@ -526,4 +526,65 @@ exports.getEligibleRides = async (req, res) => {
     }
 };
 
+/**
+ * Obtenir les avis donnés par l'utilisateur connecté
+ * GET /api/reviews/my-reviews
+ */
+exports.getMyReviews = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // Récupérer les avis chauffeur
+        const [driverReviews] = await pool.query(
+            `SELECT 
+                dr.*,
+                'driver' as review_type,
+                u.pseudo as driver_name,
+                r.departure_city,
+                r.arrival_city,
+                r.departure_datetime
+             FROM driver_reviews dr
+             JOIN users u ON dr.driver_id = u.id
+             LEFT JOIN rides r ON dr.ride_id = r.id
+             WHERE dr.passenger_id = ?
+             ORDER BY dr.created_at DESC`,
+            [userId]
+        );
+
+        // Récupérer les avis site
+        const [siteReviews] = await pool.query(
+            `SELECT 
+                sr.*,
+                'site' as review_type
+             FROM site_reviews sr
+             WHERE sr.user_id = ?
+             ORDER BY sr.created_at DESC`,
+            [userId]
+        );
+
+        // Formater les avis chauffeur
+        const formattedDriverReviews = driverReviews.map(review => ({
+            ...review,
+            review_type: 'driver'
+        }));
+
+        // Combiner et trier par date
+        const allReviews = [...formattedDriverReviews, ...siteReviews]
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        res.json({
+            success: true,
+            reviews: allReviews,
+            count: allReviews.length
+        });
+
+    } catch (error) {
+        console.error('Erreur récupération mes avis:', error);
+        res.status(500).json({ 
+            success: false, 
+            msg: 'Erreur lors de la récupération de vos avis' 
+        });
+    }
+};
+
 module.exports = exports;

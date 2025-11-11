@@ -179,13 +179,19 @@
 
 .star {
     cursor: pointer;
-    color: #ddd;
+    color: #ddd !important;
     transition: color 0.2s;
+    filter: grayscale(100%);
 }
 
-.star.active,
+.star.active {
+    color: #ffc107 !important;
+    filter: grayscale(0%);
+}
+
 .star:hover {
-    color: #ffc107;
+    color: #ffc107 !important;
+    filter: grayscale(0%);
 }
 
 .comment-textarea {
@@ -226,6 +232,12 @@
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.review-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .review-header {
@@ -233,12 +245,20 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
 }
 
-.review-rating {
+.review-type {
     display: flex;
-    gap: 4px;
-    color: #ffc107;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.review-type i {
+    color: #4CAF50;
 }
 
 .review-date {
@@ -246,9 +266,61 @@
     font-size: 14px;
 }
 
+.review-ride-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    color: #666;
+    font-size: 14px;
+}
+
+.review-ride-info i {
+    color: #4CAF50;
+}
+
+.review-ratings {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.rating-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+}
+
+.rating-label {
+    color: #666;
+    min-width: 120px;
+}
+
+.rating-stars {
+    color: #ffc107;
+    font-size: 16px;
+}
+
+.rating-value {
+    color: #333;
+    font-weight: 600;
+    font-size: 14px;
+}
+
 .review-comment {
+    background: #f9f9f9;
+    border-left: 3px solid #4CAF50;
+    padding: 12px 15px;
+    border-radius: 8px;
     color: #666;
     line-height: 1.6;
+    font-style: italic;
+}
+
+.review-comment i {
+    color: #4CAF50;
+    margin-right: 8px;
 }
 
 .no-reviews {

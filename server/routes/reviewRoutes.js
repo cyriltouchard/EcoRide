@@ -32,6 +32,9 @@ router.post('/site', authenticateToken, reviewHybridController.createSiteReview)
 // Obtenir les trajets éligibles pour notation
 router.get('/eligible-rides', authenticateToken, reviewHybridController.getEligibleRides);
 
+// Obtenir mes propres avis donnés
+router.get('/my-reviews', authenticateToken, reviewHybridController.getMyReviews);
+
 // Répondre à un avis
 router.post('/:reviewId/response', authenticateToken, reviewHybridController.respondToReview);
 
