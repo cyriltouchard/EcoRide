@@ -204,12 +204,71 @@ ecoride/
 │   ├── images/          # Images et médias
 │   └── videos/          # Vidéos
 ├── document/            # Documentation technique
+│   ├── guides/          # Guides utilisateurs et modules
+│   ├── technique/       # Documentation technique
+│   ├── securite/        # Documentation sécurité
+│   ├── qualite/         # SonarQube et refactoring
+│   ├── git-workflow/    # Git, GitHub, workflow
+│   └── projet/          # Gestion projet, UML, maquettes
 ├── docker/              # Configuration Docker
 ├── Dockerfile           # Image containerisée
 ├── docker-compose.yml   # Stack complète
 ├── .dockerignore        # Optimisation build Docker
 └── *.html              # Pages web
 ```
+
+## 📚 Documentation
+
+Ce projet dispose d'une **documentation complète et professionnelle** organisée dans le dossier `document/` :
+
+### 📁 Organisation de la documentation
+
+- 🚀 **[guides/](document/guides/)** - Guides utilisateurs et modules ES6
+- 🔧 **[technique/](document/technique/)** - Documentation technique, architecture, déploiement
+- 🔐 **[securite/](document/securite/)** - Sécurité, corrections de vulnérabilités, bonnes pratiques
+- ✅ **[qualite/](document/qualite/)** - SonarQube, refactoring, qualité de code
+- 🔀 **[git-workflow/](document/git-workflow/)** - Git, GitHub, workflow de développement
+- 📊 **[projet/](document/projet/)** - Gestion de projet, UML, maquettes, charte graphique
+
+### 📖 Guides rapides
+
+#### Pour les utilisateurs
+- 📘 [Manuel Utilisateur](document/guides/Manuel-Utilisateur-EcoRide-2025.md) - Guide complet d'utilisation
+- 🖼️ [Maquettes Interactives](document/projet/Maquettes.html) - Visualisation de l'interface
+
+#### Pour les développeurs
+- 🔧 [Documentation Technique](document/technique/Documentation-Technique-EcoRide-2025.md) - Architecture et spécifications
+- 📝 [Structure JavaScript](document/technique/STRUCTURE-JAVASCRIPT.md) - Organisation des modules ES6
+- 🎨 [Structure CSS](document/technique/STRUCTURE-CSS.md) - Conventions et organisation CSS
+- 🚀 [Guide des Modules](document/guides/GUIDE-UTILISATION-MODULES.md) - Utilisation des modules créés
+
+#### Pour la contribution
+- 🤝 [Guide de Contribution](document/git-workflow/CONTRIBUTING.md) - Comment contribuer au projet
+- 🔀 [Workflow Git](document/git-workflow/WORKFLOW-GIT.md) - Processus Git et branches
+- 💡 [Bonnes Pratiques Git](document/git-workflow/GUIDE-BONNES-PRATIQUES-GIT-GITHUB.md) - Best practices
+
+#### Pour la qualité & sécurité
+- 📊 [SonarQube Quickstart](document/qualite/SONARQUBE-QUICKSTART.md) - Démarrer avec SonarQube
+- 🔄 [Roadmap Refactoring](document/qualite/REFACTORING-ROADMAP.md) - Plan de refactoring (98+ corrections)
+- 🔐 [Quickstart Sécurité](document/securite/QUICKSTART-SECURITE.md) - Guide rapide de sécurité
+- 🛡️ [Corrections ReDoS](document/securite/SECURITE-REDOS-CORRECTION.md) - Protection contre ReDoS
+
+### 📋 Index complet
+
+Pour une navigation complète de toute la documentation :
+- **[Index Documentation](document/Index-Documentation-EcoRide-2025.md)** - Index complet avec navigation par besoin
+- **[README Documentation](document/README.md)** - Vue d'ensemble de la structure documentaire
+
+### 🆕 Refactoring SonarQube (Novembre 2025)
+
+**98+ corrections de qualité de code réalisées** sur 6 sessions de refactoring :
+- ✅ Complexité cognitive réduite (91 → ≤15)
+- ✅ 13 modules ES6 créés (architecture modulaire)
+- ✅ Vulnérabilités ReDoS éliminées (7 regex sécurisés)
+- ✅ Module validation centralisé avec regex ReDoS-safe
+- ✅ Protection environnement pour scripts de test
+
+📊 Voir [REFACTORING-SONARQUBE-RESUME.md](document/qualite/REFACTORING-SONARQUBE-RESUME.md) pour le détail complet.
 
 ## 🐳 Déploiement Docker (NOUVEAU)
 
