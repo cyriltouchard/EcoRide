@@ -116,3 +116,7 @@ docs/_build/
 
 # TernJS port file
 .tern-port
+
+# SonarQube
+.scannerwork/
+.sonar/
