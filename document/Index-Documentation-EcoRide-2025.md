@@ -1,4 +1,23 @@
-# 📚 **INDEX GÉNÉRAL - DOCUMENTATION ECORIDE 2025**
+# Index de la documentation EcoRide - 2025
+
+## 🆕 Documentation du refactoring SonarQube (Janvier 2025)
+
+### Vue d'ensemble
+- � **[REFACTORING-ROADMAP.md](./REFACTORING-ROADMAP.md)** - Plan d'action complet du refactoring
+- 📊 **[REFACTORING-SONARQUBE-RESUME.md](./REFACTORING-SONARQUBE-RESUME.md)** - Résumé détaillé des corrections
+- 🚀 **[GUIDE-UTILISATION-MODULES.md](./GUIDE-UTILISATION-MODULES.md)** - Guide d'utilisation des nouveaux modules
+- 💻 **[exemple-integration-modules.html](../exemple-integration-modules.html)** - Exemple d'intégration en pratique
+
+### Résumé rapide
+- ✅ **Complexité cognitive réduite** de 91 à ≤15
+- ✅ **13 modules ES6 créés** (architecture modulaire)
+- ✅ **7 pages migrées** vers la nouvelle architecture
+- ✅ **60+ fonctions réutilisables** extraites
+- 📊 **Progression** : 69% des pages migrées (11/16)
+
+---
+
+# Index de la documentation EcoRide - 2025
 
 *Guide de navigation centralisé pour l'ensemble de la documentation projet*  
 *Version 2.0 - Dernière mise à jour : 3 octobre 2025*

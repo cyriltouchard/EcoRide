@@ -4,6 +4,273 @@
  * @file espace-utilisateur.js
  */
 
+/**
+ * Initialise les gestionnaires de modales de véhicules
+ */
+const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
+    const addModal = document.getElementById('add-vehicle-modal');
+    const editModal = document.getElementById('edit-vehicle-modal');
+    const addForm = document.getElementById('add-vehicle-form-modal');
+    const editForm = document.getElementById('edit-vehicle-form-modal');
+
+    if (!addModal || !editModal || !addForm || !editForm) return;
+
+    // Gestionnaires d'ouverture/fermeture
+    document.getElementById('add-vehicle-btn')?.addEventListener('click', () => addModal.classList.add('active'));
+    document.getElementById('close-modal-btn')?.addEventListener('click', () => addModal.classList.remove('active'));
+    document.getElementById('close-edit-modal-btn')?.addEventListener('click', () => editModal.classList.remove('active'));
+    
+    window.addEventListener('click', (e) => {
+        if (e.target === addModal) addModal.classList.remove('active');
+        if (e.target === editModal) editModal.classList.remove('active');
+    });
+
+    // Soumission formulaire d'ajout
+    addForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        
+        const vehicleData = {
+            brand: formData.get('brand'),
+            model: formData.get('model'),
+            license_plate: formData.get('plate'),
+            energy_type: formData.get('energy').toLowerCase(),
+            available_seats: parseInt(formData.get('seats')),
+            color: 'Non spécifié',
+            first_registration: new Date().toISOString().split('T')[0]
+        };
+        
+        try {
+            await fetchWithAuth(`${API_BASE_URL}/vehicles`, { 
+                method: 'POST', 
+                body: JSON.stringify(vehicleData) 
+            });
+            showNotification('Véhicule ajouté !', 'success');
+            addModal.classList.remove('active');
+            e.target.reset();
+            loadUserVehicles();
+        } catch (error) {
+            showNotification(`Erreur: ${error.message}`, 'error');
+        }
+    });
+
+    // Soumission formulaire de modification
+    editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const vehicleId = formData.get('edit-vehicle-id');
+        
+        const vehicleData = {
+            brand: formData.get('brand'),
+            model: formData.get('model'),
+            license_plate: formData.get('plate'),
+            energy_type: formData.get('energy').toLowerCase(),
+            available_seats: parseInt(formData.get('seats')),
+        };
+        
+        try {
+            await fetchWithAuth(`${API_BASE_URL}/vehicles/${vehicleId}`, { 
+                method: 'PUT', 
+                body: JSON.stringify(vehicleData) 
+            });
+            showNotification('Véhicule mis à jour !', 'success');
+            editModal.classList.remove('active');
+            loadUserVehicles();
+        } catch (error) {
+            showNotification(`Erreur: ${error.message}`, 'error');
+        }
+    });
+
+    return editModal;
+};
+
+/**
+ * Initialise les gestionnaires de photo de profil
+ */
+const initProfilePictureHandlers = (fetchWithAuth) => {
+    const pictureModal = document.getElementById('picture-modal');
+    const editPictureBtn = document.getElementById('edit-picture-btn');
+    const closePictureModalBtn = document.getElementById('close-picture-modal-btn');
+    const pictureForm = document.getElementById('picture-form');
+    const useFileBtn = document.getElementById('use-file-btn');
+    const useUrlBtn = document.getElementById('use-url-btn');
+    const fileUploadSection = document.getElementById('file-upload-section');
+    const urlUploadSection = document.getElementById('url-upload-section');
+
+    if (useFileBtn && useUrlBtn && fileUploadSection && urlUploadSection) {
+        useFileBtn.addEventListener('click', () => {
+            fileUploadSection.style.display = 'block';
+            urlUploadSection.style.display = 'none';
+            useFileBtn.style.background = '#4CAF50';
+            useUrlBtn.style.background = '#2196F3';
+        });
+
+        useUrlBtn.addEventListener('click', () => {
+            fileUploadSection.style.display = 'none';
+            urlUploadSection.style.display = 'block';
+            useFileBtn.style.background = '#2196F3';
+            useUrlBtn.style.background = '#4CAF50';
+        });
+    }
+
+    if (editPictureBtn && pictureModal) {
+        editPictureBtn.addEventListener('click', () => pictureModal.classList.add('active'));
+    }
+
+    if (closePictureModalBtn && pictureModal) {
+        closePictureModalBtn.addEventListener('click', () => pictureModal.classList.remove('active'));
+    }
+
+    if (pictureModal) {
+        window.addEventListener('click', (e) => {
+            if (e.target === pictureModal) pictureModal.classList.remove('active');
+        });
+    }
+
+    if (pictureForm) {
+        pictureForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('profileImageFile');
+            const urlInput = document.getElementById('profileImageUrl');
+            
+            try {
+                let imageUrl = '';
+                
+                if (fileInput?.files?.[0]) {
+                    const file = fileInput.files[0];
+                    
+                    if (file.size > 5 * 1024 * 1024) {
+                        showNotification('Le fichier est trop volumineux (max 5MB)', 'error');
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    imageUrl = await new Promise((resolve, reject) => {
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(file);
+                    });
+                } else if (urlInput?.value) {
+                    imageUrl = urlInput.value;
+                } else {
+                    showNotification('Veuillez sélectionner une image ou entrer une URL', 'warning');
+                    return;
+                }
+                
+                await fetchWithAuth(`${API_BASE_URL}/users/profile-picture`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ profile_picture: imageUrl })
+                });
+                
+                document.getElementById('profile-picture').src = imageUrl;
+                showNotification('Photo de profil mise à jour !', 'success');
+                pictureModal.classList.remove('active');
+                pictureForm.reset();
+            } catch (error) {
+                showNotification(`Erreur: ${error.message}`, 'error');
+            }
+        });
+    }
+};
+
+/**
+ * Initialise les gestionnaires de profil utilisateur
+ */
+const initProfileHandlers = (fetchWithAuth) => {
+    const editProfileModal = document.getElementById('edit-profile-modal');
+    const editProfileBtn = document.getElementById('edit-profile-btn');
+    const closeEditProfileModalBtn = document.getElementById('close-edit-profile-modal-btn');
+    const editProfileForm = document.getElementById('edit-profile-form');
+
+    if (editProfileBtn && editProfileModal) {
+        editProfileBtn.addEventListener('click', async () => {
+            try {
+                const data = await fetchWithAuth(`${API_BASE_URL}/users/me`);
+                document.getElementById('edit-pseudo').value = data.pseudo || '';
+                document.getElementById('edit-email').value = data.email || '';
+                document.getElementById('edit-phone').value = data.phone || '';
+                document.getElementById('edit-bio').value = data.bio || '';
+                editProfileModal.classList.add('active');
+            } catch (error) {
+                showNotification(`Erreur: ${error.message}`, 'error');
+            }
+        });
+    }
+
+    if (closeEditProfileModalBtn && editProfileModal) {
+        closeEditProfileModalBtn.addEventListener('click', () => editProfileModal.classList.remove('active'));
+    }
+
+    if (editProfileModal) {
+        window.addEventListener('click', (e) => {
+            if (e.target === editProfileModal) editProfileModal.classList.remove('active');
+        });
+    }
+
+    if (editProfileForm) {
+        editProfileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            const profileData = {
+                pseudo: formData.get('pseudo'),
+                email: formData.get('email'),
+                phone: formData.get('phone') || null,
+                bio: formData.get('bio') || null
+            };
+            
+            try {
+                await fetchWithAuth(`${API_BASE_URL}/users/profile`, {
+                    method: 'PUT',
+                    body: JSON.stringify(profileData)
+                });
+                
+                document.getElementById('user-pseudo-profile').textContent = profileData.pseudo;
+                document.getElementById('user-email-profile').textContent = profileData.email;
+                
+                showNotification('Profil mis à jour avec succès !', 'success');
+                editProfileModal.classList.remove('active');
+            } catch (error) {
+                showNotification(`Erreur: ${error.message}`, 'error');
+            }
+        });
+    }
+};
+
+/**
+ * Initialise les gestionnaires d'onglets
+ */
+const initTabs = (loadUserVehicles, loadRides, loadMyRatings) => {
+    const tabs = document.querySelectorAll('.tab-button');
+    const contents = document.querySelectorAll('.tab-content');
+    
+    if (tabs.length === 0) return;
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            contents.forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(tab.dataset.tab).classList.add('active');
+            
+            localStorage.setItem('activeTab', tab.dataset.tab);
+            
+            if (tab.dataset.tab === 'tab-vehicles') loadUserVehicles();
+            if (tab.dataset.tab === 'tab-offered-rides') loadRides('offered');
+            if (tab.dataset.tab === 'tab-booked-rides') loadRides('booked');
+            if (tab.dataset.tab === 'tab-my-ratings') loadMyRatings();
+        });
+    });
+    
+    const savedTab = localStorage.getItem('activeTab') || 'tab-vehicles';
+    const tabToActivate = document.querySelector(`.tab-button[data-tab="${savedTab}"]`);
+    
+    if (tabToActivate) {
+        tabToActivate.click();
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     if (!document.body.classList.contains('dashboard-page')) return;
     
@@ -227,96 +494,23 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Gestion des modales de véhicules
      */
-    const addModal = document.getElementById('add-vehicle-modal');
-    const editModal = document.getElementById('edit-vehicle-modal');
-    const addForm = document.getElementById('add-vehicle-form-modal');
-    const editForm = document.getElementById('edit-vehicle-form-modal');
-
-    if (addModal && editModal && addForm && editForm) {
-        document.getElementById('add-vehicle-btn')?.addEventListener('click', () => addModal.classList.add('active'));
-        document.getElementById('close-modal-btn')?.addEventListener('click', () => addModal.classList.remove('active'));
-        document.getElementById('close-edit-modal-btn')?.addEventListener('click', () => editModal.classList.remove('active'));
-        
-        window.addEventListener('click', (e) => {
-            if (e.target === addModal) addModal.classList.remove('active');
-            if (e.target === editModal) editModal.classList.remove('active');
-        });
-
-        addForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            
-            const vehicleData = {
-                brand: formData.get('brand'),
-                model: formData.get('model'),
-                license_plate: formData.get('plate'),
-                energy_type: formData.get('energy').toLowerCase(),
-                available_seats: parseInt(formData.get('seats')),
-                color: 'Non spécifié',
-                first_registration: new Date().toISOString().split('T')[0]
-            };
-            
-            console.log('📤 Véhicule à créer:', vehicleData);
-            
-            try {
-                const response = await fetchWithAuth(`${API_BASE_URL}/vehicles`, { 
-                    method: 'POST', 
-                    body: JSON.stringify(vehicleData) 
-                });
-                console.log('✅ Véhicule créé:', response);
-                showNotification('Véhicule ajouté !', 'success');
-                addModal.classList.remove('active');
-                e.target.reset();
-                loadUserVehicles();
-            } catch (error) {
-                console.error('❌ Erreur création véhicule:', error);
-                showNotification(`Erreur: ${error.message}`, 'error');
-            }
-        });
-
-        editForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const vehicleId = formData.get('edit-vehicle-id');
-            
-            const vehicleData = {
-                brand: formData.get('brand'),
-                model: formData.get('model'),
-                license_plate: formData.get('plate'),
-                energy_type: formData.get('energy').toLowerCase(),
-                available_seats: parseInt(formData.get('seats')),
-            };
-            
-            console.log('📤 Véhicule à modifier:', vehicleId, vehicleData);
-            
-            try {
-                const response = await fetchWithAuth(`${API_BASE_URL}/vehicles/${vehicleId}`, { 
-                    method: 'PUT', 
-                    body: JSON.stringify(vehicleData) 
-                });
-                console.log('✅ Véhicule modifié:', response);
-                showNotification('Véhicule mis à jour !', 'success');
-                editModal.classList.remove('active');
-                loadUserVehicles();
-            } catch (error) {
-                console.error('❌ Erreur modification véhicule:', error);
-                showNotification(`Erreur: ${error.message}`, 'error');
-            }
-        });
-    }
+    const editModal = initVehicleModals(fetchWithAuth, loadUserVehicles);
     
     /**
      * Ouvre la modale d'édition de véhicule
      */
     const openEditModal = (id, data) => {
-        if (editForm) {
-            editForm.elements['edit-vehicle-id'].value = id;
-            editForm.elements['brand'].value = data.brand;
-            editForm.elements['model'].value = data.model;
-            editForm.elements['plate'].value = data.plate;
-            editForm.elements['energy'].value = data.energy;
-            editForm.elements['seats'].value = data.seats;
-            editModal.classList.add('active');
+        if (editModal) {
+            const editForm = document.getElementById('edit-vehicle-form-modal');
+            if (editForm) {
+                editForm.elements['edit-vehicle-id'].value = id;
+                editForm.elements['brand'].value = data.brand;
+                editForm.elements['model'].value = data.model;
+                editForm.elements['plate'].value = data.plate;
+                editForm.elements['energy'].value = data.energy;
+                editForm.elements['seats'].value = data.seats;
+                editModal.classList.add('active');
+            }
         }
     };
 
@@ -420,199 +614,19 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Gestion de la photo de profil
      */
-    const pictureModal = document.getElementById('picture-modal');
-    const editPictureBtn = document.getElementById('edit-picture-btn');
-    const closePictureModalBtn = document.getElementById('close-picture-modal-btn');
-    const pictureForm = document.getElementById('picture-form');
-    const useFileBtn = document.getElementById('use-file-btn');
-    const useUrlBtn = document.getElementById('use-url-btn');
-    const fileUploadSection = document.getElementById('file-upload-section');
-    const urlUploadSection = document.getElementById('url-upload-section');
-
-    if (useFileBtn && useUrlBtn && fileUploadSection && urlUploadSection) {
-        useFileBtn.addEventListener('click', () => {
-            fileUploadSection.style.display = 'block';
-            urlUploadSection.style.display = 'none';
-            useFileBtn.style.background = '#4CAF50';
-            useUrlBtn.style.background = '#2196F3';
-        });
-
-        useUrlBtn.addEventListener('click', () => {
-            fileUploadSection.style.display = 'none';
-            urlUploadSection.style.display = 'block';
-            useFileBtn.style.background = '#2196F3';
-            useUrlBtn.style.background = '#4CAF50';
-        });
-    }
-
-    if (editPictureBtn && pictureModal) {
-        editPictureBtn.addEventListener('click', () => {
-            pictureModal.classList.add('active');
-        });
-    }
-
-    if (closePictureModalBtn && pictureModal) {
-        closePictureModalBtn.addEventListener('click', () => {
-            pictureModal.classList.remove('active');
-        });
-    }
-
-    if (pictureModal) {
-        window.addEventListener('click', (e) => {
-            if (e.target === pictureModal) {
-                pictureModal.classList.remove('active');
-            }
-        });
-    }
-
-    if (pictureForm) {
-        pictureForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const fileInput = document.getElementById('profileImageFile');
-            const urlInput = document.getElementById('profileImageUrl');
-            
-            try {
-                let imageUrl = '';
-                
-                if (fileInput && fileInput.files && fileInput.files[0]) {
-                    const file = fileInput.files[0];
-                    
-                    if (file.size > 5 * 1024 * 1024) {
-                        showNotification('Le fichier est trop volumineux (max 5MB)', 'error');
-                        return;
-                    }
-                    
-                    const reader = new FileReader();
-                    imageUrl = await new Promise((resolve, reject) => {
-                        reader.onload = (e) => resolve(e.target.result);
-                        reader.onerror = reject;
-                        reader.readAsDataURL(file);
-                    });
-                } else if (urlInput && urlInput.value) {
-                    imageUrl = urlInput.value;
-                } else {
-                    showNotification('Veuillez sélectionner une image ou entrer une URL', 'warning');
-                    return;
-                }
-                
-                const response = await fetchWithAuth(`${API_BASE_URL}/users/profile-picture`, {
-                    method: 'PUT',
-                    body: JSON.stringify({ profile_picture: imageUrl })
-                });
-                
-                document.getElementById('profile-picture').src = imageUrl;
-                showNotification('Photo de profil mise à jour !', 'success');
-                pictureModal.classList.remove('active');
-                pictureForm.reset();
-            } catch (error) {
-                showNotification(`Erreur: ${error.message}`, 'error');
-            }
-        });
-    }
+    initProfilePictureHandlers(fetchWithAuth);
 
     /**
      * Gestion du profil utilisateur
      */
-    const editProfileModal = document.getElementById('edit-profile-modal');
-    const editProfileBtn = document.getElementById('edit-profile-btn');
-    const closeEditProfileModalBtn = document.getElementById('close-edit-profile-modal-btn');
-    const editProfileForm = document.getElementById('edit-profile-form');
-
-    if (editProfileBtn && editProfileModal) {
-        editProfileBtn.addEventListener('click', async () => {
-            try {
-                const data = await fetchWithAuth(`${API_BASE_URL}/users/me`);
-                document.getElementById('edit-pseudo').value = data.pseudo || '';
-                document.getElementById('edit-email').value = data.email || '';
-                document.getElementById('edit-phone').value = data.phone || '';
-                document.getElementById('edit-bio').value = data.bio || '';
-                editProfileModal.classList.add('active');
-            } catch (error) {
-                showNotification(`Erreur: ${error.message}`, 'error');
-            }
-        });
-    }
-
-    if (closeEditProfileModalBtn && editProfileModal) {
-        closeEditProfileModalBtn.addEventListener('click', () => {
-            editProfileModal.classList.remove('active');
-        });
-    }
-
-    if (editProfileModal) {
-        window.addEventListener('click', (e) => {
-            if (e.target === editProfileModal) {
-                editProfileModal.classList.remove('active');
-            }
-        });
-    }
-
-    if (editProfileForm) {
-        editProfileForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            
-            const profileData = {
-                pseudo: formData.get('pseudo'),
-                email: formData.get('email'),
-                phone: formData.get('phone') || null,
-                bio: formData.get('bio') || null
-            };
-
-            console.log('📤 Profil à mettre à jour:', profileData);
-            
-            try {
-                const response = await fetchWithAuth(`${API_BASE_URL}/users/profile`, {
-                    method: 'PUT',
-                    body: JSON.stringify(profileData)
-                });
-                
-                console.log('✅ Profil mis à jour:', response);
-                
-                document.getElementById('user-pseudo-profile').textContent = profileData.pseudo;
-                document.getElementById('user-email-profile').textContent = profileData.email;
-                
-                showNotification('Profil mis à jour avec succès !', 'success');
-                editProfileModal.classList.remove('active');
-            } catch (error) {
-                console.error('❌ Erreur modification profil:', error);
-                showNotification(`Erreur: ${error.message}`, 'error');
-            }
-        });
-    }
+    initProfileHandlers(fetchWithAuth);
 
     /**
      * Gestion des onglets
      */
-    const tabs = document.querySelectorAll('.tab-button');
-    const contents = document.querySelectorAll('.tab-content');
+    initTabs(loadUserVehicles, loadRides, loadMyRatings);
     
-    if (tabs.length > 0) {
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                contents.forEach(c => c.classList.remove('active'));
-                tab.classList.add('active');
-                document.getElementById(tab.dataset.tab).classList.add('active');
-                
-                localStorage.setItem('activeTab', tab.dataset.tab);
-                
-                if (tab.dataset.tab === 'tab-vehicles') loadUserVehicles();
-                if (tab.dataset.tab === 'tab-offered-rides') loadRides('offered');
-                if (tab.dataset.tab === 'tab-booked-rides') loadRides('booked');
-                if (tab.dataset.tab === 'tab-my-ratings') loadMyRatings();
-            });
-        });
-        
-        fetchUserData();
-        loadPendingReviews();
-        
-        const savedTab = localStorage.getItem('activeTab') || 'tab-vehicles';
-        const tabToActivate = document.querySelector(`.tab-button[data-tab="${savedTab}"]`);
-        
-        if (tabToActivate) {
-            tabToActivate.click();
-        }
-    }
+    // Charger les données initiales
+    fetchUserData();
+    loadPendingReviews();
 });

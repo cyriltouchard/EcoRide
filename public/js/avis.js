@@ -42,6 +42,74 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /**
+     * Gère le clic sur une étoile
+     */
+    function handleStarClick(star, stars, input) {
+        const value = parseInt(star.dataset.value);
+        const currentValue = parseInt(input.value);
+        
+        // Si on clique sur la même étoile, on désélectionne
+        if (currentValue === value) {
+            input.value = '';
+            resetStars(stars);
+        } else {
+            input.value = value;
+            updateStars(stars, value);
+        }
+    }
+
+    /**
+     * Réinitialise les étoiles
+     */
+    function resetStars(stars) {
+        stars.forEach(s => {
+            s.classList.remove('active');
+            s.style.color = '#ddd';
+        });
+    }
+
+    /**
+     * Met à jour l'affichage des étoiles
+     */
+    function updateStars(stars, value) {
+        stars.forEach((s, i) => {
+            if (i < value) {
+                s.classList.add('active');
+                s.style.color = '#ffc107';
+            } else {
+                s.classList.remove('active');
+                s.style.color = '#ddd';
+            }
+        });
+    }
+
+    /**
+     * Gère le survol d'une étoile
+     */
+    function handleStarHover(star, stars) {
+        const value = parseInt(star.dataset.value);
+        stars.forEach((s, i) => {
+            s.style.color = i < value ? '#ffc107' : '#ddd';
+        });
+    }
+
+    /**
+     * Restaure l'affichage des étoiles à leur état actuel
+     */
+    function restoreStarState(stars, input) {
+        const currentValue = parseInt(input.value) || 0;
+        stars.forEach((s, i) => {
+            if (i < currentValue) {
+                s.classList.add('active');
+                s.style.color = '#ffc107';
+            } else {
+                s.classList.remove('active');
+                s.style.color = '#ddd';
+            }
+        });
+    }
+
+    /**
      * Initialise le système de notation par étoiles
      */
     function initStarRating(containerId, inputId) {
@@ -60,60 +128,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const stars = container.querySelectorAll('.star');
         console.log(`⭐ Initialisation ${containerId}: ${stars.length} étoiles trouvées`);
 
-        // Fonction pour mettre à jour l'affichage des étoiles
-        const updateStarsDisplay = (value) => {
-            stars.forEach((s, i) => {
-                if (i < value) {
-                    s.classList.add('active');
-                    s.style.color = '#ffc107';
-                    s.style.filter = 'grayscale(0%)';
-                } else {
-                    s.classList.remove('active');
-                    s.style.color = '#ddd';
-                    s.style.filter = 'grayscale(100%)';
-                }
-            });
-        };
-
         // Initialiser toutes les étoiles en gris au départ
-        updateStarsDisplay(0);
+        resetStars(stars);
 
-        stars.forEach((star, starIndex) => {
-            star.addEventListener('click', () => {
-                const value = parseInt(star.dataset.value);
-                const currentValue = parseInt(input.value) || 0;
-                
-                console.log(`🖱️ Click sur étoile ${value} (valeur actuelle: ${currentValue})`);
-                
-                // Si on clique sur la même étoile, on désélectionne
-                if (currentValue === value) {
-                    input.value = '';
-                    updateStarsDisplay(0);
-                } else {
-                    input.value = value;
-                    updateStarsDisplay(value);
-                }
-            });
-
-            star.addEventListener('mouseenter', () => {
-                const value = parseInt(star.dataset.value);
-                stars.forEach((s, i) => {
-                    if (i < value) {
-                        s.style.color = '#ffc107';
-                        s.style.filter = 'grayscale(0%)';
-                    } else {
-                        s.style.color = '#ddd';
-                        s.style.filter = 'grayscale(100%)';
-                    }
-                });
-            });
+        stars.forEach((star) => {
+            star.addEventListener('click', () => handleStarClick(star, stars, input));
+            star.addEventListener('mouseenter', () => handleStarHover(star, stars));
         });
 
-        // Restaurer l'état réel quand la souris quitte le conteneur
-        container.addEventListener('mouseleave', () => {
-            const currentValue = parseInt(input.value) || 0;
-            updateStarsDisplay(currentValue);
-        });
+        container.addEventListener('mouseleave', () => restoreStarState(stars, input));
     }
 
     // Initialiser tous les systèmes de notation

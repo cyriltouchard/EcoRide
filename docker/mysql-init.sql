@@ -3,6 +3,15 @@
 
 USE ecoride;
 
+-- =====================================================
+-- CONSTANTES GLOBALES
+-- =====================================================
+SET @TYPE_EARNING = 'earning';
+SET @TYPE_SPENDING = 'spending';
+SET @TYPE_BONUS = 'bonus';
+SET @STATUS_COMPLETED = 'completed';
+SET @VARCHAR_255 = 255;
+
 -- Table des transactions de crédits
 CREATE TABLE IF NOT EXISTS credits_transactions (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -83,8 +92,8 @@ CREATE TABLE IF NOT EXISTS user_statistics (
 
 -- Insertion de données de test
 INSERT INTO credits_transactions (user_id, amount, type, description) VALUES
-('admin@ecoride.fr', 100.00, 'bonus', 'Crédits de démarrage administrateur'),
-('test@ecoride.fr', 20.00, 'bonus', 'Crédits de bienvenue nouvel utilisateur');
+('admin@ecoride.fr', 100.00, @TYPE_BONUS, 'Crédits de démarrage administrateur'),
+('test@ecoride.fr', 20.00, @TYPE_BONUS, 'Crédits de bienvenue nouvel utilisateur');
 
 INSERT INTO user_statistics (user_id, total_credits_earned) VALUES
 ('admin@ecoride.fr', 100.00),
@@ -95,11 +104,15 @@ DELIMITER $$
 
 CREATE PROCEDURE GetUserCreditBalance(IN p_user_id VARCHAR(255))
 BEGIN
+    DECLARE co_status_completed VARCHAR(10) DEFAULT 'completed';
+    DECLARE co_type_earning VARCHAR(10) DEFAULT 'earning';
+    DECLARE co_type_bonus VARCHAR(10) DEFAULT 'bonus';
+    
     SELECT 
         p_user_id as user_id,
-        COALESCE(SUM(CASE WHEN type IN ('earning', 'bonus') THEN amount ELSE -amount END), 0) as balance
+        COALESCE(SUM(CASE WHEN type IN (co_type_earning, co_type_bonus) THEN amount ELSE -amount END), 0) as balance
     FROM credits_transactions 
-    WHERE user_id = p_user_id AND status = 'completed';
+    WHERE user_id = p_user_id AND status = co_status_completed;
 END$$
 
 DELIMITER ;
@@ -109,11 +122,11 @@ CREATE VIEW global_statistics AS
 SELECT 
     COUNT(DISTINCT user_id) as total_users,
     COUNT(*) as total_transactions,
-    SUM(CASE WHEN type IN ('earning', 'bonus') THEN amount ELSE 0 END) as total_credits_distributed,
-    SUM(CASE WHEN type = 'spending' THEN amount ELSE 0 END) as total_credits_spent,
+    SUM(CASE WHEN type IN (@TYPE_EARNING, @TYPE_BONUS) THEN amount ELSE 0 END) as total_credits_distributed,
+    SUM(CASE WHEN type = @TYPE_SPENDING THEN amount ELSE 0 END) as total_credits_spent,
     AVG(amount) as average_transaction_amount
 FROM credits_transactions 
-WHERE status = 'completed';
+WHERE status = @STATUS_COMPLETED;
 
 -- Commentaires pour documentation
 ALTER TABLE credits_transactions COMMENT = 'Table des transactions de crédits EcoRide';
@@ -125,4 +138,4 @@ ALTER TABLE user_statistics COMMENT = 'Table des statistiques utilisateurs';
 SELECT '✅ Base de données MySQL EcoRide initialisée avec succès !' as message;
 SELECT 'Tables créées : credits_transactions, ride_reservations, reviews, user_statistics' as info;
 SELECT CONCAT('Crédits initiaux : ', SUM(amount), ' crédits') as credits_info 
-FROM credits_transactions WHERE type = 'bonus';
+FROM credits_transactions WHERE type = @TYPE_BONUS;
