@@ -44,7 +44,7 @@ exports.createDriverReview = async (req, res) => {
         }
 
         // Vérifier que le passager ne note pas lui-même
-        if (parseInt(driverId) === passengerId) {
+        if (Number.parseInt(driverId) === passengerId) {
             return res.status(400).json({ 
                 success: false, 
                 msg: 'Vous ne pouvez pas vous noter vous-même' 
@@ -135,7 +135,7 @@ exports.getDriverReviews = async (req, res) => {
              WHERE driver_id = ? 
              ORDER BY created_at DESC 
              LIMIT ? OFFSET ?`,
-            [driverId, parseInt(limit), parseInt(offset)]
+            [driverId, Number.parseInt(limit), Number.parseInt(offset)]
         );
 
         // Récupérer les statistiques du chauffeur
@@ -156,8 +156,8 @@ exports.getDriverReviews = async (req, res) => {
             },
             reviews,
             pagination: {
-                limit: parseInt(limit),
-                offset: parseInt(offset),
+                limit: Number.parseInt(limit),
+                offset: Number.parseInt(offset),
                 total: stats[0] ? stats[0].total_reviews : 0
             }
         });
@@ -307,7 +307,7 @@ exports.getSiteReviews = async (req, res) => {
              WHERE sr.is_visible = TRUE
              ORDER BY sr.created_at DESC
              LIMIT ? OFFSET ?`,
-            [parseInt(limit), parseInt(offset)]
+            [Number.parseInt(limit), Number.parseInt(offset)]
         );
 
         // Récupérer les statistiques globales
@@ -321,8 +321,8 @@ exports.getSiteReviews = async (req, res) => {
             },
             reviews,
             pagination: {
-                limit: parseInt(limit),
-                offset: parseInt(offset)
+                limit: Number.parseInt(limit),
+                offset: Number.parseInt(offset)
             }
         });
 
