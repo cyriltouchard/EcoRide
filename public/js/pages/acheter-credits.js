@@ -55,7 +55,7 @@ const displayCreditPackages = () => {
     // Ajouter les événements sur les boutons
     container.querySelectorAll('.select-package').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            const packageId = parseInt(e.target.dataset.packageId);
+            const packageId = Number.parseInt(e.target.dataset.packageId);
             selectPackage(packageId);
         });
     });
@@ -141,7 +141,7 @@ const validateCardData = (cardData) => {
         let sum = 0;
         let isEven = false;
         for (let i = cardNumber.length - 1; i >= 0; i--) {
-            let digit = parseInt(cardNumber[i]);
+            let digit = Number.parseInt(cardNumber[i]);
             if (isEven) {
                 digit *= 2;
                 if (digit > 9) digit -= 9;
@@ -245,7 +245,7 @@ const handlePaymentSubmit = async (event) => {
         return;
     }
     
-    const packageId = parseInt(selectedPackage.dataset.packageId);
+    const packageId = Number.parseInt(selectedPackage.dataset.packageId);
     
     const cardData = {
         cardNumber: document.getElementById('cardNumber').value,

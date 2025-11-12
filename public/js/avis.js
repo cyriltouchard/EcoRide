@@ -45,8 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
      * Gère le clic sur une étoile
      */
     function handleStarClick(star, stars, input) {
-        const value = parseInt(star.dataset.value);
-        const currentValue = parseInt(input.value);
+        const value = Number.parseInt(star.dataset.value);
+        const currentValue = Number.parseInt(input.value);
         
         // Si on clique sur la même étoile, on désélectionne
         if (currentValue === value) {
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Gère le survol d'une étoile
      */
     function handleStarHover(star, stars) {
-        const value = parseInt(star.dataset.value);
+        const value = Number.parseInt(star.dataset.value);
         stars.forEach((s, i) => {
             s.style.color = i < value ? '#ffc107' : '#ddd';
         });
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Restaure l'affichage des étoiles à leur état actuel
      */
     function restoreStarState(stars, input) {
-        const currentValue = parseInt(input.value) || 0;
+        const currentValue = Number.parseInt(input.value) || 0;
         stars.forEach((s, i) => {
             if (i < currentValue) {
                 s.classList.add('active');
@@ -265,17 +265,17 @@ document.addEventListener('DOMContentLoaded', () => {
         driverRatingForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const rating = parseInt(document.getElementById('driver-overall-rating').value);
+            const rating = Number.parseInt(document.getElementById('driver-overall-rating').value);
             if (!rating) {
                 showNotification('Veuillez sélectionner une note globale', 'error');
                 return;
             }
 
             // Calculer la moyenne de toutes les notes
-            const punctuality = parseInt(document.getElementById('punctuality-rating').value) || 0;
-            const driving = parseInt(document.getElementById('driving-rating').value) || 0;
-            const cleanliness = parseInt(document.getElementById('cleanliness-rating').value) || 0;
-            const friendliness = parseInt(document.getElementById('friendliness-rating').value) || 0;
+            const punctuality = Number.parseInt(document.getElementById('punctuality-rating').value) || 0;
+            const driving = Number.parseInt(document.getElementById('driving-rating').value) || 0;
+            const cleanliness = Number.parseInt(document.getElementById('cleanliness-rating').value) || 0;
+            const friendliness = Number.parseInt(document.getElementById('friendliness-rating').value) || 0;
             
             const ratings = [rating, punctuality, driving, cleanliness, friendliness].filter(r => r > 0);
             const average = (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(1);
@@ -290,14 +290,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         'x-auth-token': userToken
                     },
                     body: JSON.stringify({
-                        driverId: parseInt(document.getElementById('selected-driver-id').value),
-                        rideId: parseInt(document.getElementById('selected-ride-id').value),
-                        bookingId: parseInt(document.getElementById('selected-booking-id').value),
+                        driverId: Number.parseInt(document.getElementById('selected-driver-id').value),
+                        rideId: Number.parseInt(document.getElementById('selected-ride-id').value),
+                        bookingId: Number.parseInt(document.getElementById('selected-booking-id').value),
                         rating: rating,
-                        punctualityRating: parseInt(document.getElementById('punctuality-rating').value) || null,
-                        drivingQualityRating: parseInt(document.getElementById('driving-rating').value) || null,
-                        vehicleCleanlinessRating: parseInt(document.getElementById('cleanliness-rating').value) || null,
-                        friendlinessRating: parseInt(document.getElementById('friendliness-rating').value) || null,
+                        punctualityRating: Number.parseInt(document.getElementById('punctuality-rating').value) || null,
+                        drivingQualityRating: Number.parseInt(document.getElementById('driving-rating').value) || null,
+                        vehicleCleanlinessRating: Number.parseInt(document.getElementById('cleanliness-rating').value) || null,
+                        friendlinessRating: Number.parseInt(document.getElementById('friendliness-rating').value) || null,
                         comment: document.getElementById('driver-comment').value
                     })
                 });
@@ -327,17 +327,17 @@ document.addEventListener('DOMContentLoaded', () => {
         siteReviewForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const overallRating = parseInt(document.getElementById('overall-rating').value);
+            const overallRating = Number.parseInt(document.getElementById('overall-rating').value);
             if (!overallRating) {
                 showNotification('Veuillez sélectionner une note globale', 'error');
                 return;
             }
 
             // Calculer la moyenne de toutes les notes
-            const ease = parseInt(document.getElementById('ease-rating').value) || 0;
-            const reliability = parseInt(document.getElementById('reliability-rating').value) || 0;
-            const service = parseInt(document.getElementById('service-rating').value) || 0;
-            const value = parseInt(document.getElementById('value-rating').value) || 0;
+            const ease = Number.parseInt(document.getElementById('ease-rating').value) || 0;
+            const reliability = Number.parseInt(document.getElementById('reliability-rating').value) || 0;
+            const service = Number.parseInt(document.getElementById('service-rating').value) || 0;
+            const value = Number.parseInt(document.getElementById('value-rating').value) || 0;
             
             const ratings = [overallRating, ease, reliability, service, value].filter(r => r > 0);
             const average = (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(1);
@@ -353,10 +353,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     body: JSON.stringify({
                         overallRating: overallRating,
-                        easeOfUseRating: parseInt(document.getElementById('ease-rating').value) || null,
-                        reliabilityRating: parseInt(document.getElementById('reliability-rating').value) || null,
-                        customerServiceRating: parseInt(document.getElementById('service-rating').value) || null,
-                        valueForMoneyRating: parseInt(document.getElementById('value-rating').value) || null,
+                        easeOfUseRating: Number.parseInt(document.getElementById('ease-rating').value) || null,
+                        reliabilityRating: Number.parseInt(document.getElementById('reliability-rating').value) || null,
+                        customerServiceRating: Number.parseInt(document.getElementById('service-rating').value) || null,
+                        valueForMoneyRating: Number.parseInt(document.getElementById('value-rating').value) || null,
                         comment: document.getElementById('site-comment').value,
                         wouldRecommend: document.getElementById('would-recommend')?.checked || false
                     })

@@ -232,7 +232,7 @@ const initBookingCalculator = (ride) => {
     if (!placesSelect || !totalEl) return;
     
     placesSelect.addEventListener('change', () => {
-        const places = parseInt(placesSelect.value);
+        const places = Number.parseInt(placesSelect.value);
         const total = places * (ride.prix_par_place || 0);
         totalEl.textContent = total;
     });
@@ -255,7 +255,7 @@ const handleBooking = async (ride) => {
     }
     
     const placesSelect = document.getElementById('places_reservees');
-    const places = parseInt(placesSelect?.value || 1);
+    const places = Number.parseInt(placesSelect?.value || 1);
     
     const closeLoading = showLoading('Traitement de votre réservation...');
     

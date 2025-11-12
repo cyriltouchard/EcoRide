@@ -112,8 +112,8 @@ const handleSubmit = async (event) => {
         ville_arrivee: validateAndSanitizeInput(document.getElementById('ville_arrivee').value),
         date_depart: document.getElementById('date_depart').value,
         heure_depart: document.getElementById('heure_depart').value,
-        places_disponibles: parseInt(document.getElementById('places_disponibles').value),
-        prix_par_place: parseFloat(document.getElementById('prix_par_place').value) || 0,
+        places_disponibles: Number.parseInt(document.getElementById('places_disponibles').value),
+        prix_par_place: Number.parseFloat(document.getElementById('prix_par_place').value) || 0,
         commentaire: validateAndSanitizeInput(document.getElementById('commentaire')?.value || ''),
         animaux_acceptes: document.getElementById('animaux_acceptes')?.checked || false,
         fumeur_accepte: document.getElementById('fumeur_accepte')?.checked || false,
@@ -156,8 +156,8 @@ const updatePriceEstimate = () => {
     
     if (!priceInput || !placesInput || !estimateEl) return;
     
-    const price = parseFloat(priceInput.value) || 0;
-    const places = parseInt(placesInput.value) || 0;
+    const price = Number.parseFloat(priceInput.value) || 0;
+    const places = Number.parseInt(placesInput.value) || 0;
     const total = price * places;
     
     estimateEl.textContent = `Vous gagnerez environ ${total} crédits si toutes les places sont réservées`;
