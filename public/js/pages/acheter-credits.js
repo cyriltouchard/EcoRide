@@ -125,6 +125,45 @@ const displayOrderSummary = (pkg) => {
 };
 
 /**
+ * Valide un numéro de carte avec l'algorithme de Luhn
+ * @param {string} cardNumber - Numéro de carte sans espaces
+ * @returns {boolean} True si valide
+ */
+const isValidLuhn = (cardNumber) => {
+    let sum = 0;
+    let isEven = false;
+    
+    for (let i = cardNumber.length - 1; i >= 0; i--) {
+        let digit = Number.parseInt(cardNumber[i]);
+        if (isEven) {
+            digit *= 2;
+            if (digit > 9) digit -= 9;
+        }
+        sum += digit;
+        isEven = !isEven;
+    }
+    
+    return sum % 10 === 0;
+};
+
+/**
+ * Valide une date d'expiration de carte
+ * @param {string} expiry - Date au format MM/AA
+ * @returns {boolean} True si valide et non expirée
+ */
+const isValidExpiry = (expiry) => {
+    if (!/^\d{2}\/\d{2}$/.test(expiry)) {
+        return false;
+    }
+    
+    const [month, year] = expiry.split('/').map(Number);
+    const now = new Date();
+    const expDate = new Date(2000 + year, month - 1);
+    
+    return month >= 1 && month <= 12 && expDate >= now;
+};
+
+/**
  * Valide les informations de carte bancaire
  * @param {Object} cardData - Données de la carte
  * @returns {Object|null} Erreurs ou null si valide
@@ -136,34 +175,15 @@ const validateCardData = (cardData) => {
     const cardNumber = cardData.cardNumber.replaceAll(/\s/g, '');
     if (!/^\d{16}$/.test(cardNumber)) {
         errors.cardNumber = 'Numéro de carte invalide (16 chiffres requis)';
-    } else {
-        // Algorithme de Luhn pour validation
-        let sum = 0;
-        let isEven = false;
-        for (let i = cardNumber.length - 1; i >= 0; i--) {
-            let digit = Number.parseInt(cardNumber[i]);
-            if (isEven) {
-                digit *= 2;
-                if (digit > 9) digit -= 9;
-            }
-            sum += digit;
-            isEven = !isEven;
-        }
-        if (sum % 10 !== 0) {
-            errors.cardNumber = 'Numéro de carte invalide';
-        }
+    } else if (!isValidLuhn(cardNumber)) {
+        errors.cardNumber = 'Numéro de carte invalide';
     }
     
     // Validation de l'expiration
-    if (!/^\d{2}\/\d{2}$/.test(cardData.expiry)) {
-        errors.expiry = 'Format invalide (MM/AA)';
-    } else {
-        const [month, year] = cardData.expiry.split('/').map(Number);
-        const now = new Date();
-        const expDate = new Date(2000 + year, month - 1);
-        if (month < 1 || month > 12 || expDate < now) {
-            errors.expiry = 'Date d\'expiration invalide ou expirée';
-        }
+    if (!isValidExpiry(cardData.expiry)) {
+        errors.expiry = !/^\d{2}\/\d{2}$/.test(cardData.expiry) 
+            ? 'Format invalide (MM/AA)' 
+            : 'Date d\'expiration invalide ou expirée';
     }
     
     // Validation du CVV
