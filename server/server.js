@@ -78,10 +78,11 @@ app.options('*', cors(corsOptions));
 app.use(express.json());
 
 // Servir les fichiers statiques
+// Dans Docker, tous les fichiers sont copiés dans /app
 // Servir les fichiers du dossier public (CSS, JS, images)
-app.use('/public', express.static(path.join(__dirname, '..', 'public')));
-// Servir les fichiers HTML à la racine du projet
-app.use(express.static(path.join(__dirname, '..')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
+// Servir les fichiers HTML à la racine
+app.use(express.static(__dirname));
 
 // Routes
 // Une route de base pour vérifier que l'API est fonctionnelle.
