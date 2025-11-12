@@ -268,6 +268,17 @@ async function loadUsers() {
 }
 
 /**
+ * Obtenir la classe CSS du badge selon le type d'utilisateur
+ * @param {string} userType - Type d'utilisateur
+ * @returns {string} Classe CSS du badge
+ */
+function getUserTypeBadgeClass(userType) {
+    if (userType === 'admin') return 'danger';
+    if (userType === 'employe') return 'warning';
+    return 'info';
+}
+
+/**
  * Afficher les utilisateurs dans le tableau
  * @param {Array} users - Liste des utilisateurs
  */
@@ -284,7 +295,7 @@ function displayUsers(users) {
             <td>${user.pseudo || 'N/A'}</td>
             <td>${user.email}</td>
             <td>
-                <span class="badge ${user.user_type === 'admin' ? 'danger' : user.user_type === 'employe' ? 'warning' : 'info'}">
+                <span class="badge ${getUserTypeBadgeClass(user.user_type)}">
                     ${user.user_type || 'utilisateur'}
                 </span>
             </td>
