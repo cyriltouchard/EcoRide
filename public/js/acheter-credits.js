@@ -19,7 +19,7 @@ async function loadCurrentBalance() {
     try {
         const token = localStorage.getItem('token');
         if (!token) {
-            window.location.href = 'connexion.html';
+            globalThis.location.href = 'connexion.html';
             return;
         }
 
@@ -55,7 +55,7 @@ function initializeAcheterCredits() {
     console.log('📦 Boutons trouvés:', buyButtons.length);
 
     // Rediriger vers la page de paiement avec les paramètres
-    buyButtons.forEach(button => {
+    for (const button of buyButtons) {
         button.addEventListener('click', function () {
             const packageType = this.dataset.package;
             const credits = this.dataset.credits;
@@ -64,9 +64,9 @@ function initializeAcheterCredits() {
             console.log('🛒 Redirection vers paiement:', { packageType, credits, price });
 
             // Redirection avec paramètres URL
-            window.location.href = `paiement-credits.html?package=${packageType}&credits=${credits}&price=${price}`;
+            globalThis.location.href = `paiement-credits.html?package=${packageType}&credits=${credits}&price=${price}`;
         });
-    });
+    }
 
     // Fermer la modale
     const closeModalBtn = document.getElementById('close-payment-modal');

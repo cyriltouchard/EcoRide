@@ -49,10 +49,14 @@ const validateContactForm = (formData) => {
  * @param {Object} errors - Erreurs de validation
  */
 const displayErrors = (errors) => {
-    document.querySelectorAll('.error-message').forEach(el => el.remove());
-    document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+    for (const el of document.querySelectorAll('.error-message')) {
+        el.remove();
+    }
+    for (const el of document.querySelectorAll('.input-error')) {
+        el.classList.remove('input-error');
+    }
     
-    Object.entries(errors).forEach(([field, message]) => {
+    for (const [field, message] of Object.entries(errors)) {
         const input = document.getElementById(field);
         if (input) {
             input.classList.add('input-error');
@@ -61,7 +65,7 @@ const displayErrors = (errors) => {
             errorDiv.textContent = message;
             input.parentElement.appendChild(errorDiv);
         }
-    });
+    }
     
     showNotification(Object.values(errors)[0], 'error');
 };
@@ -248,7 +252,7 @@ const displayFAQ = () => {
     `;
     
     // Ajouter les événements pour déplier/replier
-    container.querySelectorAll('.faq-item').forEach(item => {
+    for (const item of container.querySelectorAll('.faq-item')) {
         const question = item.querySelector('.faq-question');
         const answer = item.querySelector('.faq-answer');
         const toggle = item.querySelector('.faq-toggle');
@@ -259,7 +263,7 @@ const displayFAQ = () => {
             toggle.textContent = isOpen ? '+' : '−';
             item.classList.toggle('open');
         });
-    });
+    }
 };
 
 /**

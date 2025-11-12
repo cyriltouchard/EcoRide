@@ -130,12 +130,12 @@ const displayRides = (rides) => {
     container.innerHTML = rides.map(ride => createRideCard(ride)).join('');
     
     // Ajouter les événements sur les boutons
-    container.querySelectorAll('.view-details').forEach(btn => {
+    for (const btn of container.querySelectorAll('.view-details')) {
         btn.addEventListener('click', (e) => {
             const rideId = e.target.dataset.rideId;
-            window.location.href = `details-covoiturage.html?id=${rideId}`;
+            globalThis.location.href = `details-covoiturage.html?id=${rideId}`;
         });
-    });
+    }
 };
 
 /**
@@ -180,9 +180,9 @@ const handleSearchSubmit = (event) => {
     };
     
     // Supprimer les filtres vides
-    Object.keys(filters).forEach(key => {
+    for (const key of Object.keys(filters)) {
         if (!filters[key]) delete filters[key];
-    });
+    }
     
     loadRides(filters);
 };

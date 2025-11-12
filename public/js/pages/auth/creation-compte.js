@@ -59,11 +59,15 @@ const validateRegistrationForm = (formData) => {
  */
 const displayValidationErrors = (errors) => {
     // Nettoyer les erreurs précédentes
-    document.querySelectorAll('.error-message').forEach(el => el.remove());
-    document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+    for (const el of document.querySelectorAll('.error-message')) {
+        el.remove();
+    }
+    for (const el of document.querySelectorAll('.input-error')) {
+        el.classList.remove('input-error');
+    }
     
     // Afficher les nouvelles erreurs
-    Object.entries(errors).forEach(([field, message]) => {
+    for (const [field, message] of Object.entries(errors)) {
         const input = document.getElementById(field) || document.querySelector(`[name="${field}"]`);
         if (input) {
             input.classList.add('input-error');
@@ -75,7 +79,7 @@ const displayValidationErrors = (errors) => {
             errorDiv.style.marginTop = '0.25rem';
             input.parentElement.appendChild(errorDiv);
         }
-    });
+    }
     
     // Afficher le premier message d'erreur en notification
     const firstError = Object.values(errors)[0];

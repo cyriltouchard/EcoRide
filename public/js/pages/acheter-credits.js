@@ -53,12 +53,12 @@ const displayCreditPackages = () => {
     `).join('');
     
     // Ajouter les événements sur les boutons
-    container.querySelectorAll('.select-package').forEach(btn => {
+    for (const btn of container.querySelectorAll('.select-package')) {
         btn.addEventListener('click', (e) => {
             const packageId = Number.parseInt(e.target.dataset.packageId);
             selectPackage(packageId);
         });
-    });
+    }
 };
 
 /**
@@ -70,9 +70,9 @@ const selectPackage = (packageId) => {
     if (!pkg) return;
     
     // Mettre en surbrillance le package sélectionné
-    document.querySelectorAll('.credit-package').forEach(el => {
+    for (const el of document.querySelectorAll('.credit-package')) {
         el.classList.remove('selected');
-    });
+    }
     
     const selectedEl = document.querySelector(`.credit-package[data-package-id="${packageId}"]`);
     if (selectedEl) {
@@ -184,10 +184,14 @@ const validateCardData = (cardData) => {
  * @param {Object} errors - Erreurs de validation
  */
 const displayCardErrors = (errors) => {
-    document.querySelectorAll('.error-message').forEach(el => el.remove());
-    document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+    for (const el of document.querySelectorAll('.error-message')) {
+        el.remove();
+    }
+    for (const el of document.querySelectorAll('.input-error')) {
+        el.classList.remove('input-error');
+    }
     
-    Object.entries(errors).forEach(([field, message]) => {
+    for (const [field, message] of Object.entries(errors)) {
         const input = document.getElementById(field);
         if (input) {
             input.classList.add('input-error');
@@ -196,7 +200,7 @@ const displayCardErrors = (errors) => {
             errorDiv.textContent = message;
             input.parentElement.appendChild(errorDiv);
         }
-    });
+    }
     
     showNotification(Object.values(errors)[0], 'error');
 };
