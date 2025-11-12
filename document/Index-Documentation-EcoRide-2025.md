@@ -3,10 +3,11 @@
 ## 🆕 Documentation du refactoring SonarQube (Janvier 2025)
 
 ### Vue d'ensemble
-- � **[REFACTORING-ROADMAP.md](./REFACTORING-ROADMAP.md)** - Plan d'action complet du refactoring
+- 📋 **[REFACTORING-ROADMAP.md](./REFACTORING-ROADMAP.md)** - Plan d'action complet du refactoring
 - 📊 **[REFACTORING-SONARQUBE-RESUME.md](./REFACTORING-SONARQUBE-RESUME.md)** - Résumé détaillé des corrections
 - 🚀 **[GUIDE-UTILISATION-MODULES.md](./GUIDE-UTILISATION-MODULES.md)** - Guide d'utilisation des nouveaux modules
-- 💻 **[exemple-integration-modules.html](../exemple-integration-modules.html)** - Exemple d'intégration en pratique
+- � **[GUIDE-SONARQUBE-ANALYSE.md](./GUIDE-SONARQUBE-ANALYSE.md)** - Configuration et analyse SonarQube
+- �💻 **[exemple-integration-modules.html](../exemple-integration-modules.html)** - Exemple d'intégration en pratique
 
 ### Résumé rapide
 - ✅ **Complexité cognitive réduite** de 91 à ≤15
@@ -14,6 +15,12 @@
 - ✅ **7 pages migrées** vers la nouvelle architecture
 - ✅ **60+ fonctions réutilisables** extraites
 - 📊 **Progression** : 69% des pages migrées (11/16)
+
+### 🔍 Analyse SonarQube
+- 🎯 **Objectif** : Corriger tous les problèmes de qualité du code
+- 📈 **Métriques** : Fiabilité C→A, Maintenabilité A, Duplications 8.3%→<3%
+- 🛠️ **Script** : `analyze-sonarqube.ps1` pour analyse automatique
+- 📋 **Config** : `sonar-project.properties` configuré pour le projet
 
 ---
 
