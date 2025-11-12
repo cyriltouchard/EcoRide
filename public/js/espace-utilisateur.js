@@ -35,7 +35,7 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
             model: formData.get('model'),
             license_plate: formData.get('plate'),
             energy_type: formData.get('energy').toLowerCase(),
-            available_seats: parseInt(formData.get('seats')),
+            available_seats: number.parseInt(formData.get('seats')),
             color: 'Non spécifié',
             first_registration: new Date().toISOString().split('T')[0]
         };
@@ -65,7 +65,7 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
             model: formData.get('model'),
             license_plate: formData.get('plate'),
             energy_type: formData.get('energy').toLowerCase(),
-            available_seats: parseInt(formData.get('seats')),
+            available_seats: number.parseInt(formData.get('seats')),
         };
         
         try {
@@ -463,7 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         } else {
                             // Vérifier si le trajet est terminé et peut être noté
                             const isCompleted = ride.status === 'completed' || ride.status === 'termine';
-                            const canRate = isCompleted && ride.driver && ride.driver.id;
+                            const canRate = isCompleted && ride.driver?.id;
                             
                             cardHtml = `
                                 <div class="ride-card-content">
