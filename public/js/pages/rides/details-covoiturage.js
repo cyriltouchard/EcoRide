@@ -43,6 +43,80 @@ const fetchDriverReviews = async (driverId) => {
 };
 
 /**
+ * Génère le HTML pour la section de réservation
+ * @param {Object} ride - Données du trajet
+ * @returns {string} HTML de la section réservation
+ */
+const renderBookingSection = (ride) => {
+    const price = ride.prix_par_place ? `${ride.prix_par_place} crédits` : 'Gratuit';
+    const placesText = `${ride.places_disponibles} place${ride.places_disponibles > 1 ? 's' : ''} disponible${ride.places_disponibles > 1 ? 's' : ''}`;
+    
+    return `
+        <div class="booking-section">
+            <div class="price-card">
+                <div class="price-label">Prix par place</div>
+                <div class="price-amount">${price}</div>
+                <div class="places-info">
+                    <span class="icon">👥</span>
+                    ${placesText}
+                </div>
+            </div>
+            
+            ${isAuthenticated() ? `
+                <div class="booking-form">
+                    <label for="places_reservees">Nombre de places</label>
+                    <select id="places_reservees" class="form-control">
+                        ${Array.from({ length: Math.min(ride.places_disponibles, 8) }, (_, i) => 
+                            `<option value="${i + 1}">${i + 1}</option>`
+                        ).join('')}
+                    </select>
+                    
+                    <div class="total-price">
+                        Total : <span id="booking-total">${ride.prix_par_place || 0}</span> crédits
+                    </div>
+                    
+                    <button id="book-ride-btn" class="btn btn-primary btn-block">
+                        Réserver
+                    </button>
+                </div>
+            ` : `
+                <a href="connexion.html?redirect=details-covoiturage.html?id=${ride.id}" 
+                   class="btn btn-primary btn-block">
+                    Se connecter pour réserver
+                </a>
+            `}
+        </div>
+    `;
+};
+
+/**
+ * Génère le HTML pour les préférences de voyage
+ * @param {Object} ride - Données du trajet
+ * @returns {string} HTML des préférences
+ */
+const renderPreferences = (ride) => {
+    return `
+        <div class="preferences-card">
+            <h2>Préférences de voyage</h2>
+            <div class="preferences-list">
+                <div class="preference-item ${ride.animaux_acceptes ? 'accepted' : 'rejected'}">
+                    <span class="icon">�</span>
+                    <span>Animaux ${ride.animaux_acceptes ? 'acceptés' : 'non acceptés'}</span>
+                </div>
+                <div class="preference-item ${ride.fumeur_accepte ? 'accepted' : 'rejected'}">
+                    <span class="icon">🚬</span>
+                    <span>Fumeurs ${ride.fumeur_accepte ? 'acceptés' : 'non acceptés'}</span>
+                </div>
+                <div class="preference-item ${ride.detour_possible ? 'accepted' : 'rejected'}">
+                    <span class="icon">🔄</span>
+                    <span>Détour ${ride.detour_possible ? 'possible' : 'non possible'}</span>
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+/**
  * Affiche les détails du trajet
  * @param {Object} ride - Données du trajet
  */
@@ -51,8 +125,8 @@ const displayRideDetails = (ride) => {
     if (!container) return;
     
     const date = formatDate(new Date(ride.date_depart));
-    const price = ride.prix_par_place ? `${ride.prix_par_place} crédits` : 'Gratuit';
     const rating = ride.note_moyenne ? generateStars(ride.note_moyenne) : 'Nouveau chauffeur';
+    const tripsText = `${ride.nombre_trajets || 0} trajet${ride.nombre_trajets > 1 ? 's' : ''} effectué${ride.nombre_trajets > 1 ? 's' : ''}`;
     
     container.innerHTML = `
         <div class="ride-details">
@@ -89,40 +163,7 @@ const displayRideDetails = (ride) => {
                     </div>
                 </div>
                 
-                <div class="booking-section">
-                    <div class="price-card">
-                        <div class="price-label">Prix par place</div>
-                        <div class="price-amount">${price}</div>
-                        <div class="places-info">
-                            <span class="icon">👥</span>
-                            ${ride.places_disponibles} place${ride.places_disponibles > 1 ? 's' : ''} disponible${ride.places_disponibles > 1 ? 's' : ''}
-                        </div>
-                    </div>
-                    
-                    ${isAuthenticated() ? `
-                        <div class="booking-form">
-                            <label for="places_reservees">Nombre de places</label>
-                            <select id="places_reservees" class="form-control">
-                                ${Array.from({ length: Math.min(ride.places_disponibles, 8) }, (_, i) => 
-                                    `<option value="${i + 1}">${i + 1}</option>`
-                                ).join('')}
-                            </select>
-                            
-                            <div class="total-price">
-                                Total : <span id="booking-total">${ride.prix_par_place || 0}</span> crédits
-                            </div>
-                            
-                            <button id="book-ride-btn" class="btn btn-primary btn-block">
-                                Réserver
-                            </button>
-                        </div>
-                    ` : `
-                        <a href="connexion.html?redirect=details-covoiturage.html?id=${ride.id}" 
-                           class="btn btn-primary btn-block">
-                            Se connecter pour réserver
-                        </a>
-                    `}
-                </div>
+                ${renderBookingSection(ride)}
             </div>
             
             <div class="ride-additional-info">
@@ -135,7 +176,7 @@ const displayRideDetails = (ride) => {
                         <div class="driver-info">
                             <h3>${ride.chauffeur_pseudo}</h3>
                             <div class="driver-rating">${rating}</div>
-                            <p class="driver-trips">${ride.nombre_trajets || 0} trajet${ride.nombre_trajets > 1 ? 's' : ''} effectué${ride.nombre_trajets > 1 ? 's' : ''}</p>
+                            <p class="driver-trips">${tripsText}</p>
                         </div>
                     </div>
                     
@@ -146,23 +187,7 @@ const displayRideDetails = (ride) => {
                     ` : ''}
                 </div>
                 
-                <div class="preferences-card">
-                    <h2>Préférences de voyage</h2>
-                    <div class="preferences-list">
-                        <div class="preference-item ${ride.animaux_acceptes ? 'accepted' : 'rejected'}">
-                            <span class="icon">🐕</span>
-                            <span>Animaux ${ride.animaux_acceptes ? 'acceptés' : 'non acceptés'}</span>
-                        </div>
-                        <div class="preference-item ${ride.fumeur_accepte ? 'accepted' : 'rejected'}">
-                            <span class="icon">🚬</span>
-                            <span>Fumeurs ${ride.fumeur_accepte ? 'acceptés' : 'non acceptés'}</span>
-                        </div>
-                        <div class="preference-item ${ride.detour_possible ? 'accepted' : 'rejected'}">
-                            <span class="icon">🔄</span>
-                            <span>Détour ${ride.detour_possible ? 'possible' : 'non possible'}</span>
-                        </div>
-                    </div>
-                </div>
+                ${renderPreferences(ride)}
                 
                 ${ride.commentaire ? `
                     <div class="comment-card">
