@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 participateButton.disabled = true;
                 
                 const seatsEl = document.getElementById('ride-seats');
-                seatsEl.textContent = parseInt(seatsEl.textContent) - 1;
+                seatsEl.textContent = Number.parseInt(seatsEl.textContent) - 1;
             } catch (error) {
                 showNotification(`Erreur: ${error.message}`, 'error');
             }
