@@ -4,6 +4,65 @@
  * @file avis.js
  */
 
+/**
+ * Réinitialise les étoiles
+ * @param {NodeList|Array} stars - Liste des éléments étoile
+ */
+function resetStars(stars) {
+    for (const s of stars) {
+        s.classList.remove('active');
+        s.style.color = '#ddd';
+    }
+}
+
+/**
+ * Met à jour l'affichage des étoiles
+ * @param {NodeList|Array} stars - Liste des éléments étoile
+ * @param {number} value - Valeur de notation (1-5)
+ */
+function updateStars(stars, value) {
+    for (let i = 0; i < stars.length; i++) {
+        const s = stars[i];
+        if (i < value) {
+            s.classList.add('active');
+            s.style.color = '#ffc107';
+        } else {
+            s.classList.remove('active');
+            s.style.color = '#ddd';
+        }
+    }
+}
+
+/**
+ * Gère le survol d'une étoile
+ * @param {HTMLElement} star - Élément étoile survolé
+ * @param {NodeList|Array} stars - Liste des éléments étoile
+ */
+function handleStarHover(star, stars) {
+    const value = Number.parseInt(star.dataset.value);
+    stars.forEach((s, i) => {
+        s.style.color = i < value ? '#ffc107' : '#ddd';
+    });
+}
+
+/**
+ * Restaure l'affichage des étoiles à leur état actuel
+ * @param {NodeList|Array} stars - Liste des éléments étoile
+ * @param {HTMLInputElement} input - Input contenant la valeur actuelle
+ */
+function restoreStarState(stars, input) {
+    const currentValue = Number.parseInt(input.value) || 0;
+    stars.forEach((s, i) => {
+        if (i < currentValue) {
+            s.classList.add('active');
+            s.style.color = '#ffc107';
+        } else {
+            s.classList.remove('active');
+            s.style.color = '#ddd';
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     if (!window.location.pathname.includes('avis.html')) return;
     
@@ -60,58 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
             input.value = value;
             updateStars(stars, value);
         }
-    }
-
-    /**
-     * Réinitialise les étoiles
-     */
-    function resetStars(stars) {
-        for (const s of stars) {
-            s.classList.remove('active');
-            s.style.color = '#ddd';
-        }
-    }
-
-    /**
-     * Met à jour l'affichage des étoiles
-     */
-    function updateStars(stars, value) {
-        for (let i = 0; i < stars.length; i++) {
-            const s = stars[i];
-            if (i < value) {
-                s.classList.add('active');
-                s.style.color = '#ffc107';
-            } else {
-                s.classList.remove('active');
-                s.style.color = '#ddd';
-            }
-        }
-    }
-
-    /**
-     * Gère le survol d'une étoile
-     */
-    function handleStarHover(star, stars) {
-        const value = Number.parseInt(star.dataset.value);
-        stars.forEach((s, i) => {
-            s.style.color = i < value ? '#ffc107' : '#ddd';
-        });
-    }
-
-    /**
-     * Restaure l'affichage des étoiles à leur état actuel
-     */
-    function restoreStarState(stars, input) {
-        const currentValue = Number.parseInt(input.value) || 0;
-        stars.forEach((s, i) => {
-            if (i < currentValue) {
-                s.classList.add('active');
-                s.style.color = '#ffc107';
-            } else {
-                s.classList.remove('active');
-                s.style.color = '#ddd';
-            }
-        });
     }
 
     /**
