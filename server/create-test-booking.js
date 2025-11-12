@@ -1,7 +1,13 @@
 // Script pour créer une réservation test terminée
+// ⚠️  ATTENTION: Ce script est destiné au développement/tests uniquement
+// ⚠️  NE JAMAIS EXÉCUTER EN PRODUCTION
 require('dotenv').config();
 const mongoose = require('mongoose');
 const mysql = require('mysql2/promise');
+const { TEST_DRIVER, ensureDevelopmentEnvironment } = require('./config/test-data');
+
+// Vérification environnement avant toute opération
+ensureDevelopmentEnvironment();
 
 // Schémas MongoDB
 const userSchema = new mongoose.Schema({
@@ -75,22 +81,22 @@ async function ensureSqlId(user, connection) {
  * @returns {Promise<{driver: Object, driverSqlId: number}>}
  */
 async function getOrCreateDriver(connection) {
-    let driver = await User.findOne({ email: 'chauffeur@ecoride.fr' });
+    let driver = await User.findOne({ email: TEST_DRIVER.email });
     let driverSqlId;
     
     if (!driver) {
-        // Créer dans MySQL puis MongoDB
+        // Créer dans MySQL puis MongoDB avec données de test
         const [driverResult] = await connection.execute(
             `INSERT INTO users (pseudo, email, password_hash, user_type) 
              VALUES (?, ?, ?, ?)`,
-            ['Jean Dupont', 'chauffeur@ecoride.fr', '$2a$10$abcdefghijklmnopqrstuvwxyz123456', 'chauffeur']
+            [TEST_DRIVER.pseudo, TEST_DRIVER.email, TEST_DRIVER.passwordHash, TEST_DRIVER.userType]
         );
         
         driverSqlId = driverResult.insertId;
         driver = new User({
-            pseudo: 'Jean Dupont',
-            email: 'chauffeur@ecoride.fr',
-            password: '$2a$10$abcdefghijklmnopqrstuvwxyz123456',
+            pseudo: TEST_DRIVER.pseudo,
+            email: TEST_DRIVER.email,
+            password: TEST_DRIVER.passwordHash, // Hash bcrypt de "test123" - pour tests uniquement
             sql_id: driverSqlId
         });
         await driver.save();
@@ -98,7 +104,7 @@ async function getOrCreateDriver(connection) {
         
         await connection.execute(
             `INSERT INTO user_credits (user_id, current_credits) VALUES (?, ?)`,
-            [driverSqlId, 20]
+            [driverSqlId, TEST_DRIVER.initialCredits]
         );
     } else {
         driverSqlId = await syncDriverToMySQL(driver, connection);
