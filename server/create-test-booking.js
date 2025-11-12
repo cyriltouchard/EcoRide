@@ -41,6 +41,184 @@ const User = mongoose.model('User', userSchema);
 const Vehicle = mongoose.model('Vehicle', vehicleSchema);
 const Ride = mongoose.model('Ride', rideSchema);
 
+/**
+ * Trouve ou synchronise l'ID SQL d'un utilisateur
+ * @param {Object} user - Utilisateur MongoDB
+ * @param {Object} connection - Connexion MySQL
+ * @returns {Promise<number>} ID SQL de l'utilisateur
+ */
+async function ensureSqlId(user, connection) {
+    if (user.sql_id) {
+        return user.sql_id;
+    }
+    
+    console.log('⚠️  L\'utilisateur n\'a pas de sql_id, recherche dans MySQL...');
+    const [sqlUsers] = await connection.execute(
+        `SELECT id FROM users WHERE email = ?`,
+        [user.email]
+    );
+    
+    if (sqlUsers.length === 0) {
+        console.log('❌ Utilisateur non trouvé dans MySQL');
+        process.exit(1);
+    }
+    
+    user.sql_id = sqlUsers[0].id;
+    await user.save();
+    console.log('✅ sql_id trouvé et mis à jour:', user.sql_id);
+    return user.sql_id;
+}
+
+/**
+ * Crée ou trouve un chauffeur dans les deux bases
+ * @param {Object} connection - Connexion MySQL
+ * @returns {Promise<{driver: Object, driverSqlId: number}>}
+ */
+async function getOrCreateDriver(connection) {
+    let driver = await User.findOne({ email: 'chauffeur@ecoride.fr' });
+    let driverSqlId;
+    
+    if (!driver) {
+        // Créer dans MySQL puis MongoDB
+        const [driverResult] = await connection.execute(
+            `INSERT INTO users (pseudo, email, password_hash, user_type) 
+             VALUES (?, ?, ?, ?)`,
+            ['Jean Dupont', 'chauffeur@ecoride.fr', '$2a$10$abcdefghijklmnopqrstuvwxyz123456', 'chauffeur']
+        );
+        
+        driverSqlId = driverResult.insertId;
+        driver = new User({
+            pseudo: 'Jean Dupont',
+            email: 'chauffeur@ecoride.fr',
+            password: '$2a$10$abcdefghijklmnopqrstuvwxyz123456',
+            sql_id: driverSqlId
+        });
+        await driver.save();
+        console.log('✅ Chauffeur créé:', driver.pseudo, '(SQL ID:', driverSqlId, ')');
+        
+        await connection.execute(
+            `INSERT INTO user_credits (user_id, current_credits) VALUES (?, ?)`,
+            [driverSqlId, 20]
+        );
+    } else {
+        driverSqlId = await syncDriverToMySQL(driver, connection);
+    }
+    
+    return { driver, driverSqlId };
+}
+
+/**
+ * Synchronise un chauffeur existant avec MySQL
+ * @param {Object} driver - Chauffeur MongoDB
+ * @param {Object} connection - Connexion MySQL
+ * @returns {Promise<number>} ID SQL du chauffeur
+ */
+async function syncDriverToMySQL(driver, connection) {
+    const [sqlDrivers] = await connection.execute(
+        `SELECT id FROM users WHERE email = ?`,
+        [driver.email]
+    );
+    
+    if (sqlDrivers.length > 0) {
+        const driverSqlId = sqlDrivers[0].id;
+        if (driver.sql_id !== driverSqlId) {
+            driver.sql_id = driverSqlId;
+            await driver.save();
+        }
+        console.log('✅ Chauffeur trouvé:', driver.pseudo, '(SQL ID:', driverSqlId, ')');
+        return driverSqlId;
+    }
+    
+    // Créer dans MySQL si absent
+    console.log('⚠️  Chauffeur existe dans MongoDB mais pas dans MySQL, création...');
+    const [driverResult] = await connection.execute(
+        `INSERT INTO users (pseudo, email, password_hash, user_type) 
+         VALUES (?, ?, ?, ?)`,
+        [driver.pseudo, driver.email, driver.password, 'chauffeur']
+    );
+    
+    const driverSqlId = driverResult.insertId;
+    driver.sql_id = driverSqlId;
+    await driver.save();
+    console.log('✅ Chauffeur créé dans MySQL (SQL ID:', driverSqlId, ')');
+    
+    await connection.execute(
+        `INSERT INTO user_credits (user_id, current_credits) VALUES (?, ?)`,
+        [driverSqlId, 20]
+    );
+    
+    return driverSqlId;
+}
+
+/**
+ * Crée ou trouve un véhicule dans les deux bases
+ * @param {Object} driver - Chauffeur MongoDB
+ * @param {number} driverSqlId - ID SQL du chauffeur
+ * @param {Object} connection - Connexion MySQL
+ * @returns {Promise<{vehicle: Object, vehicleSqlId: number}>}
+ */
+async function getOrCreateVehicle(driver, driverSqlId, connection) {
+    let vehicle = await Vehicle.findOne({ userId: driver._id });
+    let vehicleSqlId;
+    
+    if (!vehicle) {
+        console.log('🚗 Création du véhicule dans MySQL avec driver sql_id =', driverSqlId);
+        const [vehicleResult] = await connection.execute(
+            `INSERT INTO vehicles (user_id, brand, model, color, license_plate, energy_type, available_seats)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [driverSqlId, 'Renault', 'Zoé', 'Bleu', 'EL-456-EC', 'electrique', 4]
+        );
+        vehicleSqlId = vehicleResult.insertId;
+        
+        vehicle = new Vehicle({
+            userId: driver._id,
+            brand: 'Renault',
+            model: 'Zoé',
+            plate: 'EL-456-EC',
+            color: 'Bleu',
+            energy: 'electric',
+            seats: 4,
+            year: 2022
+        });
+        await vehicle.save();
+        console.log('✅ Véhicule créé:', vehicle.brand, vehicle.model, '(SQL ID:', vehicleSqlId, ')');
+    } else {
+        vehicleSqlId = await syncVehicleToMySQL(vehicle, driverSqlId, connection);
+    }
+    
+    return { vehicle, vehicleSqlId };
+}
+
+/**
+ * Synchronise un véhicule existant avec MySQL
+ * @param {Object} vehicle - Véhicule MongoDB
+ * @param {number} driverSqlId - ID SQL du chauffeur
+ * @param {Object} connection - Connexion MySQL
+ * @returns {Promise<number>} ID SQL du véhicule
+ */
+async function syncVehicleToMySQL(vehicle, driverSqlId, connection) {
+    const [sqlVehicles] = await connection.execute(
+        `SELECT id FROM vehicles WHERE license_plate = ?`,
+        [vehicle.plate]
+    );
+    
+    if (sqlVehicles.length > 0) {
+        console.log('✅ Véhicule trouvé:', vehicle.brand, vehicle.model, '(SQL ID:', sqlVehicles[0].id, ')');
+        return sqlVehicles[0].id;
+    }
+    
+    console.log('❌ Véhicule non trouvé dans MySQL, création...');
+    const energyType = vehicle.energy === 'electric' ? 'electrique' : vehicle.energy;
+    const [vehicleResult] = await connection.execute(
+        `INSERT INTO vehicles (user_id, brand, model, color, license_plate, energy_type, available_seats)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [driverSqlId, vehicle.brand, vehicle.model, vehicle.color, vehicle.plate, energyType, vehicle.seats]
+    );
+    
+    console.log('✅ Véhicule créé dans MySQL (SQL ID:', vehicleResult.insertId, ')');
+    return vehicleResult.insertId;
+}
+
 async function createTestBooking() {
     let connection;
     
@@ -54,11 +232,11 @@ async function createTestBooking() {
             host: process.env.DB_HOST || 'localhost',
             user: process.env.DB_USER || 'root',
             password: process.env.DB_PASSWORD || 'rootpassword',
-            database: process.env.DB_NAME || 'ecoride' // Utiliser ecoride par défaut (pas ecoride_sql)
+            database: process.env.DB_NAME || 'ecoride'
         });
         console.log('✅ Connecté à MySQL (base:', process.env.DB_NAME || 'ecoride', ')');
 
-        // Trouver un utilisateur passager (utilisateur connecté)
+        // Trouver le passager
         const passenger = await User.findOne({ email: 'admin@ecoride.fr' });
         if (!passenger) {
             console.log('❌ Utilisateur passager non trouvé (admin@ecoride.fr)');
@@ -66,139 +244,14 @@ async function createTestBooking() {
             process.exit(1);
         }
         
-        // Vérifier que l'utilisateur a un sql_id
-        if (!passenger.sql_id) {
-            console.log('⚠️  L\'utilisateur n\'a pas de sql_id, recherche dans MySQL...');
-            const [sqlUsers] = await connection.execute(
-                `SELECT id FROM users WHERE email = ?`,
-                [passenger.email]
-            );
-            
-            if (sqlUsers.length > 0) {
-                passenger.sql_id = sqlUsers[0].id;
-                await passenger.save();
-                console.log('✅ sql_id trouvé et mis à jour:', passenger.sql_id);
-            } else {
-                console.log('❌ Utilisateur non trouvé dans MySQL');
-                process.exit(1);
-            }
-        }
-        
+        await ensureSqlId(passenger, connection);
         console.log('✅ Passager trouvé:', passenger.pseudo, '(Mongo ID:', passenger._id.toString(), ', SQL ID:', passenger.sql_id, ')');
 
-        // Créer ou trouver un chauffeur différent dans MongoDB
-        let driver = await User.findOne({ email: 'chauffeur@ecoride.fr' });
-        let driverSqlId;
-        
-        if (!driver) {
-            // Créer d'abord dans MySQL
-            const [driverResult] = await connection.execute(
-                `INSERT INTO users (pseudo, email, password_hash, user_type) 
-                 VALUES (?, ?, ?, ?)`,
-                ['Jean Dupont', 'chauffeur@ecoride.fr', '$2a$10$abcdefghijklmnopqrstuvwxyz123456', 'chauffeur']
-            );
-            
-            driverSqlId = driverResult.insertId;
-            
-            // Puis dans MongoDB
-            driver = new User({
-                pseudo: 'Jean Dupont',
-                email: 'chauffeur@ecoride.fr',
-                password: '$2a$10$abcdefghijklmnopqrstuvwxyz123456',
-                sql_id: driverSqlId
-            });
-            await driver.save();
-            console.log('✅ Chauffeur créé:', driver.pseudo, '(SQL ID:', driverSqlId, ')');
-            
-            // Créer les crédits pour le chauffeur
-            await connection.execute(
-                `INSERT INTO user_credits (user_id, current_credits) VALUES (?, ?)`,
-                [driverSqlId, 20]
-            );
-        } else {
-            // Vérifier que le chauffeur existe dans MySQL
-            const [sqlDrivers] = await connection.execute(
-                `SELECT id FROM users WHERE email = ?`,
-                [driver.email]
-            );
-            
-            if (sqlDrivers.length > 0) {
-                driverSqlId = sqlDrivers[0].id;
-                // Mettre à jour le sql_id dans MongoDB si nécessaire
-                if (driver.sql_id !== driverSqlId) {
-                    driver.sql_id = driverSqlId;
-                    await driver.save();
-                }
-                console.log('✅ Chauffeur trouvé:', driver.pseudo, '(SQL ID:', driverSqlId, ')');
-            } else {
-                // Le chauffeur existe dans MongoDB mais pas dans MySQL, le créer
-                console.log('⚠️  Chauffeur existe dans MongoDB mais pas dans MySQL, création...');
-                const [driverResult] = await connection.execute(
-                    `INSERT INTO users (pseudo, email, password_hash, user_type) 
-                     VALUES (?, ?, ?, ?)`,
-                    [driver.pseudo, driver.email, driver.password, 'chauffeur']
-                );
-                
-                driverSqlId = driverResult.insertId;
-                driver.sql_id = driverSqlId;
-                await driver.save();
-                console.log('✅ Chauffeur créé dans MySQL (SQL ID:', driverSqlId, ')');
-                
-                // Créer les crédits
-                await connection.execute(
-                    `INSERT INTO user_credits (user_id, current_credits) VALUES (?, ?)`,
-                    [driverSqlId, 20]
-                );
-            }
-        }
+        // Créer ou trouver le chauffeur
+        const { driver, driverSqlId } = await getOrCreateDriver(connection);
 
-        // Créer un véhicule pour le chauffeur
-        let vehicle = await Vehicle.findOne({ userId: driver._id });
-        let vehicleSqlId;
-        
-        if (!vehicle) {
-            // Créer dans MySQL d'abord
-            console.log('🚗 Création du véhicule dans MySQL avec driver sql_id =', driverSqlId);
-            const [vehicleResult] = await connection.execute(
-                `INSERT INTO vehicles (user_id, brand, model, color, license_plate, energy_type, available_seats)
-                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                [driverSqlId, 'Renault', 'Zoé', 'Bleu', 'EL-456-EC', 'electrique', 4]
-            );
-            vehicleSqlId = vehicleResult.insertId;
-            
-            // Puis dans MongoDB
-            vehicle = new Vehicle({
-                userId: driver._id,
-                brand: 'Renault',
-                model: 'Zoé',
-                plate: 'EL-456-EC',
-                color: 'Bleu',
-                energy: 'electric',
-                seats: 4,
-                year: 2022
-            });
-            await vehicle.save();
-            console.log('✅ Véhicule créé:', vehicle.brand, vehicle.model, '(SQL ID:', vehicleSqlId, ')');
-        } else {
-            // Trouver l'ID SQL du véhicule
-            const [sqlVehicles] = await connection.execute(
-                `SELECT id FROM vehicles WHERE license_plate = ?`,
-                [vehicle.plate]
-            );
-            if (sqlVehicles.length > 0) {
-                vehicleSqlId = sqlVehicles[0].id;
-                console.log('✅ Véhicule trouvé:', vehicle.brand, vehicle.model, '(SQL ID:', vehicleSqlId, ')');
-            } else {
-                console.log('❌ Véhicule non trouvé dans MySQL, création...');
-                const [vehicleResult] = await connection.execute(
-                    `INSERT INTO vehicles (user_id, brand, model, color, license_plate, energy_type, available_seats)
-                     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                    [driverSqlId, vehicle.brand, vehicle.model, vehicle.color, vehicle.plate, vehicle.energy === 'electric' ? 'electrique' : vehicle.energy, vehicle.seats]
-                );
-                vehicleSqlId = vehicleResult.insertId;
-                console.log('✅ Véhicule créé dans MySQL (SQL ID:', vehicleSqlId, ')');
-            }
-        }
+        // Créer ou trouver le véhicule
+        const { vehicle, vehicleSqlId } = await getOrCreateVehicle(driver, driverSqlId, connection);
 
         // Créer un trajet terminé (dans le passé)
         const pastDate = new Date();
