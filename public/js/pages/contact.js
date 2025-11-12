@@ -7,6 +7,7 @@
 import { createFetchWithAuth, API_BASE_URL } from '../common/auth.js';
 import { showNotification, showLoading } from '../common/notifications.js';
 import { validateAndSanitizeInput } from '../common/utils.js';
+import { isValidEmail } from '../common/validation.js';
 
 /**
  * Valide les données du formulaire de contact
@@ -24,8 +25,8 @@ const validateContactForm = (formData) => {
         errors.prenom = 'Le prénom doit contenir au moins 2 caractères';
     }
     
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
+    // Validation email sécurisée contre ReDoS
+    if (!isValidEmail(formData.email)) {
         errors.email = 'Adresse email invalide';
     }
     

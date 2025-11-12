@@ -4,6 +4,8 @@
  * @file contact.js
  */
 
+import { isValidEmail } from './common/validation.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('📧 Page contact initialisée');
     
@@ -24,9 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Validation de l'email
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
+            // Validation de l'email avec fonction sécurisée contre ReDoS
+            if (!isValidEmail(email)) {
                 showNotification('Veuillez entrer une adresse email valide', 'error');
                 return;
             }

@@ -7,6 +7,7 @@
 import { register } from '../common/auth.js';
 import { showNotification, showLoading } from '../common/notifications.js';
 import { validateAndSanitizeInput } from '../common/utils.js';
+import { EMAIL_REGEX, PHONE_REGEX, isValidEmail, isValidPhone, isValidPassword, isValidAge } from '../common/validation.js';
 
 /**
  * Configuration des règles de validation
@@ -14,9 +15,7 @@ import { validateAndSanitizeInput } from '../common/utils.js';
 const VALIDATION_RULES = {
     PSEUDO_MIN_LENGTH: 3,
     PASSWORD_MIN_LENGTH: 8,
-    MIN_AGE: 18,
-    EMAIL_REGEX: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-    PHONE_REGEX: /^0[1-9](\d{8})$/
+    MIN_AGE: 18
 };
 
 /**
@@ -32,18 +31,18 @@ const validateRegistrationForm = (formData) => {
         errors.pseudo = `Le pseudo doit contenir au moins ${VALIDATION_RULES.PSEUDO_MIN_LENGTH} caractères`;
     }
     
-    // Validation de l'email
-    if (!VALIDATION_RULES.EMAIL_REGEX.test(formData.email)) {
+    // Validation de l'email avec fonction sécurisée
+    if (!isValidEmail(formData.email)) {
         errors.email = 'Adresse email invalide';
     }
     
-    // Validation du téléphone
-    if (!VALIDATION_RULES.PHONE_REGEX.test(formData.telephone.replaceAll(/\s/g, ''))) {
+    // Validation du téléphone avec fonction sécurisée
+    if (!isValidPhone(formData.telephone)) {
         errors.telephone = 'Numéro de téléphone invalide (format: 0XXXXXXXXX)';
     }
     
-    // Validation du mot de passe
-    if (!formData.password || formData.password.length < VALIDATION_RULES.PASSWORD_MIN_LENGTH) {
+    // Validation du mot de passe avec fonction sécurisée
+    if (!isValidPassword(formData.password, VALIDATION_RULES.PASSWORD_MIN_LENGTH)) {
         errors.password = `Le mot de passe doit contenir au moins ${VALIDATION_RULES.PASSWORD_MIN_LENGTH} caractères`;
     }
     
@@ -52,10 +51,8 @@ const validateRegistrationForm = (formData) => {
         errors.confirmPassword = 'Les mots de passe ne correspondent pas';
     }
     
-    // Validation de la date de naissance
-    const birthDate = new Date(formData.date_naissance);
-    const age = (Date.now() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
-    if (age < VALIDATION_RULES.MIN_AGE) {
+    // Validation de la date de naissance avec fonction sécurisée
+    if (!isValidAge(formData.date_naissance, VALIDATION_RULES.MIN_AGE)) {
         errors.date_naissance = `Vous devez avoir au moins ${VALIDATION_RULES.MIN_AGE} ans`;
     }
     

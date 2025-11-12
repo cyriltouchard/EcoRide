@@ -4,11 +4,19 @@ const Review = require('../models/reviewModel');
 
 // Helper: sanitize simple strings and validate emails to prevent NoSQL injection
 const sanitizeString = (s) => (typeof s === 'string' ? s.trim() : '');
+
+/**
+ * Valide une adresse email (sécurisé contre ReDoS)
+ * Utilise une regex optimisée basée sur RFC 5322 (simplifiée)
+ * Évite le backtracking excessif avec quantificateurs bornés
+ */
 const isValidEmail = (e) => {
     if (typeof e !== 'string') return false;
     const email = e.trim();
     if (email.length === 0 || email.length > 254) return false;
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    
+    // Regex sécurisée contre ReDoS avec quantificateurs bornés
+    return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(email);
 };
 
 // Créer un employé

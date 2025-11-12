@@ -12,8 +12,8 @@ function initializePaymentPage() {
     // Récupérer les paramètres de l'URL
     const urlParams = new URLSearchParams(window.location.search);
     const packageType = urlParams.get('package') || 'discovery';
-    const credits = parseInt(urlParams.get('credits')) || 10;
-    const price = parseFloat(urlParams.get('price')) || 5.00;
+    const credits = number.parseInt(urlParams.get('credits')) || 10;
+    const price = number.parseFloat(urlParams.get('price')) || 5.00;
 
     console.log('📦 Package sélectionné:', { packageType, credits, price });
 
