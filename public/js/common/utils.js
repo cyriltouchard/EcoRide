@@ -44,7 +44,7 @@ export const validateAndSanitizeInput = (input, maxLength = 500) => {
  * @param {HTMLInputElement} input - Champ input à modifier
  */
 export const capitalizeFirstLetter = (input) => {
-    if (!input || !input.value) return;
+    if (!input?.value) return;
     const words = input.value.split(' ');
     const capitalized = words.map(word => {
         if (word.length === 0) return word;
