@@ -154,7 +154,7 @@ async function handlePaymentSubmit(e) {
         });
 
         if (response.ok) {
-            const data = await response.json();
+            await response.json();
             showNotification(
                 `✅ Paiement réussi ! ${selectedPackage.credits} crédits ajoutés à votre compte`,
                 'success'
