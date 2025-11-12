@@ -1,10 +1,15 @@
 // Script de validation de sécurité - Vérifie qu'aucun secret n'est hardcodé
 // Usage: node security-check.js
+//
+// ⚠️  IMPORTANT: Ce script utilise des regex sécurisées contre ReDoS
+// Toutes les regex utilisent des quantificateurs bornés (ex: {3,100} au lieu de +)
+// pour éviter le backtracking excessif et les attaques par déni de service.
 
 const fs = require('fs');
 const path = require('path');
 
 // Patterns dangereux à détecter
+// Note: Toutes les regex sont protégées contre ReDoS avec quantificateurs bornés
 const SECURITY_PATTERNS = [
     {
         name: 'Hachage bcrypt hardcodé',
@@ -14,33 +19,38 @@ const SECURITY_PATTERNS = [
     },
     {
         name: 'Mot de passe en clair',
-        regex: /(password|pwd)\s*[=:]\s*['"][^'"$]{3,}['"]/gi,
+        // Regex sécurisée contre ReDoS avec quantificateurs bornés
+        regex: /(password|pwd)\s*[=:]\s*['"][^'"$]{3,100}['"]/gi,
         severity: 'HAUTE',
         description: 'Mot de passe potentiel en clair',
         exclude: ['password = await', 'password:', 'password =', 'password.value', 'password.trim', 'password.length']
     },
     {
         name: 'Clé API hardcodée',
-        regex: /(api[_-]?key|apikey)\s*[=:]\s*['"][^'"$]{10,}['"]/gi,
+        // Regex sécurisée contre ReDoS avec quantificateurs bornés
+        regex: /(api[_-]?key|apikey)\s*[=:]\s*['"][^'"$]{10,100}['"]/gi,
         severity: 'HAUTE',
         description: 'Clé API potentiellement hardcodée'
     },
     {
         name: 'Token hardcodé',
-        regex: /(token|bearer)\s*[=:]\s*['"][^'"$]{20,}['"]/gi,
+        // Regex sécurisée contre ReDoS avec quantificateurs bornés
+        regex: /(token|bearer)\s*[=:]\s*['"][^'"$]{20,200}['"]/gi,
         severity: 'HAUTE',
         description: 'Token potentiellement hardcodé',
         exclude: ['token = localStorage', 'token:', 'token.']
     },
     {
         name: 'Secret JWT hardcodé',
-        regex: /(jwt[_-]?secret|secret[_-]?key)\s*[=:]\s*['"][^'"$]{10,}['"]/gi,
+        // Regex sécurisée contre ReDoS avec quantificateurs bornés
+        regex: /(jwt[_-]?secret|secret[_-]?key)\s*[=:]\s*['"][^'"$]{10,100}['"]/gi,
         severity: 'CRITIQUE',
         description: 'Secret JWT potentiellement hardcodé'
     },
     {
         name: 'Chaîne de connexion DB',
-        regex: /(mongodb|mysql|postgresql):\/\/[^'"$]+:[^'"$]+@/gi,
+        // Regex sécurisée contre ReDoS avec quantificateurs bornés
+        regex: /(mongodb|mysql|postgresql):\/\/[^'"$]{1,256}:[^'"$]{1,256}@/gi,
         severity: 'HAUTE',
         description: 'Chaîne de connexion avec mot de passe',
         exclude: ['replace_with', 'your_password', 'password']
