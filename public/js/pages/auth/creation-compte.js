@@ -9,6 +9,17 @@ import { showNotification, showLoading } from '../common/notifications.js';
 import { validateAndSanitizeInput } from '../common/utils.js';
 
 /**
+ * Configuration des règles de validation
+ */
+const VALIDATION_RULES = {
+    PSEUDO_MIN_LENGTH: 3,
+    PASSWORD_MIN_LENGTH: 8,
+    MIN_AGE: 18,
+    EMAIL_REGEX: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    PHONE_REGEX: /^0[1-9](\d{8})$/
+};
+
+/**
  * Valide les champs du formulaire
  * @param {Object} formData - Données du formulaire
  * @returns {Object|null} Erreurs ou null si valide
@@ -17,25 +28,23 @@ const validateRegistrationForm = (formData) => {
     const errors = {};
     
     // Validation du pseudo
-    if (!formData.pseudo || formData.pseudo.length < 3) {
-        errors.pseudo = 'Le pseudo doit contenir au moins 3 caractères';
+    if (!formData.pseudo || formData.pseudo.length < VALIDATION_RULES.PSEUDO_MIN_LENGTH) {
+        errors.pseudo = `Le pseudo doit contenir au moins ${VALIDATION_RULES.PSEUDO_MIN_LENGTH} caractères`;
     }
     
     // Validation de l'email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
+    if (!VALIDATION_RULES.EMAIL_REGEX.test(formData.email)) {
         errors.email = 'Adresse email invalide';
     }
     
     // Validation du téléphone
-    const phoneRegex = /^0[1-9](\d{8})$/;
-    if (!phoneRegex.test(formData.telephone.replaceAll(/\s/g, ''))) {
+    if (!VALIDATION_RULES.PHONE_REGEX.test(formData.telephone.replaceAll(/\s/g, ''))) {
         errors.telephone = 'Numéro de téléphone invalide (format: 0XXXXXXXXX)';
     }
     
     // Validation du mot de passe
-    if (!formData.password || formData.password.length < 8) {
-        errors.password = 'Le mot de passe doit contenir au moins 8 caractères';
+    if (!formData.password || formData.password.length < VALIDATION_RULES.PASSWORD_MIN_LENGTH) {
+        errors.password = `Le mot de passe doit contenir au moins ${VALIDATION_RULES.PASSWORD_MIN_LENGTH} caractères`;
     }
     
     // Validation de la confirmation
@@ -46,8 +55,8 @@ const validateRegistrationForm = (formData) => {
     // Validation de la date de naissance
     const birthDate = new Date(formData.date_naissance);
     const age = (Date.now() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
-    if (age < 18) {
-        errors.date_naissance = 'Vous devez avoir au moins 18 ans';
+    if (age < VALIDATION_RULES.MIN_AGE) {
+        errors.date_naissance = `Vous devez avoir au moins ${VALIDATION_RULES.MIN_AGE} ans`;
     }
     
     return Object.keys(errors).length > 0 ? errors : null;
