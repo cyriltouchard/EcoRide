@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const { testConnection } = require('./config/db-mysql'); // Connexion MySQL
@@ -76,9 +77,11 @@ app.options('*', cors(corsOptions));
 // Middleware pour parser le JSON
 app.use(express.json());
 
-// Servir les fichiers statiques du front-end
-// Le dossier 'public' est à la racine du projet, donc on remonte d'un niveau
-app.use(express.static('../public'));
+// Servir les fichiers statiques
+// Servir les fichiers du dossier public (CSS, JS, images)
+app.use('/public', express.static(path.join(__dirname, '..', 'public')));
+// Servir les fichiers HTML à la racine du projet
+app.use(express.static(path.join(__dirname, '..')));
 
 // Routes
 // Une route de base pour vérifier que l'API est fonctionnelle.
