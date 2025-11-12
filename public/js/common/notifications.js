@@ -51,7 +51,7 @@ export const showNotification = (message, type = 'info', duration = 5000) => {
     
     // Supprimer après la durée spécifiée
     setTimeout(() => {
-        if (notification && notification.parentNode) {
+        if (notification?.parentNode) {
             notification.style.animation = 'slideOutRight 0.3s ease-out';
             setTimeout(() => notification.remove(), 300);
         }
