@@ -100,7 +100,7 @@ const renderPreferences = (ride) => {
             <h2>Préférences de voyage</h2>
             <div class="preferences-list">
                 <div class="preference-item ${ride.animaux_acceptes ? 'accepted' : 'rejected'}">
-                    <span class="icon">�</span>
+                    <span class="icon">🐾</span>
                     <span>Animaux ${ride.animaux_acceptes ? 'acceptés' : 'non acceptés'}</span>
                 </div>
                 <div class="preference-item ${ride.fumeur_accepte ? 'accepted' : 'rejected'}">
