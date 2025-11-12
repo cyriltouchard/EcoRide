@@ -515,6 +515,51 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /**
+     * Affiche les statistiques de notation
+     */
+    function renderRatingStats(statsContainer, ratingData) {
+        if (ratingData.success && ratingData.rating && ratingData.rating.total_reviews > 0) {
+            const stats = ratingData.rating;
+            const stars = '⭐'.repeat(Math.round(stats.avg_rating));
+            
+            statsContainer.innerHTML = `
+                <div class="rating-overview">
+                    <div class="rating-score">
+                        <div class="score-number">${stats.avg_rating.toFixed(1)}</div>
+                        <div class="score-stars">${stars}</div>
+                        <div class="score-count">${stats.total_reviews} avis</div>
+                    </div>
+                    <div class="rating-breakdown">
+                        <div class="rating-criteria">
+                            <span>⏰ Ponctualité:</span>
+                            <strong>${stats.avg_punctuality ? stats.avg_punctuality.toFixed(1) : 'N/A'}/5</strong>
+                        </div>
+                        <div class="rating-criteria">
+                            <span>🚗 Conduite:</span>
+                            <strong>${stats.avg_driving_quality ? stats.avg_driving_quality.toFixed(1) : 'N/A'}/5</strong>
+                        </div>
+                        <div class="rating-criteria">
+                            <span>✨ Propreté:</span>
+                            <strong>${stats.avg_vehicle_cleanliness ? stats.avg_vehicle_cleanliness.toFixed(1) : 'N/A'}/5</strong>
+                        </div>
+                        <div class="rating-criteria">
+                            <span>😊 Amabilité:</span>
+                            <strong>${stats.avg_friendliness ? stats.avg_friendliness.toFixed(1) : 'N/A'}/5</strong>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            statsContainer.innerHTML = `
+                <div class="no-rating-yet">
+                    <p>Vous n'avez pas encore reçu de notes.</p>
+                    <p>Proposez des trajets pour commencer à recevoir des avis !</p>
+                </div>
+            `;
+        }
+    }
+
+    /**
      * Charge les notes et avis reçus
      */
     async function loadMyRatings() {
@@ -534,45 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (!statsContainer || !reviewsList || !noReviewsMsg) return;
             
-            if (ratingData.success && ratingData.rating && ratingData.rating.total_reviews > 0) {
-                const stats = ratingData.rating;
-                const stars = '⭐'.repeat(Math.round(stats.avg_rating));
-                
-                statsContainer.innerHTML = `
-                    <div class="rating-overview">
-                        <div class="rating-score">
-                            <div class="score-number">${stats.avg_rating.toFixed(1)}</div>
-                            <div class="score-stars">${stars}</div>
-                            <div class="score-count">${stats.total_reviews} avis</div>
-                        </div>
-                        <div class="rating-breakdown">
-                            <div class="rating-criteria">
-                                <span>⏰ Ponctualité:</span>
-                                <strong>${stats.avg_punctuality ? stats.avg_punctuality.toFixed(1) : 'N/A'}/5</strong>
-                            </div>
-                            <div class="rating-criteria">
-                                <span>🚗 Conduite:</span>
-                                <strong>${stats.avg_driving_quality ? stats.avg_driving_quality.toFixed(1) : 'N/A'}/5</strong>
-                            </div>
-                            <div class="rating-criteria">
-                                <span>✨ Propreté:</span>
-                                <strong>${stats.avg_vehicle_cleanliness ? stats.avg_vehicle_cleanliness.toFixed(1) : 'N/A'}/5</strong>
-                            </div>
-                            <div class="rating-criteria">
-                                <span>😊 Amabilité:</span>
-                                <strong>${stats.avg_friendliness ? stats.avg_friendliness.toFixed(1) : 'N/A'}/5</strong>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            } else {
-                statsContainer.innerHTML = `
-                    <div class="no-rating-yet">
-                        <p>Vous n'avez pas encore reçu de notes.</p>
-                        <p>Proposez des trajets pour commencer à recevoir des avis !</p>
-                    </div>
-                `;
-            }
+            renderRatingStats(statsContainer, ratingData);
             
             if (reviewsData.success && reviewsData.reviews && reviewsData.reviews.length > 0) {
                 noReviewsMsg.classList.add('hidden');
