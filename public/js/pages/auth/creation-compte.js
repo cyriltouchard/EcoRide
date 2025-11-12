@@ -7,7 +7,7 @@
 import { register } from '../common/auth.js';
 import { showNotification, showLoading } from '../common/notifications.js';
 import { validateAndSanitizeInput } from '../common/utils.js';
-import { EMAIL_REGEX, PHONE_REGEX, isValidEmail, isValidPhone, isValidPassword, isValidAge } from '../common/validation.js';
+import { isValidEmail, isValidPhone, isValidPassword, isValidAge, doPasswordsMatch } from '../common/validation.js';
 
 /**
  * Configuration des règles de validation
@@ -46,8 +46,8 @@ const validateRegistrationForm = (formData) => {
         errors.password = `Le mot de passe doit contenir au moins ${VALIDATION_RULES.PASSWORD_MIN_LENGTH} caractères`;
     }
     
-    // Validation de la confirmation
-    if (formData.password !== formData.confirmPassword) {
+    // Validation de la correspondance des mots de passe (pas de mot de passe codé en dur)
+    if (!doPasswordsMatch(formData.password, formData.confirmPassword)) {
         errors.confirmPassword = 'Les mots de passe ne correspondent pas';
     }
     

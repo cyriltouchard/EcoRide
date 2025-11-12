@@ -81,6 +81,19 @@ export const isValidPassword = (password, minLength = 8) => {
 };
 
 /**
+ * Vérifie que deux mots de passe correspondent
+ * @param {string} password - Mot de passe principal
+ * @param {string} confirmPassword - Mot de passe de confirmation
+ * @returns {boolean} True si les mots de passe correspondent
+ */
+export const doPasswordsMatch = (password, confirmPassword) => {
+    if (!password || !confirmPassword) return false;
+    if (typeof password !== 'string' || typeof confirmPassword !== 'string') return false;
+    
+    return password === confirmPassword;
+};
+
+/**
  * Valide un âge minimum
  * @param {string|Date} birthDate - Date de naissance
  * @param {number} minAge - Âge minimum requis (défaut: 18)
