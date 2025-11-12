@@ -23,12 +23,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content');
 
-    tabButtons.forEach(button => {
+    for (const button of tabButtons) {
         button.addEventListener('click', () => {
             const tabName = button.dataset.tab;
             
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            tabContents.forEach(content => content.classList.remove('active'));
+            for (const btn of tabButtons) {
+                btn.classList.remove('active');
+            }
+            for (const content of tabContents) {
+                content.classList.remove('active');
+            }
             
             button.classList.add('active');
             document.getElementById(`${tabName}-tab`).classList.add('active');
@@ -39,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadMyReviews();
             }
         });
-    });
+    }
 
     /**
      * Gère le clic sur une étoile
@@ -62,17 +66,18 @@ document.addEventListener('DOMContentLoaded', () => {
      * Réinitialise les étoiles
      */
     function resetStars(stars) {
-        stars.forEach(s => {
+        for (const s of stars) {
             s.classList.remove('active');
             s.style.color = '#ddd';
-        });
+        }
     }
 
     /**
      * Met à jour l'affichage des étoiles
      */
     function updateStars(stars, value) {
-        stars.forEach((s, i) => {
+        for (let i = 0; i < stars.length; i++) {
+            const s = stars[i];
             if (i < value) {
                 s.classList.add('active');
                 s.style.color = '#ffc107';
@@ -80,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 s.classList.remove('active');
                 s.style.color = '#ddd';
             }
-        });
+        }
     }
 
     /**

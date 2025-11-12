@@ -77,7 +77,7 @@ function initializeAcheterCredits() {
     }
 
     // Gérer le changement de méthode de paiement
-    document.querySelectorAll('input[name="payment-method"]').forEach(radio => {
+    for (const radio of document.querySelectorAll('input[name="payment-method"]')) {
         radio.addEventListener('change', function () {
             if (this.value === 'card') {
                 document.getElementById('card-payment-fields').style.display = 'block';
@@ -87,7 +87,7 @@ function initializeAcheterCredits() {
                 document.getElementById('paypal-payment-fields').style.display = 'block';
             }
         });
-    });
+    }
 
     // Gérer la soumission du paiement
     const paymentForm = document.getElementById('payment-form');
