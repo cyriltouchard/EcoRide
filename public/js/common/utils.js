@@ -26,11 +26,11 @@ export const validateAndSanitizeInput = (input, maxLength = 500) => {
     if (typeof input !== 'string') return '';
     
     // Supprimer les scripts malveillants
-    let cleaned = input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    let cleaned = input.replaceAll(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
     
     // Supprimer les événements JavaScript
-    cleaned = cleaned.replace(/on\w+="[^"]*"/gi, '');
-    cleaned = cleaned.replace(/on\w+='[^']*'/gi, '');
+    cleaned = cleaned.replaceAll(/on\w+="[^"]*"/gi, '');
+    cleaned = cleaned.replaceAll(/on\w+='[^']*'/gi, '');
     
     // Limiter la longueur
     cleaned = cleaned.substring(0, maxLength);
@@ -88,7 +88,7 @@ export const initFieldsCapitalization = () => {
  * @returns {string} Numéro formaté
  */
 export const formatCardNumber = (value) => {
-    const cleaned = value.replace(/\s/g, '');
+    const cleaned = value.replaceAll(/\s/g, '');
     return cleaned.match(/.{1,4}/g)?.join(' ') || cleaned;
 };
 

@@ -128,9 +128,9 @@ const sanitizeHTML = (str) => {
 const validateAndSanitizeInput = (input, maxLength = 500) => {
     if (typeof input !== 'string') return '';
     
-    let cleaned = input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-    cleaned = cleaned.replace(/on\w+="[^"]*"/gi, '');
-    cleaned = cleaned.replace(/on\w+='[^']*'/gi, '');
+    let cleaned = input.replaceAll(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    cleaned = cleaned.replaceAll(/on\w+="[^"]*"/gi, '');
+    cleaned = cleaned.replaceAll(/on\w+='[^']*'/gi, '');
     cleaned = cleaned.substring(0, maxLength);
     
     return sanitizeHTML(cleaned);

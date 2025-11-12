@@ -194,7 +194,7 @@ window.validateData = {
         return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
     },
     phone: (phone) => {
-        const cleaned = phone.replace(/\s/g, '');
+        const cleaned = phone.replaceAll(/\s/g, '');
         // Validation simplifiée pour éviter le backtracking
         return /^(?:\+33|0)[1-9]\d{8}$/.test(cleaned);
     },

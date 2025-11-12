@@ -29,7 +29,7 @@ const validateRegistrationForm = (formData) => {
     
     // Validation du téléphone
     const phoneRegex = /^0[1-9](\d{8})$/;
-    if (!phoneRegex.test(formData.telephone.replace(/\s/g, ''))) {
+    if (!phoneRegex.test(formData.telephone.replaceAll(/\s/g, ''))) {
         errors.telephone = 'Numéro de téléphone invalide (format: 0XXXXXXXXX)';
     }
     
@@ -167,7 +167,7 @@ const initRealTimeValidation = () => {
     if (phoneInput) {
         phoneInput.addEventListener('input', (e) => {
             // Formatage automatique: ajouter un espace tous les 2 chiffres
-            let value = e.target.value.replace(/\s/g, '');
+            let value = e.target.value.replaceAll(/\s/g, '');
             if (value.length > 10) value = value.substring(0, 10);
             e.target.value = value.match(/.{1,2}/g)?.join(' ') || value;
         });

@@ -133,7 +133,7 @@ const validateCardData = (cardData) => {
     const errors = {};
     
     // Validation du numéro de carte (Luhn algorithm)
-    const cardNumber = cardData.cardNumber.replace(/\s/g, '');
+    const cardNumber = cardData.cardNumber.replaceAll(/\s/g, '');
     if (!/^\d{16}$/.test(cardNumber)) {
         errors.cardNumber = 'Numéro de carte invalide (16 chiffres requis)';
     } else {
@@ -221,7 +221,7 @@ const processPurchase = async (packageId, cardData) => {
         },
         body: JSON.stringify({
             package_id: packageId,
-            card_number: cardData.cardNumber.replace(/\s/g, ''),
+            card_number: cardData.cardNumber.replaceAll(/\s/g, ''),
             card_holder: cardData.cardHolder,
             expiry: cardData.expiry,
             cvv: cardData.cvv
@@ -310,7 +310,7 @@ const initCardFormatting = () => {
     const cvvInput = document.getElementById('cvv');
     if (cvvInput) {
         cvvInput.addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
+            e.target.value = e.target.value.replaceAll(/\D/g, '').substring(0, 4);
         });
     }
 };

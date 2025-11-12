@@ -107,7 +107,7 @@ function setupCardFormatting() {
     const cardNumberInput = document.getElementById('card-number');
     if (cardNumberInput) {
         cardNumberInput.addEventListener('input', function (e) {
-            let value = e.target.value.replace(/\s/g, '');
+            let value = e.target.value.replaceAll(/\s/g, '');
             let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
             e.target.value = formattedValue;
         });
@@ -117,7 +117,7 @@ function setupCardFormatting() {
     const cardExpiryInput = document.getElementById('card-expiry');
     if (cardExpiryInput) {
         cardExpiryInput.addEventListener('input', function (e) {
-            let value = e.target.value.replace(/\D/g, '');
+            let value = e.target.value.replaceAll(/\D/g, '');
             if (value.length >= 2) {
                 value = value.slice(0, 2) + '/' + value.slice(2, 4);
             }
