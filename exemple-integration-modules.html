@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemple d'intégration - Modules EcoRide</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="public/css/index.css">
+    
+    <!-- 
+        IMPORTANT: Utiliser type="module" pour charger main.js
+        Cela active l'architecture modulaire ES6
+    -->
+    <script type="module" src="public/js/main.js"></script>
+    
+    <!-- 
+        ANCIEN SYSTÈME (à supprimer après migration complète):
+        <script src="public/js/script-backup.js"></script>
+    -->
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <a href="index.html" class="logo">
+                    <img src="public/images/logo.png" alt="EcoRide">
+                </a>
+                
+                <ul class="nav-links">
+                    <li><a href="index.html">Accueil</a></li>
+                    <li><a href="covoiturages.html">Covoiturages</a></li>
+                    <li><a href="proposer-covoiturage.html">Proposer un trajet</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+                
+                <div class="nav-auth">
+                    <a href="connexion.html" class="btn btn-outline">Connexion</a>
+                    <a href="creation-compte.html" class="btn btn-primary">Inscription</a>
+                </div>
+                
+                <button class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+    
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Exemple d'intégration des modules</h1>
+                <p>Cette page montre comment utiliser la nouvelle architecture modulaire</p>
+            </div>
+        </section>
+        
+        <section class="demo">
+            <div class="container">
+                <h2>Tests des modules communs</h2>
+                
+                <!-- Test des notifications -->
+                <div class="demo-section">
+                    <h3>📢 Notifications</h3>
+                    <div class="demo-buttons">
+                        <button onclick="testSuccess()" class="btn btn-success">Succès</button>
+                        <button onclick="testError()" class="btn btn-danger">Erreur</button>
+                        <button onclick="testWarning()" class="btn btn-warning">Avertissement</button>
+                        <button onclick="testInfo()" class="btn btn-info">Information</button>
+                        <button onclick="testLoading()" class="btn btn-primary">Chargement</button>
+                    </div>
+                </div>
+                
+                <!-- Test de validation -->
+                <div class="demo-section">
+                    <h3>✅ Validation de formulaire</h3>
+                    <form id="demo-form">
+                        <div class="form-group">
+                            <label for="demo-name">Nom</label>
+                            <input type="text" id="demo-name" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="demo-email">Email</label>
+                            <input type="email" id="demo-email" class="form-control" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Valider</button>
+                    </form>
+                </div>
+                
+                <!-- Test d'authentification -->
+                <div class="demo-section">
+                    <h3>🔐 État d'authentification</h3>
+                    <div id="auth-status">
+                        <p>Chargement...</p>
+                    </div>
+                    <button onclick="testAuth()" class="btn btn-primary">Vérifier</button>
+                </div>
+                
+                <!-- Test des utilitaires -->
+                <div class="demo-section">
+                    <h3>🛠️ Utilitaires</h3>
+                    <div class="demo-utilities">
+                        <div>
+                            <strong>Formatage carte bancaire:</strong>
+                            <input type="text" 
+                                   id="card-input" 
+                                   placeholder="Numéro de carte"
+                                   class="form-control"
+                                   maxlength="19">
+                            <p id="card-output"></p>
+                        </div>
+                        
+                        <div>
+                            <strong>Génération d'étoiles:</strong>
+                            <input type="number" 
+                                   id="stars-input" 
+                                   min="0" 
+                                   max="5" 
+                                   step="0.5" 
+                                   value="3.5"
+                                   class="form-control">
+                            <p id="stars-output"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 EcoRide - Tous droits réservés</p>
+        </div>
+    </footer>
+    
+    <!-- 
+        Scripts de test
+        Ces fonctions sont exposées globalement pour les boutons onclick
+    -->
+    <script type="module">
+        import { showSuccess, showError, showWarning, showInfo, showLoading } from './public/js/common/notifications.js';
+        import { isAuthenticated, getCurrentUser } from './public/js/common/auth.js';
+        import { formatCardNumber, generateStars, validateAndSanitizeInput } from './public/js/common/utils.js';
+        
+        // Exposer les fonctions de test globalement
+        window.testSuccess = () => {
+            showSuccess('Opération réussie !');
+        };
+        
+        window.testError = () => {
+            showError('Une erreur est survenue');
+        };
+        
+        window.testWarning = () => {
+            showWarning('Attention : vérifiez vos données');
+        };
+        
+        window.testInfo = () => {
+            showInfo('Nouvelle fonctionnalité disponible');
+        };
+        
+        window.testLoading = async () => {
+            const close = showLoading('Chargement en cours...');
+            
+            // Simuler un délai
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            close();
+            showSuccess('Chargement terminé !');
+        };
+        
+        window.testAuth = async () => {
+            const statusDiv = document.getElementById('auth-status');
+            
+            if (isAuthenticated()) {
+                try {
+                    const user = await getCurrentUser();
+                    statusDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <strong>Connecté en tant que:</strong> ${user.pseudo}<br>
+                            <strong>Email:</strong> ${user.email}<br>
+                            <strong>Rôle:</strong> ${user.user_type}
+                        </div>
+                    `;
+                } catch (error) {
+                    statusDiv.innerHTML = `
+                        <div class="alert alert-warning">
+                            Token présent mais invalide
+                        </div>
+                    `;
+                }
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="alert alert-info">
+                        Non connecté - <a href="connexion.html">Se connecter</a>
+                    </div>
+                `;
+            }
+        };
+        
+        // Test du formulaire
+        const demoForm = document.getElementById('demo-form');
+        if (demoForm) {
+            demoForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const name = validateAndSanitizeInput(document.getElementById('demo-name').value);
+                const email = validateAndSanitizeInput(document.getElementById('demo-email').value);
+                
+                if (name && email) {
+                    showSuccess(`Formulaire valide ! Nom: ${name}, Email: ${email}`);
+                } else {
+                    showError('Veuillez remplir tous les champs');
+                }
+            });
+        }
+        
+        // Test formatage carte
+        const cardInput = document.getElementById('card-input');
+        const cardOutput = document.getElementById('card-output');
+        
+        if (cardInput && cardOutput) {
+            cardInput.addEventListener('input', (e) => {
+                const formatted = formatCardNumber(e.target.value);
+                e.target.value = formatted;
+                cardOutput.textContent = `Formaté: ${formatted}`;
+            });
+        }
+        
+        // Test génération d'étoiles
+        const starsInput = document.getElementById('stars-input');
+        const starsOutput = document.getElementById('stars-output');
+        
+        if (starsInput && starsOutput) {
+            const updateStars = () => {
+                const rating = parseFloat(starsInput.value);
+                starsOutput.textContent = generateStars(rating);
+            };
+            
+            starsInput.addEventListener('input', updateStars);
+            updateStars(); // Initial display
+        }
+        
+        // Vérifier l'authentification au chargement
+        window.testAuth();
+    </script>
+    
+    <style>
+        /* Styles pour la démo */
+        .demo {
+            padding: 4rem 0;
+            background: #f7fafc;
+        }
+        
+        .demo-section {
+            background: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .demo-section h3 {
+            margin-bottom: 1.5rem;
+            color: #2d3748;
+        }
+        
+        .demo-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .demo-utilities > div {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f7fafc;
+            border-radius: 4px;
+        }
+        
+        .demo-utilities strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+        }
+        
+        .demo-utilities p {
+            margin-top: 0.5rem;
+            font-size: 1.25rem;
+            color: #4a5568;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+        
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .alert-warning {
+            background: #fefcbf;
+            color: #744210;
+        }
+        
+        .alert-info {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #2d3748;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .btn-primary {
+            background: #4299e1;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #ed8936;
+            color: white;
+        }
+        
+        .btn-info {
+            background: #4299e1;
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: #4299e1;
+            border: 2px solid #4299e1;
+        }
+    </style>
+</body>
+</html>

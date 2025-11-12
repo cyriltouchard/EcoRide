@@ -137,65 +137,68 @@ const validateAndSanitizeInput = (input, maxLength = 500) => {
 };
 
 /**
+ * Bascule la visibilité d'un élément selon l'état de connexion
+ */
+const toggleElementVisibility = (element, token, hideWhenLoggedIn = false) => {
+    if (!element) return;
+    
+    const shouldHide = hideWhenLoggedIn ? token : !token;
+    element.classList.toggle('hidden', shouldHide);
+};
+
+/**
+ * Vérifie et affiche le bouton admin si nécessaire
+ */
+const checkAdminAccess = async (adminNavButton, token) => {
+    if (!adminNavButton || !token) return;
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/users/me`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        const isAdmin = data.user_type === 'admin' || data.user_type === 'employe';
+        adminNavButton.classList.toggle('hidden', !isAdmin);
+    } catch {
+        adminNavButton.classList.add('hidden');
+    }
+};
+
+/**
+ * Gère la déconnexion de l'utilisateur
+ */
+const handleLogout = () => {
+    localStorage.removeItem('token');
+    showNotification("Vous avez été déconnecté.", "success");
+    setTimeout(() => window.location.href = 'index.html', 1500);
+};
+
+/**
  * Initialise la navigation dynamique selon l'état de connexion
  */
 const initNavigation = () => {
     const token = localStorage.getItem('token');
-    const guestNavButton = document.getElementById('guest-nav-button');
-    const userNavLinks = document.getElementById('user-nav-links');
-    const userNavDashboard = document.getElementById('user-nav-dashboard');
-    const userNavButton = document.getElementById('user-nav-button');
+    
+    // Gérer la visibilité des éléments de navigation
+    toggleElementVisibility(document.getElementById('guest-nav-button'), token, true);
+    toggleElementVisibility(document.getElementById('user-nav-links'), token);
+    toggleElementVisibility(document.getElementById('user-nav-dashboard'), token);
+    toggleElementVisibility(document.getElementById('user-nav-button'), token);
+
+    // Vérifier l'accès admin
+    checkAdminAccess(document.getElementById('admin-nav-button'), token);
+
+    // Gestionnaires de déconnexion
     const logoutButton = document.getElementById('logout-button');
-    const adminNavButton = document.getElementById('admin-nav-button');
-
-    if (guestNavButton) {
-        token ? guestNavButton.classList.add('hidden') : guestNavButton.classList.remove('hidden');
-    }
-    
-    if (userNavLinks) {
-        token ? userNavLinks.classList.remove('hidden') : userNavLinks.classList.add('hidden');
-    }
-    
-    if (userNavDashboard) {
-        token ? userNavDashboard.classList.remove('hidden') : userNavDashboard.classList.add('hidden');
-    }
-    
-    if (userNavButton) {
-        token ? userNavButton.classList.remove('hidden') : userNavButton.classList.add('hidden');
-    }
-
-    // Vérifier si l'utilisateur est admin
-    if (adminNavButton && token) {
-        fetch(`${API_BASE_URL}/users/me`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.user_type === 'admin' || data.user_type === 'employe') {
-                adminNavButton.classList.remove('hidden');
-            } else {
-                adminNavButton.classList.add('hidden');
-            }
-        })
-        .catch(() => adminNavButton.classList.add('hidden'));
-    }
-
     if (logoutButton) {
-        logoutButton.addEventListener('click', () => {
-            localStorage.removeItem('token');
-            showNotification("Vous avez été déconnecté.", "success");
-            setTimeout(() => window.location.href = 'index.html', 1500);
-        });
+        logoutButton.addEventListener('click', handleLogout);
     }
     
-    // Gestionnaire pour le bouton de déconnexion de la navbar (avis.html, etc.)
     const navLogoutButton = document.getElementById('nav-logout');
     if (navLogoutButton) {
         navLogoutButton.addEventListener('click', (e) => {
             e.preventDefault();
-            localStorage.removeItem('token');
-            showNotification("Vous avez été déconnecté.", "success");
-            setTimeout(() => window.location.href = 'index.html', 1500);
+            handleLogout();
         });
     }
 };

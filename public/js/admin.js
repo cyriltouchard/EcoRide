@@ -83,7 +83,7 @@ function setupEventListeners() {
     // Navigation dans le menu
     document.querySelectorAll('.admin-menu-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            const section = btn.getAttribute('data-section');
+            const section = btn.dataset.section;
             switchSection(section);
 
             // Mettre à jour l'état actif
