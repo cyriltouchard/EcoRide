@@ -133,6 +133,21 @@ window.fetchWithAuth = async (url, options = {}) => {
     }
 };
 
+/**
+ * Retourne la couleur de fond en fonction du type de notification
+ * @param {string} type - Type de notification (success, error, warning, info)
+ * @returns {string} Code couleur hexadécimal
+ */
+const getNotificationColor = (type) => {
+    const colors = {
+        success: '#27ae60',
+        error: '#e74c3c',
+        warning: '#f39c12',
+        info: '#3498db'
+    };
+    return colors[type] || colors.info;
+};
+
 // Fonction utilitaire pour afficher des notifications
 window.showNotification = (message, type = 'info', duration = 5000) => {
     let container = document.getElementById('notification-container');
@@ -152,7 +167,7 @@ window.showNotification = (message, type = 'info', duration = 5000) => {
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.style.cssText = `
-        background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : type === 'warning' ? '#f39c12' : '#3498db'};
+        background: ${getNotificationColor(type)};
         color: white;
         padding: 15px 20px;
         margin-bottom: 10px;
