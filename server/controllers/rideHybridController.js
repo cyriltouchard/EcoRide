@@ -439,6 +439,98 @@ exports.getStatistics = async (req, res) => {
     }
 };
 
+/**
+ * Valide et réserve un trajet MongoDB
+ * @param {string} rideId - ID du trajet MongoDB
+ * @param {number} passengerId - ID du passager
+ * @param {number} passengers - Nombre de places
+ * @returns {Promise<Object>} Résultat de la réservation
+ */
+const bookMongoRide = async (rideId, passengerId, passengers) => {
+    const ride = await Ride.findById(rideId);
+    
+    if (!ride) {
+        return { success: false, status: 404, message: 'Trajet non trouvé' };
+    }
+
+    if (ride.status !== 'active' && ride.status !== 'en_attente') {
+        return { success: false, status: 400, message: 'Ce trajet n\'est plus disponible' };
+    }
+
+    if (ride.conducteur_id === passengerId) {
+        return { success: false, status: 400, message: 'Vous ne pouvez pas réserver votre propre trajet' };
+    }
+
+    if (ride.places_disponibles < passengers) {
+        return { success: false, status: 400, message: 'Pas assez de places disponibles' };
+    }
+
+    // Mettre à jour les places disponibles
+    ride.places_disponibles -= passengers;
+    await ride.save();
+
+    return {
+        success: true,
+        data: {
+            rideId: ride._id.toString(),
+            passengers,
+            remaining_seats: ride.places_disponibles
+        }
+    };
+};
+
+/**
+ * Valide et réserve un trajet MySQL
+ * @param {string} rideIdParam - ID du trajet (string)
+ * @param {number} passengerId - ID du passager
+ * @param {number} passengers - Nombre de places
+ * @returns {Promise<Object>} Résultat de la réservation
+ */
+const bookMySQLRide = async (rideIdParam, passengerId, passengers) => {
+    const rideId = Number.parseInt(rideIdParam);
+    
+    if (isNaN(rideId)) {
+        return { success: false, status: 400, message: 'ID de trajet invalide' };
+    }
+
+    const ride = await RideSQL.getById(rideId);
+    
+    if (!ride) {
+        return { success: false, status: 404, message: 'Trajet non trouvé' };
+    }
+
+    console.log('📊 Trajet MySQL status:', ride.status);
+
+    if (ride.status !== 'en_attente' && ride.status !== 'confirme') {
+        return { success: false, status: 400, message: 'Ce trajet n\'est plus disponible' };
+    }
+
+    if (ride.driver.id === passengerId) {
+        return { success: false, status: 400, message: 'Vous ne pouvez pas réserver votre propre trajet' };
+    }
+
+    if (ride.availableSeats < passengers) {
+        return { success: false, status: 400, message: 'Pas assez de places disponibles' };
+    }
+
+    // Créer la réservation
+    const booking = await RideSQL.createBooking(rideId, passengerId, passengers, ride.price);
+    await RideSQL.updateAvailableSeats(rideId, ride.availableSeats - passengers);
+    
+    console.log('✅ Réservation créée:', booking);
+
+    return {
+        success: true,
+        data: {
+            bookingId: booking.id,
+            rideId,
+            passengers,
+            totalCost: booking.total_cost,
+            remaining_seats: ride.availableSeats - passengers
+        }
+    };
+};
+
 // @route   POST /api/rides/:id/book
 // @desc    Réserver une place dans un covoiturage (US4)
 // @access  Private (passager)
@@ -451,117 +543,22 @@ exports.bookRide = async (req, res) => {
         // Détecter si c'est un ID MongoDB (24 caractères hexadécimaux) ou MySQL (numérique)
         const isMongoId = /^[0-9a-fA-F]{24}$/.test(rideIdParam);
         
-        let ride;
-        
-        if (isMongoId) {
-            // Chercher dans MongoDB
-            ride = await Ride.findById(rideIdParam);
-            if (!ride) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Trajet non trouvé'
-                });
-            }
+        const result = isMongoId 
+            ? await bookMongoRide(rideIdParam, passengerId, passengers)
+            : await bookMySQLRide(rideIdParam, passengerId, passengers);
 
-            if (ride.status !== 'active' && ride.status !== 'en_attente') {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Ce trajet n\'est plus disponible'
-                });
-            }
-
-            if (ride.conducteur_id === passengerId) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Vous ne pouvez pas réserver votre propre trajet'
-                });
-            }
-
-            if (ride.places_disponibles < passengers) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Pas assez de places disponibles'
-                });
-            }
-
-            // Mettre à jour les places disponibles dans MongoDB
-            ride.places_disponibles -= passengers;
-            await ride.save();
-
-            return res.json({
-                success: true,
-                message: 'Réservation effectuée avec succès',
-                data: {
-                    rideId: ride._id.toString(),
-                    passengers,
-                    remaining_seats: ride.places_disponibles
-                }
-            });
-            
-        } else {
-            // Chercher dans MySQL
-            const rideId = parseInt(rideIdParam);
-            
-            if (isNaN(rideId)) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'ID de trajet invalide'
-                });
-            }
-
-            // Vérifier que le trajet existe et est disponible
-            ride = await RideSQL.getById(rideId);
-            if (!ride) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Trajet non trouvé'
-                });
-            }
-
-            console.log('📊 Trajet MySQL status:', ride.status);
-
-            // Les statuts valides pour une réservation sont: en_attente, confirme
-            if (ride.status !== 'en_attente' && ride.status !== 'confirme') {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Ce trajet n\'est plus disponible'
-                });
-            }
-
-            if (ride.driver.id === passengerId) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Vous ne pouvez pas réserver votre propre trajet'
-                });
-            }
-
-            if (ride.availableSeats < passengers) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Pas assez de places disponibles'
-                });
-            }
-
-            // Créer la réservation dans la table bookings
-            const booking = await RideSQL.createBooking(rideId, passengerId, passengers, ride.price);
-            
-            // Mettre à jour les places disponibles
-            await RideSQL.updateAvailableSeats(rideId, ride.availableSeats - passengers);
-            
-            console.log('✅ Réservation créée:', booking);
-
-            return res.json({
-                success: true,
-                message: 'Réservation effectuée avec succès',
-                data: {
-                    bookingId: booking.id,
-                    rideId,
-                    passengers,
-                    totalCost: booking.total_cost,
-                    remaining_seats: ride.availableSeats - passengers
-                }
+        if (!result.success) {
+            return res.status(result.status).json({
+                success: false,
+                message: result.message
             });
         }
+
+        return res.json({
+            success: true,
+            message: 'Réservation effectuée avec succès',
+            data: result.data
+        });
 
     } catch (error) {
         console.error('Erreur lors de la réservation:', error);
