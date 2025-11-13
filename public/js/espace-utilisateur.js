@@ -5,6 +5,53 @@
  */
 
 /**
+ * Compresse une image avant de l'envoyer au serveur
+ * @param {File} file - Fichier image à compresser
+ * @param {number} maxWidth - Largeur maximale
+ * @param {number} maxHeight - Hauteur maximale
+ * @param {number} quality - Qualité JPEG (0-1)
+ * @returns {Promise<string>} - Image en base64
+ */
+const compressImage = (file, maxWidth = 800, maxHeight = 800, quality = 0.8) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                // Calculer les nouvelles dimensions en conservant le ratio
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width *= maxHeight / height;
+                        height = maxHeight;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Convertir en base64 avec compression
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.onerror = reject;
+            img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+};
+
+/**
  * Initialise les gestionnaires de modales de véhicules
  */
 const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
@@ -35,7 +82,7 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
             model: formData.get('model'),
             license_plate: formData.get('plate'),
             energy_type: formData.get('energy').toLowerCase(),
-            available_seats: number.parseInt(formData.get('seats')),
+            available_seats: parseInt(formData.get('seats')),
             color: 'Non spécifié',
             first_registration: new Date().toISOString().split('T')[0]
         };
@@ -65,7 +112,7 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
             model: formData.get('model'),
             license_plate: formData.get('plate'),
             energy_type: formData.get('energy').toLowerCase(),
-            available_seats: number.parseInt(formData.get('seats')),
+            available_seats: parseInt(formData.get('seats')),
         };
         
         try {
@@ -140,17 +187,21 @@ const initProfilePictureHandlers = (fetchWithAuth) => {
                 if (fileInput?.files?.[0]) {
                     const file = fileInput.files[0];
                     
-                    if (file.size > 5 * 1024 * 1024) {
-                        showNotification('Le fichier est trop volumineux (max 5MB)', 'error');
+                    // Vérifier le type de fichier
+                    if (!file.type.startsWith('image/')) {
+                        showNotification('Veuillez sélectionner une image valide', 'error');
                         return;
                     }
                     
-                    const reader = new FileReader();
-                    imageUrl = await new Promise((resolve, reject) => {
-                        reader.onload = (e) => resolve(e.target.result);
-                        reader.onerror = reject;
-                        reader.readAsDataURL(file);
-                    });
+                    if (file.size > 10 * 1024 * 1024) {
+                        showNotification('Le fichier est trop volumineux (max 10MB)', 'error');
+                        return;
+                    }
+                    
+                    // Compresser l'image avant l'envoi
+                    showNotification('Compression de l\'image...', 'info');
+                    imageUrl = await compressImage(file, 800, 800, 0.85);
+                    
                 } else if (urlInput?.value) {
                     imageUrl = urlInput.value;
                 } else {
@@ -168,6 +219,7 @@ const initProfilePictureHandlers = (fetchWithAuth) => {
                 pictureModal.classList.remove('active');
                 pictureForm.reset();
             } catch (error) {
+                console.error('Erreur upload photo:', error);
                 showNotification(`Erreur: ${error.message}`, 'error');
             }
         });

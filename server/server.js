@@ -75,8 +75,9 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 
-// Middleware pour parser le JSON
-app.use(express.json());
+// Middleware pour parser le JSON avec limite augmentée pour les images base64
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Servir les fichiers statiques
 // Dans Docker, tous les fichiers sont copiés dans /app

@@ -30,7 +30,7 @@ const registerLimiter = createRateLimit(
 
 const generalLimiter = createRateLimit(
     15 * 60 * 1000, // 15 minutes
-    100, // 100 requêtes max
+    1000, // 1000 requêtes max (augmenté pour le développement)
     'Trop de requêtes. Ralentissez le rythme.'
 );
 

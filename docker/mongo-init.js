@@ -1,27 +1,21 @@
 // Script d'initialisation MongoDB pour EcoRide
 print('🚀 Initialisation base de données MongoDB EcoRide...');
 
-// Sélection de la base de données
+// Création d'un utilisateur pour la base ecoride
 db = db.getSiblingDB('ecoride');
 
-/*
-  SECURITY NOTE
-  ------------
-  Removed hard-coded passwords and bcrypt hashes from this initialization script.
-  Storing password hashes or plaintext passwords in repository files is unsafe.
+// Créer un utilisateur avec les droits readWrite sur ecoride
+db.createUser({
+  user: 'ecoride_user',
+  pwd: 'ecoride_user_2025',
+  roles: [
+    { role: 'readWrite', db: 'ecoride' }
+  ]
+});
 
-  Recommended secure alternatives:
-  - Use Docker / orchestration to inject secrets at runtime (via .env, Docker secrets, or a secret manager).
-  - Create administrative and application users manually on the target environment, or via a secure, out-of-repo script that reads secrets from environment variables.
-  - For test data required in CI, generate users dynamically during tests and store credentials only in the CI secret store.
+print('✅ Utilisateur ecoride_user créé avec succès');
 
-  This script will only create the database and indexes. To populate users, run a separate secure bootstrap
-  script that reads passwords from environment variables or a secret manager.
-*/
-
-print('📝 Initialisation des collections et des index (sans utilisateurs ni mots de passe)...');
-
-// NOTE: users and test accounts are intentionally NOT created here to avoid embedding secrets in the repo.
+print('📝 Initialisation des collections et des index...');
 
 // Collection véhicules de test (seed minimal sans données sensibles)
 db.vehicles.insertMany([

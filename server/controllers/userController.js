@@ -333,20 +333,6 @@ exports.updateProfile = async (req, res) => {
     }
 };
 
-exports.updateProfilePicture = async (req, res) => {
-    try {
-        const userId = req.user.id;
-        const { profile_picture } = req.body;
-        
-        await UserSQL.updateProfile(userId, { profile_picture });
-        
-        res.json({ success: true, message: 'Photo mise à jour' });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-};
-
-
 // --- Mettre à jour le profil utilisateur ---
 exports.updateProfile = async (req, res) => {
     try {
@@ -364,14 +350,43 @@ exports.updateProfile = async (req, res) => {
     }
 };
 
+// --- Mettre à jour la photo de profil ---
 exports.updateProfilePicture = async (req, res) => {
     try {
         const userId = req.user.id;
         const { profile_picture } = req.body;
+        
+        // Validation basique de l'image (base64 ou URL)
+        if (!profile_picture) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Image requise' 
+            });
+        }
+
+        // Vérifier la taille de l'image (limite à 5MB en base64)
+        const base64SizeInBytes = profile_picture.length * 0.75; // Approximation
+        if (base64SizeInBytes > 5 * 1024 * 1024) {
+            return res.status(413).json({ 
+                success: false, 
+                message: 'Image trop volumineuse. Maximum 5MB.' 
+            });
+        }
+        
         await UserSQL.updateProfile(userId, { profile_picture });
-        res.json({ success: true, message: 'Photo mise à jour' });
+        
+        res.json({ 
+            success: true, 
+            message: 'Photo de profil mise à jour avec succès',
+            data: { profile_picture }
+        });
     } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+        console.error('Erreur updateProfilePicture:', err);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erreur lors de la mise à jour de la photo',
+            error: err.message 
+        });
     }
 };
 
