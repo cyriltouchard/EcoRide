@@ -82,8 +82,14 @@ export const isValidPassword = (password, minLength = 8) => {
 
 /**
  * Vérifie que deux mots de passe correspondent
- * @param {string} password - Mot de passe principal
- * @param {string} confirmPassword - Mot de passe de confirmation
+ * 
+ * NOTE SÉCURITÉ (SonarQube S2068 False Positive):
+ * Cette fonction compare deux paramètres dynamiques (champs de formulaire).
+ * AUCUN mot de passe n'est codé en dur dans cette fonction.
+ * Les valeurs 'password' et 'confirmPassword' sont fournies par l'utilisateur.
+ * 
+ * @param {string} password - Mot de passe principal (depuis formulaire)
+ * @param {string} confirmPassword - Mot de passe de confirmation (depuis formulaire)
  * @returns {boolean} True si les mots de passe correspondent
  */
 export const doPasswordsMatch = (password, confirmPassword) => {
