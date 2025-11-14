@@ -256,12 +256,26 @@
             <span id="close-modal-btn" class="close-modal-btn">&times;</span>
             <h2>Ajouter un nouveau véhicule</h2>
             <form id="add-vehicle-form-modal" class="auth-form">
-                <div class="form-group"><label for="brand">Marque</label><input type="text" id="brand" name="brand"
-                        required></div>
-                <div class="form-group"><label for="model">Modèle</label><input type="text" id="model" name="model"
-                        required></div>
-                <div class="form-group"><label for="plate">Immatriculation</label><input type="text" id="plate"
-                        name="plate" required></div>
+                <div class="form-group">
+                    <label for="brand">Marque</label>
+                    <select id="brand" name="brand" required>
+                        <option value="">-- Choisir une marque --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="model">Modèle</label>
+                    <select id="model" name="model" required disabled>
+                        <option value="">-- Sélectionnez d'abord une marque --</option>
+                    </select>
+                    <small style="color: #666; font-size: 0.85em; margin-top: 5px; display: block;">
+                        Ou tapez un modèle personnalisé :
+                    </small>
+                    <input type="text" id="model-custom" name="model-custom" placeholder="Modèle personnalisé (optionnel)" style="margin-top: 5px;">
+                </div>
+                <div class="form-group">
+                    <label for="plate">Immatriculation</label>
+                    <input type="text" id="plate" name="plate" required style="text-transform: uppercase;" placeholder="AB-123-CD" maxlength="15">
+                </div>
                 <div class="form-group"><label for="energy">Énergie</label><select id="energy" name="energy" required>
                         <option value="">--</option>
                         <option>Essence</option>
@@ -284,12 +298,26 @@
             <h2>Modifier le véhicule</h2>
             <form id="edit-vehicle-form-modal" class="auth-form">
                 <input type="hidden" id="edit-vehicle-id" name="edit-vehicle-id">
-                <div class="form-group"><label for="edit-brand-modal">Marque</label><input type="text"
-                        id="edit-brand-modal" name="brand" required></div>
-                <div class="form-group"><label for="edit-model-modal">Modèle</label><input type="text"
-                        id="edit-model-modal" name="model" required></div>
-                <div class="form-group"><label for="edit-plate-modal">Immatriculation</label><input type="text"
-                        id="edit-plate-modal" name="plate" required></div>
+                <div class="form-group">
+                    <label for="edit-brand-modal">Marque</label>
+                    <select id="edit-brand-modal" name="brand" required>
+                        <option value="">-- Choisir une marque --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-model-modal">Modèle</label>
+                    <select id="edit-model-modal" name="model" required disabled>
+                        <option value="">-- Sélectionnez d'abord une marque --</option>
+                    </select>
+                    <small style="color: #666; font-size: 0.85em; margin-top: 5px; display: block;">
+                        Ou tapez un modèle personnalisé :
+                    </small>
+                    <input type="text" id="edit-model-custom" name="model-custom" placeholder="Modèle personnalisé (optionnel)" style="margin-top: 5px;">
+                </div>
+                <div class="form-group">
+                    <label for="edit-plate-modal">Immatriculation</label>
+                    <input type="text" id="edit-plate-modal" name="plate" required style="text-transform: uppercase;" placeholder="AB-123-CD" maxlength="15">
+                </div>
                 <div class="form-group"><label for="edit-energy-modal">Énergie</label><select id="edit-energy-modal"
                         name="energy" required>
                         <option value="">--</option>
@@ -326,8 +354,9 @@
     </footer>
 
     <div id="notification-container"></div>
+    <script src="public/js/common/vehicle-data.js"></script>
     <script src="public/js/common.js?v=2"></script>
-    <script src="public/js/espace-utilisateur.js?v=2"></script>
+    <script src="public/js/espace-utilisateur.js?v=3"></script>
 </body>
 
 </html>

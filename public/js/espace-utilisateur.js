@@ -62,6 +62,82 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
 
     if (!addModal || !editModal || !addForm || !editForm) return;
 
+    // ==================== INITIALISATION MARQUES/MODÈLES ====================
+    
+    const brandSelect = document.getElementById('brand');
+    const modelSelect = document.getElementById('model');
+    const modelCustomInput = document.getElementById('model-custom');
+    const editBrandSelect = document.getElementById('edit-brand-modal');
+    const editModelSelect = document.getElementById('edit-model-modal');
+    const editModelCustomInput = document.getElementById('edit-model-custom');
+
+    // Fonction pour peupler les marques
+    const populateBrands = (selectElement) => {
+        const brands = getAllBrands();
+        selectElement.innerHTML = '<option value="">-- Choisir une marque --</option>';
+        brands.forEach(brand => {
+            const option = document.createElement('option');
+            option.value = brand;
+            option.textContent = brand;
+            selectElement.appendChild(option);
+        });
+    };
+
+    // Fonction pour peupler les modèles
+    const populateModels = (brandValue, selectElement, customInput) => {
+        const models = getModelsByBrand(brandValue);
+        selectElement.innerHTML = '<option value="">-- Choisir un modèle --</option>';
+        
+        if (models.length === 0) {
+            selectElement.disabled = true;
+            customInput.required = true;
+            customInput.placeholder = 'Tapez le modèle';
+            showNotification('Tapez le modèle manuellement', 'info');
+        } else {
+            selectElement.disabled = false;
+            customInput.required = false;
+            customInput.placeholder = 'Modèle personnalisé (optionnel)';
+            models.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model;
+                selectElement.appendChild(option);
+            });
+        }
+    };
+
+    // Initialiser les marques
+    populateBrands(brandSelect);
+    populateBrands(editBrandSelect);
+
+    // Gérer le changement de marque (ajout)
+    brandSelect.addEventListener('change', (e) => {
+        populateModels(e.target.value, modelSelect, modelCustomInput);
+    });
+
+    // Gérer le changement de marque (édition)
+    editBrandSelect.addEventListener('change', (e) => {
+        populateModels(e.target.value, editModelSelect, editModelCustomInput);
+    });
+
+    // Forcer majuscules sur immatriculation (ajout)
+    const plateInput = document.getElementById('plate');
+    if (plateInput) {
+        plateInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase();
+        });
+    }
+
+    // Forcer majuscules sur immatriculation (édition)
+    const editPlateInput = document.getElementById('edit-plate-modal');
+    if (editPlateInput) {
+        editPlateInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase();
+        });
+    }
+
+    // ==================== FIN INITIALISATION ====================
+
     // Gestionnaires d'ouverture/fermeture
     document.getElementById('add-vehicle-btn')?.addEventListener('click', () => addModal.classList.add('active'));
     document.getElementById('close-modal-btn')?.addEventListener('click', () => addModal.classList.remove('active'));
@@ -77,10 +153,18 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
         e.preventDefault();
         const formData = new FormData(e.target);
         
+        // Utiliser le modèle personnalisé si renseigné, sinon le select
+        const modelValue = formData.get('model-custom')?.trim() || formData.get('model');
+        
+        if (!modelValue) {
+            showNotification('Veuillez sélectionner ou saisir un modèle', 'error');
+            return;
+        }
+        
         const vehicleData = {
             brand: formData.get('brand'),
-            model: formData.get('model'),
-            license_plate: formData.get('plate'),
+            model: modelValue,
+            license_plate: formData.get('plate').toUpperCase(),
             energy_type: formData.get('energy').toLowerCase(),
             available_seats: parseInt(formData.get('seats')),
             color: 'Non spécifié',
@@ -95,6 +179,7 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
             showNotification('Véhicule ajouté !', 'success');
             addModal.classList.remove('active');
             e.target.reset();
+            modelSelect.disabled = true;
             loadUserVehicles();
         } catch (error) {
             showNotification(`Erreur: ${error.message}`, 'error');
@@ -107,10 +192,18 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
         const formData = new FormData(e.target);
         const vehicleId = formData.get('edit-vehicle-id');
         
+        // Utiliser le modèle personnalisé si renseigné, sinon le select
+        const modelValue = formData.get('model-custom')?.trim() || formData.get('model');
+        
+        if (!modelValue) {
+            showNotification('Veuillez sélectionner ou saisir un modèle', 'error');
+            return;
+        }
+        
         const vehicleData = {
             brand: formData.get('brand'),
-            model: formData.get('model'),
-            license_plate: formData.get('plate'),
+            model: modelValue,
+            license_plate: formData.get('plate').toUpperCase(),
             energy_type: formData.get('energy').toLowerCase(),
             available_seats: parseInt(formData.get('seats')),
         };
@@ -552,16 +645,39 @@ document.addEventListener('DOMContentLoaded', () => {
      * Ouvre la modale d'édition de véhicule
      */
     const openEditModal = (id, data) => {
-        if (editModal) {
+        const editModalElement = document.getElementById('edit-vehicle-modal');
+        if (editModalElement) {
             const editForm = document.getElementById('edit-vehicle-form-modal');
+            const editBrandSelect = document.getElementById('edit-brand-modal');
+            const editModelSelect = document.getElementById('edit-model-modal');
+            const editModelCustom = document.getElementById('edit-model-custom');
+            
             if (editForm) {
+                // Remplir les champs
                 editForm.elements['edit-vehicle-id'].value = id;
-                editForm.elements['brand'].value = data.brand;
-                editForm.elements['model'].value = data.model;
-                editForm.elements['plate'].value = data.plate;
-                editForm.elements['energy'].value = data.energy;
-                editForm.elements['seats'].value = data.seats;
-                editModal.classList.add('active');
+                editBrandSelect.value = data.brand;
+                
+                // Déclencher le changement de marque pour charger les modèles
+                const event = new Event('change');
+                editBrandSelect.dispatchEvent(event);
+                
+                // Attendre que les modèles se chargent puis sélectionner
+                setTimeout(() => {
+                    const modelOption = Array.from(editModelSelect.options).find(opt => opt.value === data.model);
+                    if (modelOption) {
+                        editModelSelect.value = data.model;
+                        editModelCustom.value = '';
+                    } else {
+                        // Modèle personnalisé
+                        editModelCustom.value = data.model;
+                    }
+                    
+                    editForm.elements['plate'].value = data.plate;
+                    editForm.elements['energy'].value = data.energy;
+                    editForm.elements['seats'].value = data.seats;
+                }, 100);
+                
+                editModalElement.classList.add('active');
             }
         }
     };

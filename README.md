@@ -19,6 +19,10 @@ Cette application full-stack combine une interface utilisateur moderne avec un b
 
 ### 🚙 Gestion des Véhicules
 - ✅ Ajout/modification/suppression de véhicules
+- ✅ **Liste déroulante intelligente** : Sélection marque → modèles filtrés automatiquement
+- ✅ **22 marques disponibles** (Peugeot, Renault, Citroën, VW, BMW, Mercedes, etc.)
+- ✅ **Modèle personnalisé** : Option pour saisir un modèle non listé
+- ✅ **Immatriculation auto-majuscule** : Conversion automatique en MAJUSCULES pendant la saisie
 - ✅ Support de différents types d'énergie (Essence, Diesel, Électrique, Hybride, GPL)
 - ✅ Validation des données véhicule côté client et serveur
 - ✅ Interface modale pour les modifications
@@ -26,16 +30,12 @@ Cette application full-stack combine une interface utilisateur moderne avec un b
 ### 🛣️ Covoiturages
 - ✅ Recherche avancée de trajets par ville de départ/arrivée et date
 - ✅ Proposition de nouveaux trajets avec détails complets
+- ✅ **Affichage complet dans les détails** : Bio chauffeur, immatriculation et énergie du véhicule
 - ✅ Système de réservation en temps réel
 - ✅ Filtrage par critères écologiques
 - ✅ Gestion automatique des places disponibles
 - ✅ Historique des trajets proposés et réservés
-
-### 💬 Support Client Intégré
-- ✅ **Chat en direct** avec interface moderne
-- ✅ Réponses automatiques intelligentes contextuelles
-- ✅ Interface responsive (desktop et mobile)
-- ✅ Messagerie instantanée avec horodatage
+- ✅ Architecture hybride MySQL + MongoDB pour performances optimales
 
 ### 👨‍💼 Administration
 - ✅ Panel d'administration dédié
@@ -171,7 +171,6 @@ npm start
 3. **Ouvrez le frontend** avec Live Server ou navigateur
 4. **Créez un compte** ou connectez-vous avec un compte existant
 5. **Explorez** : Ajoutez vos véhicules, proposez ou recherchez des trajets !
-6. **Testez le chat** : Cliquez sur le bouton "Chat" dans la navigation
 
 ### URLs principales
 - **🏠 Accueil** : `index.html` - Page d'accueil avec présentation
@@ -331,7 +330,6 @@ npm run docker:clean
 
 - 📱 **Mobile First** - Optimisé pour tous les écrans (320px à 4K)
 - 🍔 **Navigation adaptative** avec menu hamburger pour mobile
-- 💬 **Chat responsive** - S'adapte automatiquement à la taille d'écran
 - 🖼️ **Images optimisées** pour différentes résolutions
 - ⚡ **Performance mobile** optimisée avec lazy loading
 
@@ -462,7 +460,6 @@ Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
 ### 🆘 Besoin d'aide ?
 - **Documentation** : Consultez ce README complet
-- **Chat en direct** : Utilisez le chat intégré sur le site
 - **Issues GitHub** : [Signaler un problème](https://github.com/votre-username/ecoride/issues)
 
 ### 📧 Contact professionnel
@@ -483,12 +480,23 @@ Pour un déploiement en production, consultez les guides :
 Ce projet démontre la maîtrise de :
 - ✅ **Développement Full-Stack** JavaScript moderne
 - ✅ **Architecture MVC** et séparation des responsabilités  
+- ✅ **Architecture Hybride** MySQL + MongoDB pour performances optimales
 - ✅ **API RESTful** avec authentification JWT
-- ✅ **Base de données NoSQL** avec MongoDB
-- ✅ **Sécurité web** et bonnes pratiques
+- ✅ **Base de données relationnelle** (MySQL) et NoSQL (MongoDB)
+- ✅ **Containerisation Docker** avec orchestration multi-services
+- ✅ **Sécurité web** et bonnes pratiques (JWT, bcrypt, validation, protection ReDoS)
 - ✅ **Responsive Design** et accessibilité
-- ✅ **Git et versionning** de code
-- ✅ **Documentation technique** complète
+- ✅ **Git et versionning** de code avec workflow professionnel
+- ✅ **Documentation technique** complète et professionnelle
+- ✅ **Tests unitaires** avec Jest (infrastructure complète)
+- ✅ **Qualité de code** avec SonarQube (98+ corrections)
+- ✅ **UX/UI moderne** avec interactions dynamiques intelligentes
+
+---
+
+**Dernière mise à jour** : 14 novembre 2025  
+**Version** : 2.0.0  
+**Status** : ✅ Production Ready
 
 ---
 
