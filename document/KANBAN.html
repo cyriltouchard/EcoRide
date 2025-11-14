@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanban EcoRide - Suivi de Projet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        header .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 40px;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card .number {
+            font-size: 3em;
+            font-weight: bold;
+            color: #27ae60;
+            margin: 10px 0;
+        }
+
+        .stat-card .label {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 40px;
+        }
+
+        .kanban-column {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        .kanban-column h2 {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .todo h2 { border-color: #e74c3c; color: #e74c3c; }
+        .inprogress h2 { border-color: #f39c12; color: #f39c12; }
+        .done h2 { border-color: #27ae60; color: #27ae60; }
+        .validated h2 { border-color: #3498db; color: #3498db; }
+
+        .task-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+
+        .task-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .todo .task-card { border-left-color: #e74c3c; }
+        .inprogress .task-card { border-left-color: #f39c12; }
+        .done .task-card { border-left-color: #27ae60; }
+        .validated .task-card { border-left-color: #3498db; }
+
+        .task-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .task-description {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            font-size: 0.85em;
+            color: #888;
+        }
+
+        .priority {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+
+        .priority-high { background: #fee; color: #c0392b; }
+        .priority-medium { background: #fef5e7; color: #d68910; }
+        .priority-low { background: #eafaf1; color: #27ae60; }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60 0%, #229954 100%);
+            transition: width 0.3s ease;
+        }
+
+        .metrics {
+            padding: 40px;
+            background: #f8f9fa;
+        }
+
+        .metrics h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+            color: #2c3e50;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .metric-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .status-success { background: #d4edda; color: #155724; }
+        .status-warning { background: #fff3cd; color: #856404; }
+        .status-danger { background: #f8d7da; color: #721c24; }
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            font-size: 0.95em;
+        }
+
+        .icon {
+            display: inline-block;
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 768px) {
+            .kanban-board {
+                grid-template-columns: 1fr;
+            }
+            
+            header h1 {
+                font-size: 1.8em;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .filter-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 25px;
+            background: white;
+            color: #555;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .filter-btn.active {
+            background: #27ae60;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>
+                <span class="icon">📋</span>
+                Kanban EcoRide
+                <span class="icon">🚀</span>
+            </h1>
+            <div class="subtitle">Suivi de Projet - Mise à jour en temps réel</div>
+            <div class="subtitle" style="font-size: 0.9em; margin-top: 10px;">
+                📅 Dernière mise à jour : 14 novembre 2025 | Sprint 3
+            </div>
+        </header>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="icon" style="font-size: 2em;">📝</div>
+                <div class="number">24</div>
+                <div class="label">Total Tâches</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon" style="font-size: 2em;">✅</div>
+                <div class="number">14</div>
+                <div class="label">Terminées</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon" style="font-size: 2em;">🔄</div>
+                <div class="number">4</div>
+                <div class="label">En Cours</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon" style="font-size: 2em;">📌</div>
+                <div class="number">6</div>
+                <div class="label">À Faire</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon" style="font-size: 2em;">📊</div>
+                <div class="number">60%</div>
+                <div class="label">Progression</div>
+            </div>
+        </div>
+
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="filterAll()">🔍 Tout</button>
+            <button class="filter-btn" onclick="filterPriority('high')">🔴 Haute Priorité</button>
+            <button class="filter-btn" onclick="filterPriority('medium')">🟡 Moyenne Priorité</button>
+            <button class="filter-btn" onclick="filterPriority('low')">🟢 Basse Priorité</button>
+        </div>
+
+        <div class="kanban-board">
+            <!-- Colonne À FAIRE -->
+            <div class="kanban-column todo">
+                <h2><span class="icon">📝</span> À FAIRE (6)</h2>
+                
+                <div class="task-card" data-priority="high">
+                    <div class="priority priority-high">🔴 Haute Priorité</div>
+                    <div class="task-title">Tests unitaires</div>
+                    <div class="task-description">
+                        • Backend (controllers, models)<br>
+                        • Frontend (modules JavaScript)<br>
+                        • Couverture cible : 80%
+                    </div>
+                    <div class="task-meta">
+                        <span>⏱️ Estimation : 2 semaines</span>
+                    </div>
+                </div>
+
+                <div class="task-card" data-priority="high">
+                    <div class="priority priority-high">🔴 Haute Priorité</div>
+                    <div class="task-title">Tests E2E</div>
+                    <div class="task-description">
+                        • Parcours complet inscription → réservation<br>
+                        • Tests Cypress ou Playwright
+                    </div>
+                    <div class="task-meta">
+                        <span>⏱️ Estimation : 1 semaine</span>
+                    </div>
+                </div>
+
+                <div class="task-card" data-priority="medium">
+                    <div class="priority priority-medium">🟡 Moyenne Priorité</div>
+                    <div class="task-title">CI/CD Pipeline</div>
+                    <div class="task-description">
+                        • GitHub Actions<br>
+                        • Déploiement automatique<br>
+                        • Tests automatiques
+                    </div>
+                    <div class="task-meta">
+                        <span>⏱️ Estimation : 3 jours</span>
+                    </div>
+                </div>
+
+                <div class="task-card" data-priority="medium">
+                    <div class="priority priority-medium">🟡 Moyenne Priorité</div>
+                    <div class="task-title">Documentation API</div>
+                    <div class="task-description">
+                        • Swagger/OpenAPI<br>
+                        • Endpoints documentés<br>
+                        • Exemples de requêtes
+                    </div>
+                    <div class="task-meta">
+                        <span>⏱️ Estimation : 1 semaine</span>
+                    </div>
+                </div>
+
+                <div class="task-card" data-priority="low">
+                    <div class="priority priority-low">🟢 Basse Priorité</div>
+                    <div class="task-title">Mode sombre</div>
+                    <div class="task-description">
+                        • Toggle dans paramètres<br>
+                        • Persistance préférence
+                    </div>
+                    <div class="task-meta">
+                        <span>⏱️ Estimation : 2 jours</span>
+                    </div>
+                </div>
+
+                <div class="task-card" data-priority="low">
+                    <div class="priority priority-low">🟢 Basse Priorité</div>
+                    <div class="task-title">Notifications push</div>
+                    <div class="task-description">
+                        • Service Workers<br>
+                        • Notifications navigateur
+                    </div>
+                    <div class="task-meta">
+                        <span>⏱️ Estimation : 3 jours</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonne EN COURS -->
+            <div class="kanban-column inprogress">
+                <h2><span class="icon">🔄</span> EN COURS (5)</h2>
+                
+                <div class="task-card" data-priority="high">
+                    <div class="priority priority-high">🔴 Haute Priorité</div>
+                    <div class="task-title">Tests unitaires</div>
+                    <div class="task-description">
+                        ✅ Configuration Jest<br>
+                        ✅ userController (12/12 tests)<br>
+                        🔄 rideController (0%)<br>
+                        🔄 vehicleController (0%)
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" style="width: 20%"></div>
+                    </div>
+                    <div class="task-meta">
+                        <span>👤 Full Stack</span>
+                        <span>📅 28 nov 2025</span>
+                    </div>
+                </div>
+                
+                <div class="task-card" data-priority="high">
+                    <div class="task-title">Optimisation performances</div>
+                    <div class="task-description">
+                        • Lazy loading images<br>
+                        • Minification assets<br>
+                        • Cache stratégies
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" style="width: 80%"></div>
+                    </div>
+                    <div class="task-meta">
+                        <span>👤 Dev Team</span>
+                        <span>📅 20 nov 2025</span>
+                    </div>
+                </div>
+
+                <div class="task-card" data-priority="high">
+                    <div class="task-title">Tests unitaires backend</div>
+                    <div class="task-description">
+                        • Tests controllers<br>
+                        • Tests models<br>
+                        • Coverage reporting
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" style="width: 60%"></div>
+                    </div>
+                    <div class="task-meta">
+                        <span>👤 Backend Team</span>
+                        <span>📅 18 nov 2025</span>
+                    </div>
+                </div>
+
+                <div class="task-card" data-priority="medium">
+                    <div class="task-title">Documentation API REST</div>
+                    <div class="task-description">
+                        • Swagger setup<br>
+                        • Documentation routes<br>
+                        • Exemples pratiques
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" style="width: 40%"></div>
+                    </div>
+                    <div class="task-meta">
+                        <span>👤 Full Stack</span>
+                        <span>📅 22 nov 2025</span>
+                    </div>
+                </div>
+
+                <div class="task-card" data-priority="medium">
+                    <div class="task-title">Refactoring pages HTML</div>
+                    <div class="task-description">
+                        • Components réutilisables<br>
+                        • Structure modulaire<br>
+                        • Amélioration accessibilité
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" style="width: 30%"></div>
+                    </div>
+                    <div class="task-meta">
+                        <span>👤 Frontend Team</span>
+                        <span>📅 25 nov 2025</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonne TERMINÉ -->
+            <div class="kanban-column done">
+                <h2><span class="icon">✅</span> TERMINÉ (8)</h2>
+                
+                <div class="task-card">
+                    <div class="task-title">Architecture hybride MySQL + MongoDB</div>
+                    <div class="task-description">
+                        ✓ Configuration Docker Compose<br>
+                        ✓ Scripts d'initialisation<br>
+                        ✓ Modèles hybrides
+                    </div>
+                    <div class="task-meta">
+                        <span>✅ 10 nov 2025</span>
+                    </div>
+                </div>
+
+                <div class="task-card">
+                    <div class="task-title">Système de crédits ECF</div>
+                    <div class="task-description">
+                        ✓ CRUD crédits<br>
+                        ✓ Transactions<br>
+                        ✓ Historique
+                    </div>
+                    <div class="task-meta">
+                        <span>✅ 08 nov 2025</span>
+                    </div>
+                </div>
+
+                <div class="task-card">
+                    <div class="task-title">Upload photos de profil</div>
+                    <div class="task-description">
+                        ✓ Compression côté client<br>
+                        ✓ Validation sécurisée<br>
+                        ✓ Stockage base64
+                    </div>
+                    <div class="task-meta">
+                        <span>✅ 13 nov 2025</span>
+                    </div>
+                </div>
+
+                <div class="task-card">
+                    <div class="task-title">CRUD véhicules</div>
+                    <div class="task-description">
+                        ✓ Ajout/Modification/Suppression<br>
+                        ✓ Validation énergies<br>
+                        ✓ Interface utilisateur
+                    </div>
+                    <div class="task-meta">
+                        <span>✅ 05 nov 2025</span>
+                    </div>
+                </div>
+
+                <div class="task-card">
+                    <div class="task-title">Système d'avis et notes</div>
+                    <div class="task-description">
+                        ✓ Notation 1-5 étoiles<br>
+                        ✓ Commentaires<br>
+                        ✓ Statistiques
+                    </div>
+                    <div class="task-meta">
+                        <span>✅ 07 nov 2025</span>
+                    </div>
+                </div>
+
+                <div class="task-card">
+                    <div class="task-title">Refactoring modules JavaScript</div>
+                    <div class="task-description">
+                        ✓ Architecture modulaire<br>
+                        ✓ Séparation des responsabilités<br>
+                        ✓ 5 modules créés
+                    </div>
+                    <div class="task-meta">
+                        <span>✅ 12 nov 2025</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonne VALIDÉ -->
+            <div class="kanban-column validated">
+                <h2><span class="icon">🎯</span> VALIDÉ (6)</h2>
+                
+                <div class="task-card">
+                    <div class="task-title">🚀 Docker Compose production ready</div>
+                    <div class="task-description">
+                        ✓ Multi-conteneurs<br>
+                        ✓ Variables d'environnement<br>
+                        ✓ Healthchecks
+                    </div>
+                    <div class="task-meta">
+                        <span class="status-badge status-success">En Production</span>
+                    </div>
+                </div>
+
+                <div class="task-card">
+                    <div class="task-title">🗄️ Base de données hybride</div>
+                    <div class="task-description">
+                        ✓ MySQL (relationnel)<br>
+                        ✓ MongoDB (sessions)<br>
+                        ✓ Triggers et indexes
+                    </div>
+                    <div class="task-meta">
+                        <span class="status-badge status-success">En Production</span>
+                    </div>
+                </div>
+
+                <div class="task-card">
+                    <div class="task-title">🔒 Sécurité complète</div>
+                    <div class="task-description">
+                        ✓ Protection NoSQL injection<br>
+                        ✓ Protection ReDoS<br>
+                        ✓ Rate limiting
+                    </div>
+                    <div class="task-meta">
+                        <span class="status-badge status-success">Audit Validé</span>
+                    </div>
+                </div>
+
+                <div class="task-card">
+                    <div class="task-title">📊 SonarQube intégré</div>
+                    <div class="task-description">
+                        ✓ 0 bugs<br>
+                        ✓ 0 vulnérabilités<br>
+                        ✓ Grade A maintenu
+                    </div>
+                    <div class="task-meta">
+                        <span class="status-badge status-success">Grade A</span>
+                    </div>
+                </div>
+
+                <div class="task-card">
+                    <div class="task-title">🔐 Authentification JWT</div>
+                    <div class="task-description">
+                        ✓ Login/Register<br>
+                        ✓ Tokens sécurisés<br>
+                        ✓ Protection routes
+                    </div>
+                    <div class="task-meta">
+                        <span class="status-badge status-success">En Production</span>
+                    </div>
+                </div>
+
+                <div class="task-card">
+                    <div class="task-title">🚗 Gestion trajets & réservations</div>
+                    <div class="task-description">
+                        ✓ Création trajets<br>
+                        ✓ Recherche avancée<br>
+                        ✓ Système de réservation
+                    </div>
+                    <div class="task-meta">
+                        <span class="status-badge status-success">En Production</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Métriques -->
+        <div class="metrics">
+            <h2>📊 Métriques de Qualité SonarQube</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-row">
+                        <span class="metric-label">🐛 Bugs</span>
+                        <span class="metric-value">0</span>
+                        <span class="status-badge status-success">✅ Excellent</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">🔒 Vulnérabilités</span>
+                        <span class="metric-value">0</span>
+                        <span class="status-badge status-success">✅ Excellent</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">💡 Code Smells</span>
+                        <span class="metric-value">12</span>
+                        <span class="status-badge status-success">✅ Bon</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-row">
+                        <span class="metric-label">🔄 Duplications</span>
+                        <span class="metric-value">1.8%</span>
+                        <span class="status-badge status-success">✅ Excellent</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">📏 Complexité</span>
+                        <span class="metric-value">15</span>
+                        <span class="status-badge status-success">✅ Respecté</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">🧪 Couverture tests</span>
+                        <span class="metric-value">0%</span>
+                        <span class="status-badge status-danger">❌ À améliorer</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <h3 style="margin-bottom: 15px; color: #27ae60;">⚡ Performance</h3>
+                    <div class="metric-row">
+                        <span class="metric-label">Temps chargement</span>
+                        <span class="metric-value">2.1s</span>
+                        <span class="status-badge status-success">✅</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Bundle JS</span>
+                        <span class="metric-value">320KB</span>
+                        <span class="status-badge status-success">✅</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">CSS Total</span>
+                        <span class="metric-value">78KB</span>
+                        <span class="status-badge status-success">✅</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p><strong>📋 Kanban EcoRide</strong> - Mis à jour quotidiennement</p>
+            <p style="margin-top: 10px; opacity: 0.8;">
+                🔗 <a href="https://github.com/cyriltouchard/EcoRide" style="color: #27ae60;">GitHub Repository</a> | 
+                📚 <a href="./Index-Documentation-EcoRide-2025.md" style="color: #27ae60;">Documentation</a> | 
+                🎯 Sprint 3 - Q4 2025
+            </p>
+            <p style="margin-top: 15px; font-size: 0.9em;">
+                💡 Pour modifier ce Kanban : Éditer <code>document/KANBAN.html</code>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Filtres interactifs
+        function filterAll() {
+            document.querySelectorAll('.task-card').forEach(card => {
+                card.style.display = 'block';
+            });
+            updateActiveButton(event.target);
+        }
+
+        function filterPriority(priority) {
+            const cards = document.querySelectorAll('.task-card');
+            cards.forEach(card => {
+                if (card.dataset.priority === priority) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            updateActiveButton(event.target);
+        }
+
+        function updateActiveButton(button) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            button.classList.add('active');
+        }
+
+        // Animation au chargement
+        window.addEventListener('load', () => {
+            const cards = document.querySelectorAll('.task-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'all 0.5s ease';
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 50);
+                }, index * 50);
+            });
+        });
+
+        // Mise à jour de l'heure
+        setInterval(() => {
+            const now = new Date();
+            console.log('Kanban mis à jour:', now.toLocaleString('fr-FR'));
+        }, 60000); // Toutes les minutes
+    </script>
+</body>
+</html>

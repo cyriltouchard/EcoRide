@@ -15,7 +15,7 @@ const { pool } = require('./config/db-mysql');
  */
 function parseSQLStatements(sql) {
     // Enlever les commentaires
-    sql = sql.replace(/--[^\n]*/g, '');
+    sql = sql.replaceAll(/--[^\n]*/g, '');
     
     const statements = [];
     let current = '';
@@ -42,7 +42,7 @@ function parseSQLStatements(sql) {
     
     // Filtrer les statements vides et DELIMITER
     return statements.filter(s => {
-        const clean = s.replace(/\s/g, '');
+        const clean = s.replaceAll(/\s/g, '');
         return clean.length > 0 && 
                !s.includes('DELIMITER') && 
                clean !== 'COMMIT;' &&
@@ -61,9 +61,9 @@ function normalizeStatement(statement) {
     }
     
     return statement
-        .replace(/\/\//g, '')
-        .replace(/DELIMITER/g, '')
-        .replace(/END\$\$/g, 'END');
+        .replaceAll(/\/\//g, '')
+        .replaceAll(/DELIMITER/g, '')
+        .replaceAll(/END\$\$/g, 'END');
 }
 
 /**

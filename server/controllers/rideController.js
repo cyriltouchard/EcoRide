@@ -86,7 +86,7 @@ const searchRides = async (req, res) => { // <-- CHANGEMENT ICI
 
         // Security: do not build RegExp directly from user input (ReDoS risk).
         // Escape regex metacharacters and limit the input length.
-        const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&');
+        const escapeRegex = (s) => s.replaceAll(/[.*+?^${}()|[\\]\\]/g, '\\$&');
         const normalizeSearchInput = (s) => {
             if (typeof s !== 'string') return null;
             const trimmed = s.trim();

@@ -49,7 +49,7 @@ export const isValidPhone = (phone) => {
     if (!phone || typeof phone !== 'string') return false;
     
     // Retirer les espaces
-    const cleaned = phone.replace(/\s/g, '');
+    const cleaned = phone.replaceAll(/\s/g, '');
     
     return PHONE_REGEX.test(cleaned);
 };

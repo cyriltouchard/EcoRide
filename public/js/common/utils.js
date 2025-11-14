@@ -98,7 +98,7 @@ export const formatCardNumber = (value) => {
  * @returns {string} Date formatée
  */
 export const formatExpiryDate = (value) => {
-    let cleaned = value.replace(/\D/g, '');
+    let cleaned = value.replaceAll(/\D/g, '');
     if (cleaned.length >= 2) {
         cleaned = cleaned.substring(0, 2) + '/' + cleaned.substring(2, 4);
     }
