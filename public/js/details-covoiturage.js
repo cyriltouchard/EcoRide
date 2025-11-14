@@ -38,6 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const ride = result.data || result;
             
             console.log('📦 Trajet chargé:', ride);
+            console.log('🚗 Véhicule complet:', JSON.stringify(ride.vehicle, null, 2));
+            console.log('🔑 Immatriculation:', ride.vehicle?.plate);
+            console.log('⚡ Énergie:', ride.vehicle?.energy);
 
             document.getElementById('ride-departure').textContent = ride.departure;
             document.getElementById('ride-arrival').textContent = ride.arrival;
@@ -46,6 +49,22 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('ride-price').textContent = ride.price;
             document.getElementById('ride-seats').textContent = ride.availableSeats;
             document.getElementById('driver-name').textContent = ride.driver.pseudo;
+            
+            // Description du trajet
+            const descriptionEl = document.getElementById('ride-description');
+            if (ride.description && ride.description.trim()) {
+                descriptionEl.textContent = ride.description;
+            } else {
+                descriptionEl.style.display = 'none';
+            }
+            
+            // Bio du chauffeur
+            const driverBioEl = document.getElementById('driver-bio');
+            if (driverBioEl && ride.driver.bio) {
+                driverBioEl.textContent = ride.driver.bio;
+            } else if (driverBioEl) {
+                driverBioEl.textContent = 'Aucune description disponible.';
+            }
             
             // Charger la photo du chauffeur
             const driverPhotoEl = document.getElementById('driver-photo-lg');
@@ -62,8 +81,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            document.getElementById('vehicle-model').textContent = ride.vehicle.model;
-            document.getElementById('vehicle-brand').textContent = ride.vehicle.brand;
+            // Véhicule
+            document.getElementById('vehicle-model').textContent = ride.vehicle?.model || 'Non renseigné';
+            document.getElementById('vehicle-brand').textContent = ride.vehicle?.brand || 'Non renseignée';
+            document.getElementById('vehicle-plate').textContent = ride.vehicle?.plate || 'Non renseignée';
+            document.getElementById('vehicle-energy').textContent = ride.vehicle?.energy || 'Non renseignée';
+            
+            // Debug final
+            if (!ride.vehicle?.plate || !ride.vehicle?.energy) {
+                console.warn('⚠️ Données véhicule manquantes. Populate ne fonctionne pas correctement.');
+            }
             
             const button = document.getElementById('participate-button');
             if (ride.availableSeats <= 0) {

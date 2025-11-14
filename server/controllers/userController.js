@@ -325,26 +325,9 @@ exports.updateProfile = async (req, res) => {
         if (phone !== undefined) updateData.phone = phone;
         if (bio !== undefined) updateData.bio = bio;
         
-        const success = await UserSQL.updateProfile(userId, updateData);
-        
-        res.json({ success: true, message: 'Profil mis à jour avec succés' });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-};
-
-// --- Mettre à jour le profil utilisateur ---
-exports.updateProfile = async (req, res) => {
-    try {
-        const userId = req.user.id;
-        const { pseudo, email, phone, bio } = req.body;
-        const updateData = {};
-        if (pseudo) updateData.pseudo = pseudo;
-        if (email) updateData.email = email;
-        if (phone !== undefined) updateData.phone = phone;
-        if (bio !== undefined) updateData.bio = bio;
         await UserSQL.updateProfile(userId, updateData);
-        res.json({ success: true, message: 'Profil mis à jour' });
+        
+        res.json({ success: true, message: 'Profil mis à jour avec succès' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }

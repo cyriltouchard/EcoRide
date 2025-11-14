@@ -299,16 +299,21 @@ const bookRide = async (req, res) => { // <-- CHANGEMENT ICI
 // @route   GET /api/rides/:id
 // @desc    Obtenir les détails d'un trajet spécifique
 // @access  Public (ou Private si vous voulez restreindre l'accès aux détails)
-const getRideById = async (req, res) => { // <-- CHANGEMENT ICI
+const getRideById = async (req, res) => {
     try {
         const ride = await Ride.findById(req.params.id)
-            .populate('driver', 'pseudo email')
-            .populate('vehicle', 'brand model plate')
+            .populate('driver', 'pseudo email bio profile_picture')
+            .populate('vehicle', 'brand model plate energy')
             .populate('passengers', 'pseudo email');
 
         if (!ride) {
             return res.status(404).json({ msg: 'Trajet non trouvé.' });
         }
+        
+        console.log('🚗 Vehicle data:', ride.vehicle);
+        console.log('🔑 Plate:', ride.vehicle?.plate);
+        console.log('⚡ Energy:', ride.vehicle?.energy);
+        
         res.status(200).json(ride);
     } catch (err) {
         console.error(err.message);
