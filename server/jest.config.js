@@ -51,6 +51,11 @@ module.exports = {
   // Setup files
   setupFilesAfterEnv: ['<rootDir>/__tests__/setup/testSetup.js'],
 
+  // Module name mapper pour mocker mongoose
+  moduleNameMapper: {
+    '^mongoose$': '<rootDir>/__tests__/__mocks__/mongoose.js'
+  },
+
   // Timeout
   testTimeout: 10000,
 
