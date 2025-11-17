@@ -181,9 +181,9 @@ const validateCardData = (cardData) => {
     
     // Validation de l'expiration
     if (!isValidExpiry(cardData.expiry)) {
-        errors.expiry = !/^\d{2}\/\d{2}$/.test(cardData.expiry) 
-            ? 'Format invalide (MM/AA)' 
-            : 'Date d\'expiration invalide ou expirée';
+        errors.expiry = /^\d{2}\/\d{2}$/.test(cardData.expiry) 
+            ? 'Date d\'expiration invalide ou expirée'
+            : 'Format invalide (MM/AA)';
     }
     
     // Validation du CVV

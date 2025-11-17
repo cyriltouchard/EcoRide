@@ -63,6 +63,26 @@ function restoreStarState(stars, input) {
     });
 }
 
+/**
+ * Gère le clic sur une étoile
+ * @param {HTMLElement} star - Élément étoile cliqué
+ * @param {NodeList|Array} stars - Liste des éléments étoile
+ * @param {HTMLInputElement} input - Input contenant la valeur de notation
+ */
+function handleStarClick(star, stars, input) {
+    const value = Number.parseInt(star.dataset.value);
+    const currentValue = Number.parseInt(input.value);
+    
+    // Si on clique sur la même étoile, on désélectionne
+    if (currentValue === value) {
+        input.value = '';
+        resetStars(stars);
+    } else {
+        input.value = value;
+        updateStars(stars, value);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     if (!window.location.pathname.includes('avis.html')) return;
     
@@ -102,23 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadMyReviews();
             }
         });
-    }
-
-    /**
-     * Gère le clic sur une étoile
-     */
-    function handleStarClick(star, stars, input) {
-        const value = Number.parseInt(star.dataset.value);
-        const currentValue = Number.parseInt(input.value);
-        
-        // Si on clique sur la même étoile, on désélectionne
-        if (currentValue === value) {
-            input.value = '';
-            resetStars(stars);
-        } else {
-            input.value = value;
-            updateStars(stars, value);
-        }
     }
 
     /**
