@@ -13,6 +13,7 @@ const normalizePlate = (p) => {
 // @desc    Ajouter un nouveau véhicule
 // @access  Private
 exports.addVehicle = async (req, res) => {
+    console.log('🚗 Données reçues pour nouveau véhicule:', req.body);
     let { brand, model, plate, energy, seats } = req.body;
     const userId = req.user.id;
 
@@ -23,7 +24,10 @@ exports.addVehicle = async (req, res) => {
         energy = sanitizeString(energy);
         seats = parseInt(seats, 10);
 
+        console.log('🔍 Après traitement:', { brand, model, plate, energy, seats, userId });
+
         if (!brand || !model || !plate || !energy || !seats) {
+            console.log('❌ Validation échouée:', { brand: !!brand, model: !!model, plate: !!plate, energy: !!energy, seats: !!seats });
             return res.status(400).json({ msg: 'Veuillez remplir tous les champs obligatoires.' });
         }
         const existingVehicle = await Vehicle.findOne({ userId, plate });

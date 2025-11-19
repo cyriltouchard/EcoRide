@@ -23,26 +23,30 @@ exports.addVehicle = async (req, res) => {
             req.user.user_type = 'chauffeur_passager'; // Mettre à jour dans la session
         }
         
+        // Support des DEUX formats (ancien et nouveau)
         const {
             brand,
             model,
             color,
             license_plate,
+            plate,
             first_registration,
             energy_type,
-            available_seats
+            energy,
+            available_seats,
+            seats
         } = req.body;
         
-        // Validation des données
+        // Validation des données avec support des deux formats
         const vehicleData = {
             user_id: userId,
             brand: brand?.trim(),
             model: model?.trim(),
-            color: color?.trim(),
-            license_plate: license_plate?.trim().toUpperCase(),
-            first_registration,
-            energy_type,
-            available_seats: parseInt(available_seats)
+            color: color?.trim() || 'Non spécifié',
+            license_plate: (license_plate || plate)?.trim().toUpperCase(),
+            first_registration: first_registration || new Date().toISOString().split('T')[0],
+            energy_type: (energy_type || energy)?.toLowerCase(),
+            available_seats: parseInt(available_seats || seats)
         };
         
         const validationErrors = VehicleSQL.validateVehicleData(vehicleData);
