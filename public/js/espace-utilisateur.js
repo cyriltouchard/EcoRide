@@ -161,15 +161,20 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
             return;
         }
         
+        // Normaliser les accents pour l'énergie (électrique -> electrique)
+        const energyValue = formData.get('energy').toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, ''); // Supprime les accents
+        
         const vehicleData = {
             brand: formData.get('brand'),
             model: modelValue,
-            license_plate: formData.get('plate').toUpperCase(),
-            energy_type: formData.get('energy').toLowerCase(),
-            available_seats: parseInt(formData.get('seats')),
-            color: 'Non spécifié',
-            first_registration: new Date().toISOString().split('T')[0]
+            plate: formData.get('plate').toUpperCase(),
+            energy: energyValue,
+            seats: parseInt(formData.get('seats'))
         };
+        
+        console.log('🚗 Données du véhicule à envoyer:', vehicleData);
         
         try {
             await fetchWithAuth(`${API_BASE_URL}/vehicles`, { 
@@ -182,6 +187,7 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
             modelSelect.disabled = true;
             loadUserVehicles();
         } catch (error) {
+            console.error('❌ Erreur complète:', error);
             showNotification(`Erreur: ${error.message}`, 'error');
         }
     });
@@ -203,9 +209,9 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
         const vehicleData = {
             brand: formData.get('brand'),
             model: modelValue,
-            license_plate: formData.get('plate').toUpperCase(),
-            energy_type: formData.get('energy').toLowerCase(),
-            available_seats: parseInt(formData.get('seats')),
+            plate: formData.get('plate').toUpperCase(),
+            energy: formData.get('energy').toLowerCase(),
+            seats: parseInt(formData.get('seats'))
         };
         
         try {
@@ -414,9 +420,6 @@ const initTabs = (loadUserVehicles, loadRides, loadMyRatings) => {
     if (tabToActivate) {
         tabToActivate.click();
     }
-};
-
-    });
 };
 
 /**

@@ -29,6 +29,11 @@ services:
       - ecoride-network
     volumes:
       - ./logs:/app/logs
+      - ./public:/app/public
+      - ./server:/app/server
+      - ./espace-utilisateur.html:/app/espace-utilisateur.html
+      - ./connexion.html:/app/connexion.html
+      - ./index.html:/app/index.html
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
       interval: 30s
