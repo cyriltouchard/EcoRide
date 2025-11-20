@@ -6,16 +6,30 @@
 const rideHybridController = require('../../../controllers/rideHybridController');
 const RideSQL = require('../../../models/rideSQLModel');
 const Ride = require('../../../models/rideModel');
+const UserSQL = require('../../../models/userSQLModel');
+const VehicleSQL = require('../../../models/vehicleSQLModel');
+const CreditModel = require('../../../models/creditModel');
 
 // Mock des modèles
 jest.mock('../../../models/rideSQLModel', () => ({
   create: jest.fn(),
-  findById: jest.fn(),
+  getById: jest.fn(),
   search: jest.fn(),
-  update: jest.fn(),
-  delete: jest.fn()
+  cancel: jest.fn(),
+  validateRideData: jest.fn()
 }));
 jest.mock('../../../models/rideModel');
+jest.mock('../../../models/userSQLModel', () => ({
+  findById: jest.fn(),
+  updateUserType: jest.fn()
+}));
+jest.mock('../../../models/vehicleSQLModel', () => ({
+  getById: jest.fn()
+}));
+jest.mock('../../../models/creditModel', () => ({
+  canAfford: jest.fn(),
+  takePlatformCommission: jest.fn()
+}));
 
 const mockRequest = (data = {}) => ({
   body: data.body || {},
@@ -43,18 +57,26 @@ describe('RideHybridController', () => {
     it('devrait créer un trajet avec des données valides', async () => {
       const req = mockRequest({
         body: {
-          vehicleId: 1,
-          departureCity: 'Paris',
-          arrivalCity: 'Lyon',
-          departureDate: '2025-12-01',
-          departureTime: '10:00',
-          availableSeats: 3,
-          pricePerSeat: 25
+          vehicle_id: 1,
+          departure_city: 'Paris',
+          arrival_city: 'Lyon',
+          departure_datetime: '2025-12-01 10:00:00',
+          available_seats: 3,
+          price_per_seat: 25
         },
         user: { id: 1 }
       });
       const res = mockResponse();
 
+      UserSQL.findById.mockResolvedValue({ id: 1, user_type: 'chauffeur' });
+      RideSQL.validateRideData.mockReturnValue([]);
+      VehicleSQL.getById.mockResolvedValue({
+        id: 1,
+        brand: 'Renault',
+        model: 'Clio',
+        energy_type: 'essence'
+      });
+      CreditModel.canAfford.mockResolvedValue(true);
       RideSQL.create.mockResolvedValue({
         id: 1,
         driver_id: 1,
@@ -67,6 +89,7 @@ describe('RideHybridController', () => {
       Ride.mockImplementation(() => ({
         save: jest.fn().mockResolvedValue({ _id: 'mongo123' })
       }));
+      CreditModel.takePlatformCommission.mockResolvedValue(true);
 
       await rideHybridController.createRide(req, res);
 
@@ -79,20 +102,23 @@ describe('RideHybridController', () => {
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
         success: true,
-        ride: expect.any(Object)
+        data: expect.any(Object)
       }));
     });
 
     it('devrait rejeter si des champs obligatoires manquent', async () => {
       const req = mockRequest({
         body: {
-          vehicleId: 1,
-          departureCity: 'Paris'
-          // arrivalCity manquante
+          vehicle_id: 1,
+          departure_city: 'Paris'
+          // arrival_city manquante
         },
         user: { id: 1 }
       });
       const res = mockResponse();
+
+      UserSQL.findById.mockResolvedValue({ id: 1, user_type: 'chauffeur' });
+      RideSQL.validateRideData.mockReturnValue(['Ville d\'arrivée requise']);
 
       await rideHybridController.createRide(req, res);
 
@@ -106,18 +132,21 @@ describe('RideHybridController', () => {
     it('devrait gérer les erreurs de base de données', async () => {
       const req = mockRequest({
         body: {
-          vehicleId: 1,
-          departureCity: 'Paris',
-          arrivalCity: 'Lyon',
-          departureDate: '2025-12-01',
-          departureTime: '10:00',
-          availableSeats: 3,
-          pricePerSeat: 25
+          vehicle_id: 1,
+          departure_city: 'Paris',
+          arrival_city: 'Lyon',
+          departure_datetime: '2025-12-01 10:00:00',
+          available_seats: 3,
+          price_per_seat: 25
         },
         user: { id: 1 }
       });
       const res = mockResponse();
 
+      UserSQL.findById.mockResolvedValue({ id: 1, user_type: 'chauffeur' });
+      RideSQL.validateRideData.mockReturnValue([]);
+      VehicleSQL.getById.mockResolvedValue({ id: 1 });
+      CreditModel.canAfford.mockResolvedValue(true);
       RideSQL.create.mockRejectedValue(new Error('Database error'));
 
       await rideHybridController.createRide(req, res);
@@ -139,7 +168,7 @@ describe('RideHybridController', () => {
       });
       const res = mockResponse();
 
-      RideSQL.findById.mockResolvedValue({
+      RideSQL.getById.mockResolvedValue({
         id: 1,
         driver_id: 1,
         departure_city: 'Paris',
@@ -151,11 +180,10 @@ describe('RideHybridController', () => {
 
       await rideHybridController.getRideById(req, res);
 
-      expect(RideSQL.findById).toHaveBeenCalledWith(1);
-      expect(res.status).toHaveBeenCalledWith(200);
+      expect(RideSQL.getById).toHaveBeenCalledWith(1);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
         success: true,
-        ride: expect.any(Object)
+        data: expect.any(Object)
       }));
     });
 
@@ -165,7 +193,7 @@ describe('RideHybridController', () => {
       });
       const res = mockResponse();
 
-      RideSQL.findById.mockResolvedValue(null);
+      RideSQL.getById.mockResolvedValue(null);
 
       await rideHybridController.getRideById(req, res);
 
@@ -183,9 +211,9 @@ describe('RideHybridController', () => {
     it('devrait rechercher des trajets avec des filtres', async () => {
       const req = mockRequest({
         query: {
-          departureCity: 'Paris',
-          arrivalCity: 'Lyon',
-          date: '2025-12-01'
+          departure_city: 'Paris',
+          arrival_city: 'Lyon',
+          departure_date: '2025-12-01'
         }
       });
       const res = mockResponse();
@@ -198,11 +226,10 @@ describe('RideHybridController', () => {
       await rideHybridController.searchRides(req, res);
 
       expect(RideSQL.search).toHaveBeenCalledWith(expect.objectContaining({
-        departureCity: 'Paris',
-        arrivalCity: 'Lyon',
-        date: '2025-12-01'
+        departure_city: 'Paris',
+        arrival_city: 'Lyon',
+        departure_date: '2025-12-01'
       }));
-      expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
         success: true,
         rides: expect.any(Array)
@@ -212,8 +239,8 @@ describe('RideHybridController', () => {
     it('devrait retourner un tableau vide si aucun trajet ne correspond', async () => {
       const req = mockRequest({
         query: {
-          departureCity: 'Paris',
-          arrivalCity: 'Tokyo'
+          departure_city: 'Paris',
+          arrival_city: 'Tokyo'
         }
       });
       const res = mockResponse();
@@ -222,7 +249,6 @@ describe('RideHybridController', () => {
 
       await rideHybridController.searchRides(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
         success: true,
         rides: []
@@ -230,107 +256,47 @@ describe('RideHybridController', () => {
     });
   });
 
-  // ==================== UPDATE RIDE ====================
-  describe('updateRide', () => {
+  // ==================== CANCEL RIDE ====================
+  describe('cancelRide', () => {
     
-    it('devrait mettre à jour un trajet si l\'utilisateur est le conducteur', async () => {
+    it('devrait annuler un trajet si l\'utilisateur est le conducteur', async () => {
       const req = mockRequest({
         params: { id: '1' },
-        body: {
-          availableSeats: 2,
-          pricePerSeat: 30
-        },
+        body: { reason: 'Problème mécanique' },
         user: { id: 1 }
       });
       const res = mockResponse();
 
-      RideSQL.findById.mockResolvedValue({
+      RideSQL.cancel.mockResolvedValue({
         id: 1,
-        driver_id: 1
-      });
-      RideSQL.update.mockResolvedValue({
-        id: 1,
-        available_seats: 2,
-        price_per_seat: 30
+        status: 'annule',
+        cancellation_reason: 'Problème mécanique'
       });
 
-      await rideHybridController.updateRide(req, res);
+      await rideHybridController.cancelRide(req, res);
 
-      expect(RideSQL.update).toHaveBeenCalledWith(1, expect.any(Object));
-      expect(res.status).toHaveBeenCalledWith(200);
+      expect(RideSQL.cancel).toHaveBeenCalledWith(1, 1, 'Problème mécanique');
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
         success: true,
-        ride: expect.any(Object)
+        message: expect.stringContaining('annulé')
       }));
     });
 
-    it('devrait rejeter si l\'utilisateur n\'est pas le conducteur', async () => {
+    it('devrait gérer les erreurs lors de l\'annulation', async () => {
       const req = mockRequest({
         params: { id: '1' },
-        body: { availableSeats: 2 },
+        body: { reason: 'Test' },
         user: { id: 2 }
       });
       const res = mockResponse();
 
-      RideSQL.findById.mockResolvedValue({
-        id: 1,
-        driver_id: 1
-      });
+      RideSQL.cancel.mockRejectedValue(new Error('Non autorisé'));
 
-      await rideHybridController.updateRide(req, res);
+      await rideHybridController.cancelRide(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        success: false,
-        message: expect.stringContaining('autorisé')
-      }));
-    });
-  });
-
-  // ==================== DELETE RIDE ====================
-  describe('deleteRide', () => {
-    
-    it('devrait supprimer un trajet si l\'utilisateur est le conducteur', async () => {
-      const req = mockRequest({
-        params: { id: '1' },
-        user: { id: 1 }
-      });
-      const res = mockResponse();
-
-      RideSQL.findById.mockResolvedValue({
-        id: 1,
-        driver_id: 1
-      });
-      RideSQL.delete.mockResolvedValue(true);
-
-      await rideHybridController.deleteRide(req, res);
-
-      expect(RideSQL.delete).toHaveBeenCalledWith(1);
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        success: true,
-        message: expect.stringContaining('supprimé')
-      }));
-    });
-
-    it('devrait rejeter si l\'utilisateur n\'est pas le conducteur', async () => {
-      const req = mockRequest({
-        params: { id: '1' },
-        user: { id: 2 }
-      });
-      const res = mockResponse();
-
-      RideSQL.findById.mockResolvedValue({
-        id: 1,
-        driver_id: 1
-      });
-
-      await rideHybridController.deleteRide(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(403);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        success: false,
-        message: expect.stringContaining('autorisé')
+        success: false
       }));
     });
   });

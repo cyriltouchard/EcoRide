@@ -54,7 +54,7 @@ describe('Auth Middleware', () => {
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
         success: false,
-        message: expect.stringContaining('Token')
+        message: 'Aucun token, autorisation refusée'
       }));
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -92,7 +92,7 @@ describe('Auth Middleware', () => {
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
         success: false,
-        message: expect.stringContaining('expiré')
+        message: 'Token non valide'
       }));
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -103,7 +103,7 @@ describe('Auth Middleware', () => {
 
       jwt.verify.mockReturnValue({ id: 1, email: 'test@example.com' });
 
-      verifyToken(req, res, mockNext);
+      authenticateToken(req, res, mockNext);
 
       expect(req.user).toBeDefined();
       expect(mockNext).toHaveBeenCalled();

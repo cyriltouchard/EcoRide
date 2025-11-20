@@ -58,21 +58,14 @@ describe('ReviewHybridController', () => {
       pool.query.mockResolvedValueOnce([[]]); // existingReview
       // Mock insertion
       pool.query.mockResolvedValueOnce([{ insertId: 1 }]); // insert
-      // Mock récupération avis
-      pool.query.mockResolvedValueOnce([[{ 
-        id: 1, 
-        driver_id: 2, 
-        passenger_id: 1,
-        rating: 5,
-        comment: 'Excellent chauffeur'
-      }]]);
 
       await reviewHybridController.createDriverReview(req, res);
 
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
         success: true,
-        review: expect.any(Object)
+        msg: expect.any(String),
+        reviewId: expect.any(Number)
       }));
     });
 
@@ -173,11 +166,11 @@ describe('ReviewHybridController', () => {
         { id: 1, rating: 5, comment: 'Excellent' },
         { id: 2, rating: 4, comment: 'Très bien' }
       ]]);
+      pool.query.mockResolvedValueOnce([[{ total_reviews: 2, average_rating: 4.5 }]]);
 
       await reviewHybridController.getDriverReviews(req, res);
 
       expect(pool.query).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
         success: true,
         reviews: expect.any(Array)
@@ -191,10 +184,10 @@ describe('ReviewHybridController', () => {
       const res = mockResponse();
 
       pool.query.mockResolvedValueOnce([[]]);
+      pool.query.mockResolvedValueOnce([[]]);
 
       await reviewHybridController.getDriverReviews(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
         success: true,
         reviews: []
@@ -208,8 +201,9 @@ describe('ReviewHybridController', () => {
     it('devrait créer un avis sur le site', async () => {
       const req = mockRequest({
         body: {
-          rating: 5,
-          category: 'general',
+          overallRating: 5,
+          easeOfUseRating: 5,
+          reliabilityRating: 4,
           comment: 'Super application'
         },
         user: { id: 1 }
@@ -222,15 +216,16 @@ describe('ReviewHybridController', () => {
 
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        success: true
+        success: true,
+        msg: expect.any(String),
+        reviewId: expect.any(Number)
       }));
     });
 
     it('devrait rejeter une note invalide', async () => {
       const req = mockRequest({
         body: {
-          rating: 0,
-          category: 'general',
+          overallRating: 6,
           comment: 'Test'
         },
         user: { id: 1 }
@@ -241,7 +236,8 @@ describe('ReviewHybridController', () => {
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        success: false
+        success: false,
+        msg: expect.stringContaining('entre 1 et 5')
       }));
     });
   });

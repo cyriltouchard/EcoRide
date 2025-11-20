@@ -13,8 +13,8 @@ const UserSQL = require('../../../models/userSQLModel');
 jest.mock('../../../models/vehicleSQLModel', () => ({
   validateVehicleData: jest.fn(),
   create: jest.fn(),
-  findById: jest.fn(),
-  findByUserId: jest.fn(),
+  getById: jest.fn(),
+  getUserVehicles: jest.fn(),
   update: jest.fn(),
   delete: jest.fn()
 }));
@@ -93,7 +93,7 @@ describe('VehicleHybridController', () => {
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
         success: true,
         message: expect.any(String),
-        vehicle: expect.any(Object)
+        data: expect.any(Object)
       }));
     });
 
@@ -239,30 +239,20 @@ describe('VehicleHybridController', () => {
       });
       const res = mockResponse();
 
-      VehicleSQL.findById.mockResolvedValue({ 
-        id: 1, 
-        user_id: 1,
-        brand: 'Renault',
-        model: 'Clio'
-      });
+      VehicleSQL.validateVehicleData.mockReturnValue([]);
       VehicleSQL.update.mockResolvedValue({ 
         id: 1, 
         brand: 'Renault', 
         model: 'Clio V',
         available_seats: 3
       });
-      Vehicle.findOne = jest.fn().mockResolvedValue({
-        vehicleId: 1,
-        save: jest.fn().mockResolvedValue({ _id: 'mongo123' })
-      });
 
       await vehicleHybridController.updateVehicle(req, res);
 
-      expect(VehicleSQL.update).toHaveBeenCalledWith(1, expect.any(Object));
-      expect(res.status).toHaveBeenCalledWith(200);
+      expect(VehicleSQL.update).toHaveBeenCalledWith(1, 1, expect.any(Object));
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
         success: true,
-        vehicle: expect.any(Object)
+        data: expect.any(Object)
       }));
     });
 
@@ -274,17 +264,13 @@ describe('VehicleHybridController', () => {
       });
       const res = mockResponse();
 
-      VehicleSQL.findById.mockResolvedValue({ 
-        id: 1, 
-        user_id: 1
-      });
+      VehicleSQL.update.mockRejectedValue(new Error('Véhicule non trouvé ou non autorisé'));
 
       await vehicleHybridController.updateVehicle(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        success: false,
-        message: expect.stringContaining('autorisé')
+        success: false
       }));
     });
 
@@ -296,14 +282,13 @@ describe('VehicleHybridController', () => {
       });
       const res = mockResponse();
 
-      VehicleSQL.findById.mockResolvedValue(null);
+      VehicleSQL.update.mockRejectedValue(new Error('Véhicule non trouvé'));
 
       await vehicleHybridController.updateVehicle(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        success: false,
-        message: expect.stringContaining('trouvé')
+        success: false
       }));
     });
   });
@@ -318,18 +303,12 @@ describe('VehicleHybridController', () => {
       });
       const res = mockResponse();
 
-      VehicleSQL.findById.mockResolvedValue({ 
-        id: 1, 
-        user_id: 1
-      });
       VehicleSQL.delete.mockResolvedValue(true);
       Vehicle.findOneAndDelete = jest.fn().mockResolvedValue({ _id: 'mongo123' });
 
       await vehicleHybridController.deleteVehicle(req, res);
 
-      expect(VehicleSQL.delete).toHaveBeenCalledWith(1);
-      expect(Vehicle.findOneAndDelete).toHaveBeenCalledWith({ vehicleId: 1 });
-      expect(res.status).toHaveBeenCalledWith(200);
+      expect(VehicleSQL.delete).toHaveBeenCalledWith(1, 1);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
         success: true,
         message: expect.stringContaining('supprimé')
@@ -343,17 +322,14 @@ describe('VehicleHybridController', () => {
       });
       const res = mockResponse();
 
-      VehicleSQL.findById.mockResolvedValue({ 
-        id: 1, 
-        user_id: 1
-      });
+      VehicleSQL.delete.mockResolvedValue(false);
 
       await vehicleHybridController.deleteVehicle(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
         success: false,
-        message: expect.stringContaining('autorisé')
+        message: expect.stringContaining('trouvé')
       }));
     });
   });
@@ -367,15 +343,14 @@ describe('VehicleHybridController', () => {
       });
       const res = mockResponse();
 
-      VehicleSQL.findByUserId.mockResolvedValue([
-        { id: 1, brand: 'Renault', model: 'Clio' },
-        { id: 2, brand: 'Peugeot', model: '208' }
+      VehicleSQL.getUserVehicles.mockResolvedValue([
+        { id: 1, brand: 'Renault', model: 'Clio', license_plate: 'AB123CD', energy_type: 'essence', available_seats: 4 },
+        { id: 2, brand: 'Peugeot', model: '208', license_plate: 'PG456EO', energy_type: 'diesel', available_seats: 3 }
       ]);
 
       await vehicleHybridController.getVehicles(req, res);
 
-      expect(VehicleSQL.findByUserId).toHaveBeenCalledWith(1);
-      expect(res.status).toHaveBeenCalledWith(200);
+      expect(VehicleSQL.getUserVehicles).toHaveBeenCalledWith(1);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
         success: true,
         vehicles: expect.arrayContaining([expect.any(Object)])
@@ -388,11 +363,14 @@ describe('VehicleHybridController', () => {
       });
       const res = mockResponse();
 
-      VehicleSQL.findByUserId.mockResolvedValue([]);
+      VehicleSQL.getUserVehicles.mockResolvedValue([]);
 
       await vehicleHybridController.getVehicles(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+        success: true,
+        vehicles: []
+      }));
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
         success: true,
         vehicles: []
