@@ -85,7 +85,16 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
 
     // Fonction pour peupler les modèles
     const populateModels = (brandValue, selectElement, customInput) => {
-        const models = getModelsByBrand(brandValue);
+        // Nettoyer la valeur de la marque (trim + vérification)
+        const cleanBrand = brandValue ? brandValue.trim() : '';
+        
+        if (!cleanBrand) {
+            selectElement.innerHTML = '<option value="">-- Choisir un modèle --</option>';
+            selectElement.disabled = true;
+            return;
+        }
+        
+        const models = getModelsByBrand(cleanBrand);
         selectElement.innerHTML = '<option value="">-- Choisir un modèle --</option>';
         
         if (models.length === 0) {

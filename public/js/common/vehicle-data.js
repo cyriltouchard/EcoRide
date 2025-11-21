@@ -36,8 +36,29 @@ function getAllBrands() {
 }
 
 /**
- * Obtenir les modèles d'une marque
+ * Obtenir les modèles d'une marque (Version robuste avec debug)
  */
 function getModelsByBrand(brand) {
-    return VEHICLE_BRANDS[brand] || [];
+    // 1. Vérification de sécurité
+    if (!brand) {
+        console.warn('[vehicle-data] Aucune marque sélectionnée');
+        return [];
+    }
+
+    // 2. Nettoyage de la valeur (trim pour retirer les espaces)
+    const cleanBrand = brand.trim();
+
+    // 3. Recherche de la marque
+    const models = VEHICLE_BRANDS[cleanBrand];
+
+    // 4. Debugging : Si on ne trouve pas la marque
+    if (!models) {
+        console.warn(`[vehicle-data] La marque "${cleanBrand}" n'existe pas dans VEHICLE_BRANDS`);
+        console.log('[vehicle-data] Clés disponibles:', Object.keys(VEHICLE_BRANDS));
+        console.log('[vehicle-data] Valeur reçue (avec espaces visibles):', `"${brand}"`);
+        return [];
+    }
+
+    console.log(`[vehicle-data] Marque "${cleanBrand}" trouvée: ${models.length} modèles disponibles`);
+    return models;
 }
