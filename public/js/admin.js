@@ -91,22 +91,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Afficher l'écran de connexion
 function showLoginScreen() {
-    document.getElementById('admin-login-screen').style.display = 'flex';
-    document.getElementById('admin-main-content').style.display = 'none';
+    const loginScreen = document.getElementById('admin-login-screen');
+    const mainContent = document.getElementById('admin-main-content');
+    const loginForm = document.getElementById('admin-login-form');
     
-    // Gérer la soumission du formulaire de connexion
-    document.getElementById('admin-login-form').addEventListener('submit', handleAdminLogin);
+    if (loginScreen) loginScreen.style.display = 'flex';
+    if (mainContent) mainContent.style.display = 'none';
+    
+    // Gérer la soumission du formulaire de connexion (une seule fois)
+    if (loginForm && !loginForm.dataset.listenerAdded) {
+        loginForm.addEventListener('submit', handleAdminLogin);
+        loginForm.dataset.listenerAdded = 'true';
+    }
 }
 
 // Gérer la connexion admin
 async function handleAdminLogin(e) {
     e.preventDefault();
     
-    const email = document.getElementById('admin-email').value.trim();
-    const password = document.getElementById('admin-password').value;
+    const emailInput = document.getElementById('admin-email');
+    const passwordInput = document.getElementById('admin-password');
     const errorDiv = document.getElementById('login-error');
     
-    errorDiv.style.display = 'none';
+    if (!emailInput || !passwordInput) {
+        console.error('Éléments du formulaire introuvables');
+        return;
+    }
+    
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    
+    if (errorDiv) errorDiv.style.display = 'none';
     
     try {
         const response = await fetch(`${API_BASE_URL}/api/users/login`, {
@@ -130,8 +145,11 @@ async function handleAdminLogin(e) {
         localStorage.setItem('token', data.token);
         
         // Masquer l'écran de connexion et afficher l'admin
-        document.getElementById('admin-login-screen').style.display = 'none';
-        document.getElementById('admin-main-content').style.display = 'flex';
+        const loginScreen = document.getElementById('admin-login-screen');
+        const mainContent = document.getElementById('admin-main-content');
+        
+        if (loginScreen) loginScreen.style.display = 'none';
+        if (mainContent) mainContent.style.display = 'flex';
         
         // Initialiser le panneau admin
         initAdminPanel();
@@ -145,9 +163,12 @@ async function handleAdminLogin(e) {
 
 async function initAdminPanel() {
     try {
-        // Afficher le contenu principal
-        document.getElementById('admin-main-content').style.display = 'flex';
-        document.getElementById('admin-login-screen').style.display = 'none';
+        // Afficher le contenu principal (sécurisé)
+        const mainContent = document.getElementById('admin-main-content');
+        const loginScreen = document.getElementById('admin-login-screen');
+        
+        if (mainContent) mainContent.style.display = 'flex';
+        if (loginScreen) loginScreen.style.display = 'none';
         
         await verifyAdminAccess();
         setupEventListeners();
