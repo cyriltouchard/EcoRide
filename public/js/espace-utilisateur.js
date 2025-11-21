@@ -85,7 +85,15 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
 
     // Fonction pour peupler les modèles
     const populateModels = (brandValue, selectElement, customInput) => {
-        const models = getModelsByBrand(brandValue);
+        const cleanBrand = brandValue ? brandValue.trim() : '';
+        
+        if (!cleanBrand) {
+            selectElement.innerHTML = '<option value="">-- Choisir un modèle --</option>';
+            selectElement.disabled = true;
+            return;
+        }
+        
+        const models = getModelsByBrand(cleanBrand);
         selectElement.innerHTML = '<option value="">-- Choisir un modèle --</option>';
         
         if (models.length === 0) {
@@ -209,9 +217,8 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
         const vehicleData = {
             brand: formData.get('brand'),
             model: modelValue,
-            plate: formData.get('plate').toUpperCase(),
-            energy: formData.get('energy').toLowerCase(),
-            seats: parseInt(formData.get('seats'))
+            energy_type: formData.get('energy').toLowerCase(),
+            available_seats: parseInt(formData.get('seats'))
         };
         
         try {
@@ -708,7 +715,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (editForm) {
                 // Remplir les champs
                 editForm.elements['edit-vehicle-id'].value = id;
-                editBrandSelect.value = data.brand;
+                
+                // Normaliser la marque pour gérer les problèmes de casse (BMW vs bmw)
+                const normalizedBrand = normalizeBrandName(data.brand);
+                editBrandSelect.value = normalizedBrand || data.brand;
                 
                 // Déclencher le changement de marque pour charger les modèles
                 const event = new Event('change');
