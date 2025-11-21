@@ -80,9 +80,8 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Servir les fichiers statiques
-// Dans Docker, tous les fichiers sont copiés dans /app
 // Servir les fichiers du dossier public (CSS, JS, images)
-app.use('/public', express.static(path.join(__dirname, 'public'), {
+app.use('/public', express.static(path.join(__dirname, '..', 'public'), {
     setHeaders: (res, filepath) => {
         if (filepath.endsWith('.js')) {
             res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -91,8 +90,9 @@ app.use('/public', express.static(path.join(__dirname, 'public'), {
         }
     }
 }));
-// Servir les fichiers HTML à la racine
-app.use(express.static(__dirname, {
+
+// Servir les fichiers HTML à la racine du projet
+app.use(express.static(path.join(__dirname, '..'), {
     setHeaders: (res, filepath) => {
         if (filepath.endsWith('.html')) {
             res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
