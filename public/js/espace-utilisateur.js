@@ -71,9 +71,17 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
     const editModelSelect = document.getElementById('edit-model-modal');
     const editModelCustomInput = document.getElementById('edit-model-custom');
 
+    console.log('[DEBUG] Éléments trouvés:', {
+        brandSelect: !!brandSelect,
+        modelSelect: !!modelSelect,
+        modelCustomInput: !!modelCustomInput
+    });
+
     // Fonction pour peupler les marques
     const populateBrands = (selectElement) => {
+        console.log('[DEBUG] populateBrands appelé pour:', selectElement.id);
         const brands = getAllBrands();
+        console.log('[DEBUG] Nombre de marques:', brands.length);
         selectElement.innerHTML = '<option value="">-- Choisir une marque --</option>';
         brands.forEach(brand => {
             const option = document.createElement('option');
@@ -81,28 +89,35 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
             option.textContent = brand;
             selectElement.appendChild(option);
         });
+        console.log('[DEBUG] Marques peuplées avec succès');
     };
 
     // Fonction pour peupler les modèles
     const populateModels = (brandValue, selectElement, customInput) => {
+        console.log('[DEBUG] populateModels appelé avec marque:', brandValue);
+        
         // Nettoyer la valeur de la marque (trim + vérification)
         const cleanBrand = brandValue ? brandValue.trim() : '';
         
         if (!cleanBrand) {
+            console.log('[DEBUG] Marque vide, arrêt');
             selectElement.innerHTML = '<option value="">-- Choisir un modèle --</option>';
             selectElement.disabled = true;
             return;
         }
         
         const models = getModelsByBrand(cleanBrand);
+        console.log('[DEBUG] Modèles reçus:', models.length);
         selectElement.innerHTML = '<option value="">-- Choisir un modèle --</option>';
         
         if (models.length === 0) {
+            console.log('[DEBUG] Aucun modèle trouvé, mode personnalisé activé');
             selectElement.disabled = true;
             customInput.required = true;
             customInput.placeholder = 'Tapez le modèle';
             showNotification('Tapez le modèle manuellement', 'info');
         } else {
+            console.log('[DEBUG] Ajout des', models.length, 'modèles au select');
             selectElement.disabled = false;
             customInput.required = false;
             customInput.placeholder = 'Modèle personnalisé (optionnel)';
@@ -121,6 +136,7 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
 
     // Gérer le changement de marque (ajout)
     brandSelect.addEventListener('change', (e) => {
+        console.log('[DEBUG] Changement de marque détecté:', e.target.value);
         populateModels(e.target.value, modelSelect, modelCustomInput);
     });
 
