@@ -497,27 +497,5 @@ async function handleEmployeeCreation(e) {
 // ========================================
 // NOTIFICATIONS
 // ========================================
+// showNotification est défini dans common.js
 
-/**
- * Afficher une notification
- * @param {string} message - Message à afficher
- * @param {string} type - Type de notification (success, error, info)
- */
-function showNotification(message, type = 'info') {
-    const container = document.getElementById('notification-container');
-    if (!container) return;
-
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-        <span>${message}</span>
-    `;
-
-    container.appendChild(notification);
-
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
-}
