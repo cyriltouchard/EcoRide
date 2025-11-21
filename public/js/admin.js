@@ -132,17 +132,26 @@ async function handleAdminLogin(e) {
         
         const data = await response.json();
         
+        console.log('📡 Réponse login:', data);
+        
         if (!response.ok) {
             throw new Error(data.message || 'Erreur de connexion');
         }
         
+        // L'API retourne { success: true, data: { token, user: { user_type } } }
+        const userData = data.data?.user || data.user || data;
+        const token = data.data?.token || data.token;
+        const userType = userData.user_type || userData.role;
+        
+        console.log('👤 Type utilisateur:', userType);
+        
         // Vérifier que l'utilisateur est admin ou employé
-        if (data.user_type !== 'admin' && data.user_type !== 'employe') {
-            throw new Error('Accès réservé aux administrateurs et employés');
+        if (userType !== 'admin' && userType !== 'employe') {
+            throw new Error(`Accès réservé aux administrateurs et employés. Votre rôle: ${userType}`);
         }
         
         // Sauvegarder le token
-        localStorage.setItem('token', data.token);
+        localStorage.setItem('token', token);
         
         // Masquer l'écran de connexion et afficher l'admin
         const loginScreen = document.getElementById('admin-login-screen');
