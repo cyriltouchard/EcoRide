@@ -1,15 +1,82 @@
 /**
  * PANNEAU D'ADMINISTRATION - JAVASCRIPT
- * Gestion complète du panneau d'administration EcoRide
+ * Gestion complète du dashboard EcoRide
+ * Refactorisé pour sécurité et performance
  */
 
-// API_BASE_URL est défini dans common.js
+// ========================================
+// CONFIGURATION & UTILITAIRES
+// ========================================
+
+const API_ENDPOINTS = {
+    ME: '/users/me',
+    STATS: '/admin/stats',
+    USERS: '/admin/users',
+    RIDES: '/rides/search?seats=1', // Idéalement, créer une route /admin/rides côté back
+    REVIEWS: '/reviews/pending',    // Route MongoDB pour les avis
+    EMPLOYEES: '/admin/employees',
+    TOGGLE_USER: (id) => `/admin/users/${id}/toggle-status`
+};
+
+/**
+ * Fonction générique pour les appels API sécurisés
+ * @param {string} endpoint - L'URL relative
+ * @param {Object} options - Options fetch (method, body...)
+ */
+async function fetchAPI(endpoint, options = {}) {
+    const token = localStorage.getItem('token');
+    
+    // Configuration par défaut
+    const defaultHeaders = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+    };
+
+    const config = {
+        ...options,
+        headers: { ...defaultHeaders, ...options.headers }
+    };
+
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+        
+        // Gestion spécifique de l'expiration du token (401)
+        if (response.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = 'connexion.html';
+            return null;
+        }
+
+        // Si erreur API (400, 403, 500...)
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: 'Erreur inconnue' }));
+            throw new Error(errorData.message || `Erreur ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error(`Erreur API [${endpoint}]:`, error);
+        throw error;
+    }
+}
+
+/**
+ * Échapper les caractères HTML pour prévenir les failles XSS
+ */
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    return text.toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
 // ========================================
 // INITIALISATION
 // ========================================
 
-// Vérification de l'authentification au chargement
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -17,109 +84,97 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Vérifier si l'utilisateur est admin
-    verifyAdmin();
-
-    // Charger les données du dashboard
-    loadDashboardData();
-
-    // Gestionnaires d'événements
-    setupEventListeners();
+    initAdminPanel();
 });
 
-// ========================================
-// AUTHENTIFICATION
-// ========================================
-
-/**
- * Vérifier si l'utilisateur est admin ou employé
- */
-async function verifyAdmin() {
+async function initAdminPanel() {
     try {
-        console.log('🔍 Vérification du rôle admin...');
-        const token = localStorage.getItem('token');
-        console.log('Token présent:', token ? 'OUI' : 'NON');
-
-        const response = await fetch(`${API_BASE_URL}/users/me`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
-        console.log('Status de la réponse:', response.status);
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Erreur API:', errorText);
-            throw new Error('Non autorisé');
-        }
-
-        const data = await response.json();
-        console.log('Données utilisateur:', data);
-        console.log('Rôle de l\'utilisateur:', data.user_type);
-
-        if (data.user_type !== 'admin' && data.user_type !== 'employe') {
-            console.warn('❌ Accès refusé - Rôle:', data.user_type);
-            showNotification('Accès refusé : Vous n\'êtes pas administrateur. Votre rôle: ' + data.user_type, 'error');
-            return;
-        }
-
-        console.log('✅ Accès autorisé');
-        document.getElementById('admin-name').textContent = data.pseudo || 'Admin';
+        await verifyAdminAccess();
+        setupEventListeners();
+        // Charger le dashboard par défaut
+        loadSectionData('dashboard');
     } catch (error) {
-        console.error('❌ Erreur de vérification:', error);
-        showNotification('Erreur de connexion au serveur', 'error');
+        console.error('Echec initialisation:', error);
     }
 }
 
 // ========================================
-// GESTIONNAIRES D'ÉVÉNEMENTS
+// AUTHENTIFICATION & RÔLES
 // ========================================
 
-/**
- * Configurer tous les gestionnaires d'événements
- */
-function setupEventListeners() {
-    // Navigation dans le menu
-    document.querySelectorAll('.admin-menu-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const section = btn.dataset.section;
-            switchSection(section);
+async function verifyAdminAccess() {
+    try {
+        console.log('🔍 Vérification des droits...');
+        const user = await fetchAPI(API_ENDPOINTS.ME);
 
-            // Mettre à jour l'état actif
+        // Correction du bug "role undefined": on vérifie user_type
+        const role = user.user_type || user.role; 
+
+        if (role !== 'admin' && role !== 'employe') {
+            throw new Error('Droits insuffisants');
+        }
+
+        console.log('✅ Accès autorisé:', role);
+        
+        // Mise à jour de l'interface
+        const nameElement = document.getElementById('admin-name');
+        if (nameElement) nameElement.textContent = user.pseudo || 'Admin';
+
+        // Masquer certaines sections pour les employés si nécessaire
+        if (role === 'employe') {
+            const employeeMenu = document.querySelector('[data-section="employees"]');
+            if (employeeMenu) employeeMenu.style.display = 'none';
+        }
+
+    } catch (error) {
+        console.warn('❌ Accès refusé:', error.message);
+        showNotification('Accès refusé. Redirection...', 'error');
+        setTimeout(() => window.location.href = 'index.html', 2000);
+    }
+}
+
+// ========================================
+// NAVIGATION & ÉVÉNEMENTS
+// ========================================
+
+function setupEventListeners() {
+    // Menu de navigation
+    document.querySelectorAll('.admin-menu-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            // Gestion UI
             document.querySelectorAll('.admin-menu-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+
+            // Logique section
+            const section = btn.dataset.section;
+            switchSection(section);
         });
     });
 
     // Déconnexion
-    document.getElementById('admin-logout').addEventListener('click', () => {
-        localStorage.removeItem('token');
-        window.location.href = 'connexion.html';
+    document.getElementById('admin-logout')?.addEventListener('click', () => {
+        if(confirm('Voulez-vous vraiment vous déconnecter ?')) {
+            localStorage.removeItem('token');
+            window.location.href = 'connexion.html';
+        }
     });
 
-    // Formulaire d'employé
-    document.getElementById('employee-form').addEventListener('submit', handleEmployeeCreation);
+    // Formulaire Création Employé
+    const empForm = document.getElementById('employee-form');
+    if (empForm) {
+        empForm.addEventListener('submit', handleEmployeeCreation);
+    }
 }
 
-// ========================================
-// NAVIGATION
-// ========================================
-
-/**
- * Changer de section
- * @param {string} sectionName - Nom de la section à afficher
- */
 function switchSection(sectionName) {
     // Masquer toutes les sections
-    document.querySelectorAll('.admin-section').forEach(section => {
-        section.classList.remove('active');
-    });
+    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+    
+    // Afficher la cible
+    const target = document.getElementById(sectionName);
+    if (target) target.classList.add('active');
 
-    // Afficher la section sélectionnée
-    document.getElementById(sectionName).classList.add('active');
-
-    // Mettre à jour le titre
+    // Titre dynamique
     const titles = {
         dashboard: 'Tableau de bord',
         users: 'Gestion des Utilisateurs',
@@ -127,85 +182,69 @@ function switchSection(sectionName) {
         reviews: 'Gestion des Avis',
         employees: 'Gestion des Employés'
     };
-    document.getElementById('page-title').textContent = titles[sectionName];
+    const titleEl = document.getElementById('page-title');
+    if (titleEl) titleEl.textContent = titles[sectionName] || 'Administration';
 
-    // Charger les données de la section
+    // Charger les données
     loadSectionData(sectionName);
 }
 
-/**
- * Charger les données d'une section spécifique
- * @param {string} section - Nom de la section
- */
+// ========================================
+// CHARGEMENT DES DONNÉES
+// ========================================
+
 async function loadSectionData(section) {
-    switch (section) {
-        case 'dashboard':
-            loadDashboardData();
-            break;
-        case 'users':
-            loadUsers();
-            break;
-        case 'rides':
-            loadRides();
-            break;
-        case 'reviews':
-            loadReviews();
-            break;
-        case 'employees':
-            loadEmployees();
-            break;
-    }
-}
+    // Spinner de chargement (optionnel, bonne pratique)
+    // showLoader(); 
 
-// ========================================
-// TABLEAU DE BORD
-// ========================================
-
-/**
- * Charger les données du dashboard
- */
-async function loadDashboardData() {
     try {
-        const response = await fetch(`${API_BASE_URL}/admin/stats`, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        });
-
-        if (!response.ok) throw new Error('Erreur de chargement des stats');
-
-        const stats = await response.json();
-
-        // Mettre à jour les stats
-        document.getElementById('stat-users').textContent = stats.totalUsers || 0;
-        document.getElementById('stat-rides').textContent = stats.totalRides || 0;
-        document.getElementById('stat-credits').textContent = stats.totalCredits || 0;
-        document.getElementById('stat-reviews').textContent = stats.pendingReviews || 0;
-
-        // Créer le graphique
-        createActivityChart(stats.ridesByDay || []);
+        switch (section) {
+            case 'dashboard': await loadDashboardData(); break;
+            case 'users':     await loadUsers(); break;
+            case 'rides':     await loadRides(); break;
+            case 'reviews':   await loadReviews(); break;
+            case 'employees': await loadEmployees(); break;
+        }
     } catch (error) {
-        console.error('Erreur:', error);
-        showNotification('Erreur de chargement des statistiques', 'error');
+        showNotification(`Erreur chargement ${section}: ${error.message}`, 'error');
     }
 }
 
-/**
- * Créer le graphique d'activité avec Chart.js
- * @param {Array} data - Données des trajets par jour
- */
+// ----------------------------------------
+// 1. DASHBOARD
+// ----------------------------------------
+
+async function loadDashboardData() {
+    const stats = await fetchAPI(API_ENDPOINTS.STATS);
+    
+    if (!stats) return;
+
+    // Mise à jour sécurisée des compteurs
+    const updateCount = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val || 0;
+    };
+
+    updateCount('stat-users', stats.totalUsers);
+    updateCount('stat-rides', stats.totalRides);
+    updateCount('stat-credits', stats.totalCredits);
+    updateCount('stat-reviews', stats.pendingReviews);
+
+    createActivityChart(stats.ridesByDay || []);
+}
+
 function createActivityChart(data) {
     const ctx = document.getElementById('activity-chart');
+    if (!ctx) return;
 
-    // Détruire le graphique existant s'il y en a un
-    if (window.activityChart) {
+    if (window.activityChart instanceof Chart) {
         window.activityChart.destroy();
     }
 
-    const labels = data.map(d => {
-        const date = new Date(d.date);
-        return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
-    });
+    // Protection contre données vides
+    if (!Array.isArray(data)) data = [];
+
+    const labels = data.map(d => new Date(d.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }));
     const values = data.map(d => d.count);
 
     window.activityChart = new Chart(ctx, {
@@ -224,121 +263,66 @@ function createActivityChart(data) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top'
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1
-                    }
-                }
-            }
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
         }
     });
 }
 
-// ========================================
-// GESTION DES UTILISATEURS
-// ========================================
+// ----------------------------------------
+// 2. UTILISATEURS
+// ----------------------------------------
 
-/**
- * Charger la liste des utilisateurs
- */
 async function loadUsers() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/admin/users`, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        });
-
-        if (!response.ok) throw new Error('Erreur de chargement');
-
-        const users = await response.json();
-        displayUsers(users);
-    } catch (error) {
-        console.error('Erreur:', error);
-        showNotification('Erreur de chargement des utilisateurs', 'error');
-    }
-}
-
-/**
- * Obtenir la classe CSS du badge selon le type d'utilisateur
- * @param {string} userType - Type d'utilisateur
- * @returns {string} Classe CSS du badge
- */
-function getUserTypeBadgeClass(userType) {
-    if (userType === 'admin') return 'danger';
-    if (userType === 'employe') return 'warning';
-    return 'info';
-}
-
-/**
- * Afficher les utilisateurs dans le tableau
- * @param {Array} users - Liste des utilisateurs
- */
-function displayUsers(users) {
+    const users = await fetchAPI(API_ENDPOINTS.USERS);
     const tbody = document.getElementById('users-table');
+    
+    if (!tbody) return;
+    tbody.innerHTML = '';
 
-    if (users.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">Aucun utilisateur trouvé</td></tr>';
+    // BUG FIX: Vérification Array
+    if (!Array.isArray(users) || users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4">Aucun utilisateur trouvé</td></tr>';
         return;
     }
 
     tbody.innerHTML = users.map(user => `
         <tr>
-            <td>${user.pseudo || 'N/A'}</td>
-            <td>${user.email}</td>
-            <td>
-                <span class="badge ${getUserTypeBadgeClass(user.user_type)}">
-                    ${user.user_type || 'utilisateur'}
-                </span>
-            </td>
-            <td>
-                <span class="badge ${user.isSuspended ? 'danger' : 'success'}">
-                    ${user.isSuspended ? 'Suspendu' : 'Actif'}
-                </span>
-            </td>
-            <td>${new Date(user.createdAt).toLocaleDateString('fr-FR')}</td>
+            <td>${escapeHtml(user.pseudo)}</td>
+            <td>${escapeHtml(user.email)}</td>
+            <td><span class="badge ${getBadgeClass(user.user_type)}">${user.user_type}</span></td>
+            <td><span class="badge ${user.isSuspended ? 'danger' : 'success'}">${user.isSuspended ? 'Suspendu' : 'Actif'}</span></td>
+            <td>${new Date(user.createdAt || Date.now()).toLocaleDateString('fr-FR')}</td>
             <td>
                 ${user.user_type !== 'admin' ? `
-                    <button class="btn btn-sm ${user.isSuspended ? 'btn-primary' : 'btn-warning'}" 
-                            onclick="toggleUserStatus(${user.id}, ${user.isSuspended})">
-                        <i class="fas fa-${user.isSuspended ? 'check' : 'ban'}"></i>
-                        ${user.isSuspended ? 'Activer' : 'Suspendre'}
-                    </button>
-                ` : '<span style="color: #718096;">-</span>'}
+                <button class="btn btn-sm ${user.isSuspended ? 'btn-primary' : 'btn-warning'}" 
+                        onclick="toggleUserStatus(${user.id}, ${user.isSuspended})">
+                    <i class="fas fa-${user.isSuspended ? 'check' : 'ban'}"></i>
+                </button>` : ''}
             </td>
         </tr>
     `).join('');
+    
+    tbody.innerHTML = html;
 }
 
-/**
- * Basculer le statut d'un utilisateur (actif/suspendu)
- * @param {number} userId - ID de l'utilisateur
- * @param {boolean} isSuspended - État actuel
- */
+// Activer/désactiver un utilisateur
 async function toggleUserStatus(userId, isSuspended) {
     try {
-        const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/toggle-status`, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
+        const response = await fetchWithAuth(`${API_BASE_URL}/api/admin/users/${userId}/toggle-status`, {
+            method: 'PUT'
         });
-
-        if (!response.ok) throw new Error('Erreur de mise à jour');
-
-        showNotification(
-            isSuspended ? 'Utilisateur activé avec succès' : 'Utilisateur suspendu avec succès',
-            'success'
-        );
-        loadUsers();
+        
+        if (response.ok) {
+            const result = await response.json();
+            showNotification(
+                isSuspended ? 'Utilisateur activé avec succès' : 'Utilisateur suspendu avec succès',
+                'success'
+            );
+            loadUsers();
+        } else {
+            throw new Error('Erreur lors de la mise à jour du statut');
+        }
     } catch (error) {
         console.error('Erreur:', error);
         showNotification('Erreur de mise à jour du statut', 'error');
@@ -348,154 +332,104 @@ async function toggleUserStatus(userId, isSuspended) {
 // ========================================
 // GESTION DES TRAJETS
 // ========================================
-
-/**
- * Charger la liste des trajets
- */
 async function loadRides() {
     try {
-        const response = await fetch(`${API_BASE_URL}/rides/search?seats=1`, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        });
-
+        const response = await fetchWithAuth(`${API_BASE_URL}/api/rides/search?seats=1`);
         if (!response.ok) throw new Error('Erreur de chargement');
+        
+        const data = await response.json();
+        const tbody = document.getElementById('rides-table');
+        
+        if (!data.success || !data.rides || data.rides.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">Aucun trajet trouvé</td></tr>';
+            return;
+        }
 
-        const rides = await response.json();
-        displayRides(rides);
+        const html = data.rides.map(ride => `
+            <tr>
+                <td>${escapeHtml(ride.departure)}</td>
+                <td>${escapeHtml(ride.destination)}</td>
+                <td>${escapeHtml(ride.driverName || 'N/A')}</td>
+                <td>${new Date(ride.departure_date).toLocaleDateString('fr-FR')}</td>
+                <td>${ride.price_per_seat} €</td>
+                <td>${ride.available_seats}</td>
+                <td><span class="badge ${ride.status === 'active' ? 'success' : 'danger'}">${ride.status}</span></td>
+            </tr>
+        `).join('');
+        
+        tbody.innerHTML = html;
     } catch (error) {
         console.error('Erreur:', error);
-        showNotification('Erreur de chargement des trajets', 'error');
+        document.getElementById('rides-table').innerHTML = 
+            '<tr><td colspan="7" style="text-align: center; padding: 40px; color: #e74c3c;">Erreur de chargement des trajets</td></tr>';
     }
-}
-
-/**
- * Afficher les trajets dans le tableau
- * @param {Array} rides - Liste des trajets
- */
-function displayRides(rides) {
-    const tbody = document.getElementById('rides-table');
-
-    if (rides.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">Aucun trajet trouvé</td></tr>';
-        return;
-    }
-
-    tbody.innerHTML = rides.map(ride => `
-        <tr>
-            <td>${ride.departure_city}</td>
-            <td>${ride.arrival_city}</td>
-            <td>${ride.driver?.pseudo || 'N/A'}</td>
-            <td>${new Date(ride.departure_datetime).toLocaleDateString('fr-FR')}</td>
-            <td>${ride.price}€</td>
-            <td>${ride.available_seats}/${ride.available_seats}</td>
-            <td>
-                <span class="badge success">Actif</span>
-            </td>
-        </tr>
-    `).join('');
-}
-
-// ========================================
-// GESTION DES AVIS
-// ========================================
-
-/**
- * Charger la liste des avis
- */
-async function loadReviews() {
-    // Pour l'instant, affichage d'un message
-    const tbody = document.getElementById('reviews-table');
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">Fonctionnalité en cours de développement</td></tr>';
 }
 
 // ========================================
 // GESTION DES EMPLOYÉS
 // ========================================
-
-/**
- * Charger la liste des employés
- */
 async function loadEmployees() {
     try {
-        const response = await fetch(`${API_BASE_URL}/admin/users`, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        });
-
+        const response = await fetchWithAuth(`${API_BASE_URL}/api/admin/users`);
         if (!response.ok) throw new Error('Erreur de chargement');
+        
+        const data = await response.json();
+        const tbody = document.getElementById('employees-table');
+        
+        const employees = data.users.filter(u => u.user_type === 'employe');
+        
+        if (employees.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 40px;">Aucun employé trouvé</td></tr>';
+            return;
+        }
 
-        const users = await response.json();
-        const employees = users.filter(u => u.user_type === 'employe');
-        displayEmployees(employees);
+        const html = employees.map(emp => `
+            <tr>
+                <td>${escapeHtml(emp.pseudo)}</td>
+                <td>${escapeHtml(emp.email)}</td>
+                <td>${new Date(emp.createdAt || Date.now()).toLocaleDateString('fr-FR')}</td>
+            </tr>
+        `).join('');
+        
+        tbody.innerHTML = html;
     } catch (error) {
         console.error('Erreur:', error);
         showNotification('Erreur de chargement des employés', 'error');
     }
 }
 
-/**
- * Afficher les employés dans le tableau
- * @param {Array} employees - Liste des employés
- */
-function displayEmployees(employees) {
-    const tbody = document.getElementById('employees-table');
-
-    if (employees.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 40px;">Aucun employé trouvé</td></tr>';
-        return;
-    }
-
-    tbody.innerHTML = employees.map(emp => `
-        <tr>
-            <td>${emp.pseudo || 'N/A'}</td>
-            <td>${emp.email}</td>
-            <td>${new Date(emp.createdAt).toLocaleDateString('fr-FR')}</td>
-        </tr>
-    `).join('');
-}
-
-/**
- * Gérer la création d'un nouvel employé
- * @param {Event} e - Événement de soumission du formulaire
- */
-async function handleEmployeeCreation(e) {
+// Créer un employé
+document.getElementById('employee-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-
+    
     const formData = {
-        pseudo: document.getElementById('emp-pseudo').value,
-        email: document.getElementById('emp-email').value,
+        pseudo: document.getElementById('emp-pseudo').value.trim(),
+        email: document.getElementById('emp-email').value.trim(),
         password: document.getElementById('emp-password').value
     };
-
+    
     try {
-        const response = await fetch(`${API_BASE_URL}/admin/employees`, {
+        const response = await fetchWithAuth(`${API_BASE_URL}/api/admin/employees`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
             body: JSON.stringify(formData)
         });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Erreur de création');
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            showNotification('Employé créé avec succès', 'success');
+            e.target.reset();
+            loadEmployees();
+        } else {
+            showNotification(result.msg || 'Erreur de création', 'error');
         }
-
-        showNotification('Employé créé avec succès', 'success');
-        document.getElementById('employee-form').reset();
-        loadEmployees();
     } catch (error) {
         console.error('Erreur:', error);
         showNotification(error.message || 'Erreur de création de l\'employé', 'error');
     }
-}
+});
 
 // ========================================
 // NOTIFICATIONS
 // ========================================
 // showNotification est défini dans common.js
-
