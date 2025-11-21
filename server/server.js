@@ -23,15 +23,18 @@ const app = express();
 app.use(requestLogger);
 
 // Middleware de sécurité
-// CSP assoupli pour le développement
+// CSP assoupli pour le développement ET pour Chart.js
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // Ajouté pour dev
+            // 👇 AJOUT CRUCIAL ICI : https://cdn.jsdelivr.net pour Chart.js
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
             imgSrc: ["'self'", "data:", "https:", "blob:"],
+            mediaSrc: ["'self'", "blob:"],
+            // Ajout de localhost:3000 pour être sûr que le front parle au back
             connectSrc: ["'self'", "http://localhost:3000", "http://localhost:3002"]
         }
     }
