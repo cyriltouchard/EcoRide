@@ -23,15 +23,18 @@ const app = express();
 app.use(requestLogger);
 
 // Middleware de sécurité
-// CSP assoupli pour le développement
+// CSP assoupli pour le développement ET pour Chart.js
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // Ajouté pour dev
+            // 👇 AJOUT CRUCIAL ICI : https://cdn.jsdelivr.net pour Chart.js
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
             imgSrc: ["'self'", "data:", "https:", "blob:"],
+            mediaSrc: ["'self'", "blob:"],
+            // Ajout de localhost:3000 pour être sûr que le front parle au back
             connectSrc: ["'self'", "http://localhost:3000", "http://localhost:3002"]
         }
     }
@@ -80,7 +83,6 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Servir les fichiers statiques
-// Dans Docker, tous les fichiers sont copiés dans /app
 // Servir les fichiers du dossier public (CSS, JS, images)
 app.use('/public', express.static(path.join(__dirname, 'public'), {
     setHeaders: (res, filepath) => {
@@ -91,6 +93,7 @@ app.use('/public', express.static(path.join(__dirname, 'public'), {
         }
     }
 }));
+
 // Servir les fichiers HTML à la racine
 app.use(express.static(__dirname, {
     setHeaders: (res, filepath) => {
@@ -127,6 +130,9 @@ app.use('/api/reviews', require('./routes/reviewRoutes'));
 
 // Routes de contact
 app.use('/api/contact', require('./routes/contactRoutes'));
+
+// Routes administration
+app.use('/api/admin', require('./routes/adminRoutes'));
 
 // Routes de santé et monitoring
 app.use('/api', require('./routes/healthRoutes'));
