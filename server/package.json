@@ -12,7 +12,7 @@
     "test:verbose": "jest --verbose",
     "test:unit": "jest __tests__/unit",
     "test:integration": "jest __tests__/integration",
-    "health": "curl -f http://localhost:3002/api/health || exit 1",
+    "health": "curl -f http://localhost:3000/api/health || exit 1",
     "audit": "npm audit --audit-level moderate",
     "security-check": "node security-check.js",
     "create-admin": "node create-admin.js",

@@ -128,6 +128,9 @@ app.use('/api/reviews', require('./routes/reviewRoutes'));
 // Routes de contact
 app.use('/api/contact', require('./routes/contactRoutes'));
 
+// Routes administration
+app.use('/api/admin', require('./routes/adminRoutes'));
+
 // Routes de santé et monitoring
 app.use('/api', require('./routes/healthRoutes'));
 

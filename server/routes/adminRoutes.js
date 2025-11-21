@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
-const { auth, isAdmin } = require('../middleware/auth'); // Utilise le nouveau middleware isAdmin
+const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 // Toutes les routes ici sont protégées et nécessitent le rôle admin
-router.use(auth, isAdmin);
+router.use(authenticateToken, requireAdmin);
 
 // Routes
 router.post('/employees', adminController.createEmployee);
