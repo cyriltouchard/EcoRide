@@ -8,9 +8,9 @@ const VEHICLE_BRANDS = {
     'Renault': ['Clio', 'Captur', 'Mégane', 'Kadjar', 'Scenic', 'Talisman', 'Twingo', 'Zoe', 'Kangoo', 'Trafic'],
     'Citroën': ['C1', 'C3', 'C4', 'C5', 'C3 Aircross', 'C5 Aircross', 'Berlingo', 'Jumpy', 'Jumper'],
     'Volkswagen': ['Polo', 'Golf', 'Passat', 'Tiguan', 'T-Roc', 'Touran', 'Caddy', 'Transporter', 'ID.3', 'ID.4'],
-    'BMW': ['Serie 1', 'Serie 2', 'Serie 3', 'Serie 4', 'Serie 5', 'Serie 7', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'i3', 'i4', 'iX', 'iX3', 'Z4'],
+    'Bmw': ['Serie 1', 'Serie 2', 'Serie 3', 'Serie 4', 'Serie 5', 'Serie 7', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'I3', 'I4', 'IX', 'IX3', 'Z4'],
     'Mercedes': ['Classe A', 'Classe B', 'Classe C', 'Classe E', 'GLA', 'GLB', 'GLC', 'Vito', 'Sprinter'],
-    'Audi': ['A1', 'A3', 'A4', 'A6', 'Q2', 'Q3', 'Q5', 'Q7', 'e-tron'],
+    'Audi': ['A1', 'A3', 'A4', 'A6', 'Q2', 'Q3', 'Q5', 'Q7', 'E-tron'],
     'Ford': ['Fiesta', 'Focus', 'Mondeo', 'Kuga', 'Puma', 'Probe', 'Transit', 'Transit Custom', 'Mustang Mach-E'],
     'Toyota': ['Yaris', 'Corolla', 'Camry', 'RAV4', 'C-HR', 'Highlander', 'Proace', 'Land Cruiser'],
     'Nissan': ['Micra', 'Juke', 'Qashqai', 'X-Trail', 'Leaf', 'Ariya', 'NV200', 'NV300'],
@@ -53,7 +53,6 @@ function normalizeBrandName(brand) {
     const foundKey = Object.keys(VEHICLE_BRANDS).find(key => key.toLowerCase() === brandLower);
     
     if (foundKey) {
-        console.log(`[vehicle-data] Normalisation: "${cleanBrand}" → "${foundKey}"`);
         return foundKey;
     }
     
@@ -64,23 +63,10 @@ function normalizeBrandName(brand) {
  * Obtenir les modèles d'une marque (Version robuste avec debug)
  */
 function getModelsByBrand(brand) {
-    // 1. Vérification de sécurité
-    if (!brand) {
-        console.warn('[vehicle-data] Aucune marque sélectionnée');
-        return [];
-    }
+    if (!brand) return [];
 
-    // 2. Normalisation de la marque (gère la casse)
     const normalizedBrand = normalizeBrandName(brand);
+    if (!normalizedBrand) return [];
 
-    // 3. Recherche de la marque
-    if (!normalizedBrand) {
-        console.warn(`[vehicle-data] La marque "${brand}" n'existe pas dans VEHICLE_BRANDS`);
-        console.log('[vehicle-data] Clés disponibles:', Object.keys(VEHICLE_BRANDS));
-        return [];
-    }
-
-    const models = VEHICLE_BRANDS[normalizedBrand];
-    console.log(`[vehicle-data] Marque "${normalizedBrand}" trouvée: ${models.length} modèles disponibles`);
-    return models;
+    return VEHICLE_BRANDS[normalizedBrand];
 }
