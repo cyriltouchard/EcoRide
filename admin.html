@@ -30,7 +30,32 @@
 </head>
 
 <body>
-    <div class="admin-container">
+    <!-- Écran de connexion admin -->
+    <div id="admin-login-screen" class="admin-login-overlay" style="display: none;">
+        <div class="admin-login-box">
+            <div class="admin-login-header">
+                <img src="public/images/logo.png" alt="Logo EcoRide" style="width: 80px; margin-bottom: 20px;">
+                <h2>Administration EcoRide</h2>
+                <p>Veuillez vous connecter pour accéder au panneau d'administration</p>
+            </div>
+            <form id="admin-login-form">
+                <div class="form-group">
+                    <label for="admin-email">Email</label>
+                    <input type="email" id="admin-email" name="email" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="admin-password">Mot de passe</label>
+                    <input type="password" id="admin-password" name="password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </button>
+                <div id="login-error" style="color: #e74c3c; margin-top: 15px; display: none; text-align: center;"></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="admin-container" id="admin-main-content" style="display: none;">
         <!-- Sidebar -->
         <aside class="admin-sidebar">
             <div class="admin-logo">

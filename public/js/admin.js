@@ -43,8 +43,8 @@ async function fetchAPI(endpoint, options = {}) {
         // Gestion spécifique de l'expiration du token (401)
         if (response.status === 401) {
             localStorage.removeItem('token');
-            window.location.href = 'connexion.html';
-            return null;
+            showLoginScreen();
+            throw new Error('Session expirée');
         }
 
         // Si erreur API (400, 403, 500...)
@@ -79,16 +79,76 @@ function escapeHtml(text) {
 
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
+    
     if (!token) {
-        window.location.href = 'connexion.html';
-        return;
+        // Pas de token : afficher le formulaire de connexion
+        showLoginScreen();
+    } else {
+        // Token présent : initialiser l'admin
+        initAdminPanel();
     }
-
-    initAdminPanel();
 });
+
+// Afficher l'écran de connexion
+function showLoginScreen() {
+    document.getElementById('admin-login-screen').style.display = 'flex';
+    document.getElementById('admin-main-content').style.display = 'none';
+    
+    // Gérer la soumission du formulaire de connexion
+    document.getElementById('admin-login-form').addEventListener('submit', handleAdminLogin);
+}
+
+// Gérer la connexion admin
+async function handleAdminLogin(e) {
+    e.preventDefault();
+    
+    const email = document.getElementById('admin-email').value.trim();
+    const password = document.getElementById('admin-password').value;
+    const errorDiv = document.getElementById('login-error');
+    
+    errorDiv.style.display = 'none';
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/users/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.message || 'Erreur de connexion');
+        }
+        
+        // Vérifier que l'utilisateur est admin ou employé
+        if (data.user_type !== 'admin' && data.user_type !== 'employe') {
+            throw new Error('Accès réservé aux administrateurs et employés');
+        }
+        
+        // Sauvegarder le token
+        localStorage.setItem('token', data.token);
+        
+        // Masquer l'écran de connexion et afficher l'admin
+        document.getElementById('admin-login-screen').style.display = 'none';
+        document.getElementById('admin-main-content').style.display = 'flex';
+        
+        // Initialiser le panneau admin
+        initAdminPanel();
+        
+    } catch (error) {
+        console.error('Erreur connexion:', error);
+        errorDiv.textContent = error.message;
+        errorDiv.style.display = 'block';
+    }
+}
 
 async function initAdminPanel() {
     try {
+        // Afficher le contenu principal
+        document.getElementById('admin-main-content').style.display = 'flex';
+        document.getElementById('admin-login-screen').style.display = 'none';
+        
         await verifyAdminAccess();
         setupEventListeners();
         // Charger le dashboard par défaut
@@ -132,8 +192,14 @@ async function verifyAdminAccess() {
 
     } catch (error) {
         console.warn('❌ Accès refusé:', error.message);
-        showNotification('Accès refusé. Veuillez vous connecter.', 'error');
-        setTimeout(() => window.location.href = 'connexion.html', 2000);
+        // Retour à l'écran de connexion
+        localStorage.removeItem('token');
+        showLoginScreen();
+        const errorDiv = document.getElementById('login-error');
+        if (errorDiv) {
+            errorDiv.textContent = 'Session expirée ou accès refusé. Veuillez vous reconnecter.';
+            errorDiv.style.display = 'block';
+        }
     }
 }
 
@@ -159,7 +225,7 @@ function setupEventListeners() {
     document.getElementById('admin-logout')?.addEventListener('click', () => {
         if(confirm('Voulez-vous vraiment vous déconnecter ?')) {
             localStorage.removeItem('token');
-            window.location.href = 'connexion.html';
+            showLoginScreen();
         }
     });
 
