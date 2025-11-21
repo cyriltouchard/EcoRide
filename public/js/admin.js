@@ -124,7 +124,7 @@ async function handleAdminLogin(e) {
     if (errorDiv) errorDiv.style.display = 'none';
     
     try {
-        const response = await fetch(`${API_BASE_URL}/api/users/login`, {
+        const response = await fetch(`${API_BASE_URL}/users/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
@@ -186,9 +186,12 @@ async function initAdminPanel() {
 async function verifyAdminAccess() {
     try {
         console.log('🔍 Vérification des droits...');
-        const user = await fetchAPI(API_ENDPOINTS.ME);
+        const response = await fetchAPI(API_ENDPOINTS.ME);
         
-        console.log('👤 Utilisateur récupéré:', user);
+        console.log('👤 Réponse récupérée:', response);
+        
+        // L'API retourne { success: true, data: { user_type, ... } }
+        const user = response.data || response;
 
         // Correction du bug "role undefined": on vérifie user_type
         const role = user.user_type || user.role; 
@@ -250,11 +253,7 @@ function setupEventListeners() {
         }
     });
 
-    // Formulaire Création Employé
-    const empForm = document.getElementById('employee-form');
-    if (empForm) {
-        empForm.addEventListener('submit', handleEmployeeCreation);
-    }
+    // Formulaire Création Employé géré directement dans le HTML (voir ligne 496)
 }
 
 function switchSection(sectionName) {
