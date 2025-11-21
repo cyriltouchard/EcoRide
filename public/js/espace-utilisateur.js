@@ -206,6 +206,16 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
         const formData = new FormData(e.target);
         const vehicleId = formData.get('edit-vehicle-id');
         
+        console.log('📝 FormData brute:', {
+            'edit-vehicle-id': vehicleId,
+            'brand': formData.get('brand'),
+            'model': formData.get('model'),
+            'model-custom': formData.get('model-custom'),
+            'plate': formData.get('plate'),
+            'energy': formData.get('energy'),
+            'seats': formData.get('seats')
+        });
+        
         // Utiliser le modèle personnalisé si renseigné, sinon le select
         const modelValue = formData.get('model-custom')?.trim() || formData.get('model');
         
@@ -217,12 +227,12 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
         const vehicleData = {
             brand: formData.get('brand'),
             model: modelValue,
-            plate: formData.get('plate').toUpperCase(),
+            plate: formData.get('plate')?.toUpperCase(),
             energy: formData.get('energy'),
             seats: parseInt(formData.get('seats'))
         };
         
-        console.log('🚗 Données de modification du véhicule:', vehicleData);
+        console.log('🚗 Données de modification du véhicule:', JSON.stringify(vehicleData, null, 2));
         
         try {
             await fetchWithAuth(`${API_BASE_URL}/vehicles/${vehicleId}`, { 
