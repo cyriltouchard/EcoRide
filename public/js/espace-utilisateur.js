@@ -218,9 +218,11 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
             brand: formData.get('brand'),
             model: modelValue,
             plate: formData.get('plate').toUpperCase(),
-            energy: formData.get('energy').toLowerCase(),
+            energy: formData.get('energy'),
             seats: parseInt(formData.get('seats'))
         };
+        
+        console.log('🚗 Données de modification du véhicule:', vehicleData);
         
         try {
             await fetchWithAuth(`${API_BASE_URL}/vehicles/${vehicleId}`, { 
