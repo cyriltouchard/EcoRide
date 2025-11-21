@@ -717,7 +717,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (editForm) {
                 // Remplir les champs
                 editForm.elements['edit-vehicle-id'].value = id;
-                editBrandSelect.value = data.brand;
+                
+                // Normaliser la marque pour gérer les problèmes de casse (BMW vs bmw)
+                const normalizedBrand = normalizeBrandName(data.brand);
+                editBrandSelect.value = normalizedBrand || data.brand;
                 
                 // Déclencher le changement de marque pour charger les modèles
                 const event = new Event('change');

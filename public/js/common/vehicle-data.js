@@ -36,6 +36,31 @@ function getAllBrands() {
 }
 
 /**
+ * Normaliser le nom d'une marque (gère la casse et trouve la bonne clé)
+ */
+function normalizeBrandName(brand) {
+    if (!brand) return null;
+    
+    const cleanBrand = brand.trim();
+    
+    // Recherche exacte d'abord
+    if (VEHICLE_BRANDS[cleanBrand]) {
+        return cleanBrand;
+    }
+    
+    // Recherche insensible à la casse
+    const brandLower = cleanBrand.toLowerCase();
+    const foundKey = Object.keys(VEHICLE_BRANDS).find(key => key.toLowerCase() === brandLower);
+    
+    if (foundKey) {
+        console.log(`[vehicle-data] Normalisation: "${cleanBrand}" → "${foundKey}"`);
+        return foundKey;
+    }
+    
+    return null;
+}
+
+/**
  * Obtenir les modèles d'une marque (Version robuste avec debug)
  */
 function getModelsByBrand(brand) {
@@ -45,20 +70,17 @@ function getModelsByBrand(brand) {
         return [];
     }
 
-    // 2. Nettoyage de la valeur (trim pour retirer les espaces)
-    const cleanBrand = brand.trim();
+    // 2. Normalisation de la marque (gère la casse)
+    const normalizedBrand = normalizeBrandName(brand);
 
     // 3. Recherche de la marque
-    const models = VEHICLE_BRANDS[cleanBrand];
-
-    // 4. Debugging : Si on ne trouve pas la marque
-    if (!models) {
-        console.warn(`[vehicle-data] La marque "${cleanBrand}" n'existe pas dans VEHICLE_BRANDS`);
+    if (!normalizedBrand) {
+        console.warn(`[vehicle-data] La marque "${brand}" n'existe pas dans VEHICLE_BRANDS`);
         console.log('[vehicle-data] Clés disponibles:', Object.keys(VEHICLE_BRANDS));
-        console.log('[vehicle-data] Valeur reçue (avec espaces visibles):', `"${brand}"`);
         return [];
     }
 
-    console.log(`[vehicle-data] Marque "${cleanBrand}" trouvée: ${models.length} modèles disponibles`);
+    const models = VEHICLE_BRANDS[normalizedBrand];
+    console.log(`[vehicle-data] Marque "${normalizedBrand}" trouvée: ${models.length} modèles disponibles`);
     return models;
 }
