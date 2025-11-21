@@ -32,7 +32,7 @@ const VEHICLE_BRANDS = {
  * Obtenir toutes les marques triées
  */
 function getAllBrands() {
-    return Object.keys(VEHICLE_BRANDS).sort();
+    return Object.keys(VEHICLE_BRANDS).sort((a, b) => a.localeCompare(b));
 }
 
 /**
