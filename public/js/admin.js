@@ -373,12 +373,15 @@ function createActivityChart(data) {
 // ----------------------------------------
 
 async function loadUsers() {
-    const users = await fetchAPI(API_ENDPOINTS.USERS);
+    const response = await fetchAPI(API_ENDPOINTS.USERS);
     const tbody = document.getElementById('users-table');
     
     if (!tbody) return;
     tbody.innerHTML = '';
 
+    // L'API retourne { success: true, users: [...] }
+    const users = response.users || response.data || [];
+    
     // BUG FIX: Vérification Array
     if (!Array.isArray(users) || users.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4">Aucun utilisateur trouvé</td></tr>';
@@ -408,19 +411,18 @@ async function loadUsers() {
 // Activer/désactiver un utilisateur
 async function toggleUserStatus(userId, isSuspended) {
     try {
-        const response = await fetchWithAuth(`${API_BASE_URL}/api/admin/users/${userId}/toggle-status`, {
+        const data = await fetchAPI(API_ENDPOINTS.TOGGLE_USER(userId), {
             method: 'PUT'
         });
         
-        if (response.ok) {
-            const result = await response.json();
+        if (data.success) {
             showNotification(
                 isSuspended ? 'Utilisateur activé avec succès' : 'Utilisateur suspendu avec succès',
                 'success'
             );
             loadUsers();
         } else {
-            throw new Error('Erreur lors de la mise à jour du statut');
+            throw new Error(data.message || 'Erreur lors de la mise à jour du statut');
         }
     } catch (error) {
         console.error('Erreur:', error);
@@ -433,10 +435,7 @@ async function toggleUserStatus(userId, isSuspended) {
 // ========================================
 async function loadRides() {
     try {
-        const response = await fetchWithAuth(`${API_BASE_URL}/api/rides/search?seats=1`);
-        if (!response.ok) throw new Error('Erreur de chargement');
-        
-        const data = await response.json();
+        const data = await fetchAPI(API_ENDPOINTS.RIDES);
         const tbody = document.getElementById('rides-table');
         
         if (!data.success || !data.rides || data.rides.length === 0) {
@@ -469,13 +468,11 @@ async function loadRides() {
 // ========================================
 async function loadEmployees() {
     try {
-        const response = await fetchWithAuth(`${API_BASE_URL}/api/admin/users`);
-        if (!response.ok) throw new Error('Erreur de chargement');
-        
-        const data = await response.json();
+        const response = await fetchAPI(API_ENDPOINTS.USERS);
         const tbody = document.getElementById('employees-table');
         
-        const employees = data.users.filter(u => u.user_type === 'employe');
+        const users = response.users || response.data || [];
+        const employees = users.filter(u => u.user_type === 'employe');
         
         if (employees.length === 0) {
             tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 40px;">Aucun employé trouvé</td></tr>';
@@ -508,19 +505,17 @@ document.getElementById('employee-form').addEventListener('submit', async (e) =>
     };
     
     try {
-        const response = await fetchWithAuth(`${API_BASE_URL}/api/admin/employees`, {
+        const data = await fetchAPI(API_ENDPOINTS.EMPLOYEES, {
             method: 'POST',
             body: JSON.stringify(formData)
         });
         
-        const result = await response.json();
-        
-        if (response.ok) {
+        if (data.success) {
             showNotification('Employé créé avec succès', 'success');
             e.target.reset();
             loadEmployees();
         } else {
-            showNotification(result.msg || 'Erreur de création', 'error');
+            showNotification(data.msg || data.message || 'Erreur de création', 'error');
         }
     } catch (error) {
         console.error('Erreur:', error);
