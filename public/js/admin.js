@@ -3,7 +3,7 @@
  * Gestion complète du panneau d'administration EcoRide
  */
 
-const API_BASE_URL = 'http://localhost:3000/api';
+// API_BASE_URL est défini dans common.js
 
 // ========================================
 // INITIALISATION
