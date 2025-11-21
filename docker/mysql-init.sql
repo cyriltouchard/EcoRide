@@ -91,6 +91,7 @@ CREATE TABLE IF NOT EXISTS rides (
     platform_commission DECIMAL(6,2) DEFAULT 2.00,
     available_seats INT NOT NULL,
     total_seats INT NOT NULL,
+    -- NOSONAR: 'confirme' est un statut métier standardisé utilisé dans rides et bookings
     status ENUM('en_attente', 'confirme', 'en_cours', 'termine', 'annule') DEFAULT 'en_attente',
     is_ecological BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -116,6 +117,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     passenger_id INT NOT NULL,
     seats_booked INT DEFAULT 1,
     total_cost DECIMAL(6,2) NOT NULL,
+    -- NOSONAR: Statut 'confirme' est cohérent avec le statut des rides
     booking_status ENUM('confirme', 'annule', 'termine') DEFAULT 'confirme',
     booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     confirmed_by_passenger BOOLEAN DEFAULT FALSE,
