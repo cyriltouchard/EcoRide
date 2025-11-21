@@ -1,112 +1,100 @@
-const User = require('../models/userModel'); // MongoDB pour sessions/profils
+const User = require('../models/userModel'); // MongoDB pour sessions/profils étendus
 const UserSQL = require('../models/userSQLModel'); // MySQL pour données relationnelles
 const CreditModel = require('../models/creditModel'); // Système de crédits
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { validationResult } = require('express-validator'); // Validation des requêtes
+const { validationResult } = require('express-validator');
 
-// Helper: sanitize and validate inputs to avoid NoSQL injection
+// --- UTILITAIRES DE SÉCURITÉ ---
+
+// Nettoyer les chaînes de caractères (Anti-NoSQL Injection)
 const sanitizeString = (s) => (typeof s === 'string' ? s.trim() : '');
 
 /**
  * Valide une adresse email (sécurisé contre ReDoS)
- * Utilise une regex optimisée basée sur RFC 5322 (simplifiée)
- * Évite le backtracking excessif avec quantificateurs bornés
+ * Utilise une regex bornée pour éviter le backtracking excessif
  */
 const isValidEmail = (e) => {
     if (typeof e !== 'string') return false;
     const email = e.trim();
     if (email.length === 0 || email.length > 254) return false;
-    
-    // Regex sécurisée contre ReDoS avec quantificateurs bornés
     return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(email);
 };
 
-// --- Inscription HYBRIDE (MySQL + MongoDB) ---
+// --- CONTRÔLEURS ---
+
+/**
+ * INSCRIPTION HYBRIDE (MySQL + MongoDB)
+ */
 exports.register = async (req, res) => {
     try {
-        // Vérifier les erreurs de validation express-validator
+        // 1. Validation des entrées
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ 
-                success: false,
-                message: "Erreurs de validation",
-                errors: errors.array()
-            });
+            return res.status(400).json({ success: false, message: "Erreurs de validation", errors: errors.array() });
         }
 
         let { pseudo, email, password } = req.body;
-        
-        // Validation des données
         pseudo = sanitizeString(pseudo);
         email = sanitizeString(email).toLowerCase();
 
         if (!pseudo || !email || !password) {
-            return res.status(400).json({ 
-                success: false,
-                message: "Tous les champs sont requis" 
-            });
+            return res.status(400).json({ success: false, message: "Tous les champs sont requis" });
         }
 
         if (!isValidEmail(email)) {
             return res.status(400).json({ success: false, message: 'Email invalide' });
         }
-        
-        // Vérifier si l'email existe déjà en MySQL
+
+        // 2. Vérifications d'unicité (MySQL)
         const existingUserSQL = await UserSQL.findByEmail(email);
         if (existingUserSQL) {
-            return res.status(400).json({ 
-                success: false,
-                message: "Cet email est déjà utilisé." 
-            });
+            return res.status(400).json({ success: false, message: "Cet email est déjà utilisé." });
         }
-        
-        // Vérifier si le pseudo existe en MySQL
+
         const existingPseudo = await UserSQL.findByPseudo(pseudo);
         if (existingPseudo) {
-            return res.status(400).json({ 
-                success: false,
-                message: "Ce pseudo est déjà utilisé." 
-            });
+            return res.status(400).json({ success: false, message: "Ce pseudo est déjà utilisé." });
         }
-        
-        // Hasher le mot de passe
+
+        // 3. Hashage du mot de passe
         const saltRounds = 10;
         const password_hash = await bcrypt.hash(password, saltRounds);
-        
-        // Créer l'utilisateur en MySQL (avec crédits automatiques)
+
+        // 4. Création MySQL (Données critiques + Crédits initiaux)
         const newUserSQL = await UserSQL.create({
             pseudo,
             email,
             password_hash,
-            user_type: 'passager'
+            user_type: 'passager' // Par défaut
         });
-        
-        // Créer aussi en MongoDB pour les sessions/profils étendus
-        const newUserMongo = new User({ 
-            pseudo, 
-            email, 
+
+        // 5. Création MongoDB (Données étendues / Profil)
+        // On lie les deux via sql_id
+        const newUserMongo = new User({
+            pseudo,
+            email,
             password: password_hash,
-            sql_id: newUserSQL.id // Référence vers MySQL
+            sql_id: newUserSQL.id 
         });
         await newUserMongo.save();
-        
-        // Générer le token JWT
+
+        // 6. Génération du Token JWT
         const token = jwt.sign(
-            { 
-                id: newUserSQL.id, 
+            {
+                id: newUserSQL.id,
                 pseudo: newUserSQL.pseudo,
                 user_type: newUserSQL.user_type,
                 mongo_id: newUserMongo._id
-            }, 
-            process.env.JWT_SECRET, 
+            },
+            process.env.JWT_SECRET,
             { expiresIn: '24h' }
         );
-        
-        // Récupérer les crédits initiaux
+
+        // 7. Récupération des crédits (Normalement 20 à la création)
         const credits = await CreditModel.getUserCredits(newUserSQL.id);
-        
-        res.status(201).json({ 
+
+        res.status(201).json({
             success: true,
             message: "Compte créé avec succès",
             data: {
@@ -115,6 +103,7 @@ exports.register = async (req, res) => {
                     id: newUserSQL.id,
                     pseudo: newUserSQL.pseudo,
                     email: newUserSQL.email,
+                    role: newUserSQL.user_type, // Important pour le front
                     user_type: newUserSQL.user_type,
                     credits: credits?.current_credits || 20
                 }
@@ -123,77 +112,55 @@ exports.register = async (req, res) => {
 
     } catch (err) {
         console.error('Erreur inscription:', err);
-        res.status(500).json({ 
-            success: false,
-            message: "Erreur serveur lors de l'inscription",
-            error: err.message 
-        });
+        res.status(500).json({ success: false, message: "Erreur serveur lors de l'inscription" });
     }
 };
 
-// --- Connexion HYBRIDE ---
+/**
+ * CONNEXION (Authentification MySQL)
+ */
 exports.login = async (req, res) => {
     try {
-        // Vérifier les erreurs de validation express-validator
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ 
-                success: false,
-                message: "Erreurs de validation",
-                errors: errors.array()
-            });
+            return res.status(400).json({ success: false, message: "Erreurs de validation", errors: errors.array() });
         }
 
         let { email, password } = req.body;
         email = sanitizeString(email).toLowerCase();
-        
+
         if (!email || !password) {
-            return res.status(400).json({ 
-                success: false,
-                message: "Email et mot de passe requis" 
-            });
+            return res.status(400).json({ success: false, message: "Email et mot de passe requis" });
         }
-        if (!isValidEmail(email)) {
-            return res.status(400).json({ success: false, message: 'Email invalide' });
-        }
-        
-        // Trouver l'utilisateur en MySQL
-        // Use sanitized email to query SQL
+
+        // 1. Recherche utilisateur (MySQL)
         const userSQL = await UserSQL.findByEmail(email);
         if (!userSQL) {
-            return res.status(400).json({ 
-                success: false,
-                message: "Identifiants invalides." 
-            });
+            return res.status(400).json({ success: false, message: "Identifiants invalides." });
         }
-        
-        // Vérifier le mot de passe
+
+        // 2. Vérification mot de passe
         const isMatch = await bcrypt.compare(password, userSQL.password_hash);
         if (!isMatch) {
-            return res.status(400).json({ 
-                success: false,
-                message: "Identifiants invalides." 
-            });
+            return res.status(400).json({ success: false, message: "Identifiants invalides." });
         }
-        
-        // Trouver l'utilisateur MongoDB correspondant
-    // Prevent NoSQL injection by ensuring email is a string and sanitized
-    const safeEmail = sanitizeString(email).toLowerCase();
-    const userMongo = await User.findOne({ email: safeEmail }).select('-password');
-        
-        // Générer le token JWT avec toutes les infos
+
+        // 3. Récupération infos MongoDB (Optionnel mais recommandé pour cohérence)
+        const userMongo = await User.findOne({ email: email }).select('-password');
+
+        // 4. Génération Token
         const token = jwt.sign(
-            { 
-                id: userSQL.id, 
+            {
+                id: userSQL.id,
                 pseudo: userSQL.pseudo,
                 user_type: userSQL.user_type,
                 mongo_id: userMongo?._id
-            }, 
-            process.env.JWT_SECRET, 
+            },
+            process.env.JWT_SECRET,
             { expiresIn: '24h' }
         );
-        
-        res.json({ 
+
+        res.json({
             success: true,
             message: "Connexion réussie",
             data: {
@@ -202,6 +169,9 @@ exports.login = async (req, res) => {
                     id: userSQL.id,
                     pseudo: userSQL.pseudo,
                     email: userSQL.email,
+                    // ✅ CORRECTION IMPORTANTE POUR L'ADMIN : 
+                    // On mappe user_type vers role pour que admin.js comprenne
+                    role: userSQL.user_type, 
                     user_type: userSQL.user_type,
                     credits: userSQL.current_credits || 0
                 }
@@ -210,86 +180,79 @@ exports.login = async (req, res) => {
 
     } catch (err) {
         console.error('Erreur connexion:', err);
-        res.status(500).json({ 
-            success: false,
-            message: "Erreur serveur lors de la connexion",
-            error: err.message 
-        });
+        res.status(500).json({ success: false, message: "Erreur serveur lors de la connexion" });
     }
 };
 
-// --- Profil utilisateur HYBRIDE ---
+/**
+ * PROFIL UTILISATEUR (Agrégation MySQL + MongoDB)
+ */
 exports.getUserProfile = async (req, res) => {
     try {
         const userId = req.user.id;
-        
-        // Récupérer les données depuis MySQL
+
+        // 1. Données Relationnelles (MySQL)
         const userSQL = await UserSQL.findById(userId);
         if (!userSQL) {
-            return res.status(404).json({ 
-                success: false,
-                message: 'Utilisateur non trouvé.' 
-            });
+            return res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
         }
-        
-        // Récupérer les données étendues depuis MongoDB (optionnel)
-        const userMongo = await User.findOne({ 
-            $or: [
-                { sql_id: userId },
-                { email: userSQL.email }
-            ]
+
+        // 2. Données Non-Relationnelles (MongoDB)
+        // On cherche soit par ID SQL, soit par email pour être sûr
+        const userMongo = await User.findOne({
+            $or: [{ sql_id: userId }, { email: userSQL.email }]
         }).select('-password');
-        
-        // Récupérer les crédits
+
+        // 3. Crédits
         const credits = await CreditModel.getUserCredits(userId);
-        
+
         res.json({
             success: true,
             data: {
-                // Données de base (MySQL)
+                // Info Base
                 id: userSQL.id,
                 pseudo: userSQL.pseudo,
                 email: userSQL.email,
+                
+                // ✅ CORRECTION IMPORTANTE POUR L'ADMIN :
+                role: userSQL.user_type,
                 user_type: userSQL.user_type,
+                
                 created_at: userSQL.created_at,
                 profile_picture: userSQL.profile_picture || null,
-                
-                // Système de crédits
+
+                // Info Crédits
                 credits: userSQL.current_credits || credits?.current_credits || 0,
                 total_earned: credits?.total_earned || 0,
                 total_spent: credits?.total_spent || 0,
-                
-                // Données étendues (MongoDB) si disponibles
+
+                // Info Mongo (Préférences, etc.)
                 preferences: userMongo?.preferences || {},
                 settings: userMongo?.settings || {}
             }
         });
-        
+
     } catch (err) {
         console.error('Erreur profil utilisateur:', err);
-        res.status(500).json({
-            success: false,
-            message: 'Erreur serveur lors de la récupération du profil'
-        });
+        res.status(500).json({ success: false, message: 'Erreur serveur récupération profil' });
     }
 };
 
-// --- Mettre à jour le type d'utilisateur ---
+/**
+ * MISE À JOUR TYPE UTILISATEUR (Passager -> Chauffeur)
+ */
 exports.updateUserType = async (req, res) => {
     try {
         const userId = req.user.id;
         const { user_type } = req.body;
-        
+
         const validTypes = ['passager', 'chauffeur', 'chauffeur_passager'];
         if (!validTypes.includes(user_type)) {
-            return res.status(400).json({
-                success: false,
-                message: 'Type d\'utilisateur invalide'
-            });
+            return res.status(400).json({ success: false, message: 'Type d\'utilisateur invalide' });
         }
-        
+
         const success = await UserSQL.updateUserType(userId, user_type);
-        
+
         if (success) {
             res.json({
                 success: true,
@@ -297,111 +260,94 @@ exports.updateUserType = async (req, res) => {
                 data: { user_type }
             });
         } else {
-            res.status(400).json({
-                success: false,
-                message: 'Échec de la mise à jour'
-            });
+            res.status(400).json({ success: false, message: 'Échec de la mise à jour' });
         }
-        
+
     } catch (err) {
         console.error('Erreur mise à jour type:', err);
-        res.status(500).json({
-            success: false,
-            message: 'Erreur serveur'
-        });
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 };
 
-
-// --- Mettre à jour le profil utilisateur ---
+/**
+ * MISE À JOUR PROFIL (MySQL)
+ */
 exports.updateProfile = async (req, res) => {
     try {
         const userId = req.user.id;
         const { pseudo, email, phone, bio } = req.body;
-        
+
         const updateData = {};
-        if (pseudo) updateData.pseudo = pseudo;
-        if (email) updateData.email = email;
-        if (phone !== undefined) updateData.phone = phone;
-        if (bio !== undefined) updateData.bio = bio;
-        
+        if (pseudo) updateData.pseudo = sanitizeString(pseudo);
+        if (email) updateData.email = sanitizeString(email);
+        if (phone !== undefined) updateData.phone = sanitizeString(phone);
+        if (bio !== undefined) updateData.bio = sanitizeString(bio);
+
         await UserSQL.updateProfile(userId, updateData);
-        
+
+        // TODO: Penser à mettre à jour MongoDB ici aussi si on veut synchro le pseudo/email
+
         res.json({ success: true, message: 'Profil mis à jour avec succès' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 };
 
-// --- Mettre à jour la photo de profil ---
+/**
+ * MISE À JOUR PHOTO DE PROFIL
+ */
 exports.updateProfilePicture = async (req, res) => {
     try {
         const userId = req.user.id;
         const { profile_picture } = req.body;
-        
-        // Validation basique de l'image (base64 ou URL)
+
         if (!profile_picture) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Image requise' 
-            });
+            return res.status(400).json({ success: false, message: 'Image requise' });
         }
 
-        // Vérifier la taille de l'image (limite à 5MB en base64)
-        const base64SizeInBytes = profile_picture.length * 0.75; // Approximation
+        // Vérification taille (approx 5MB max en base64)
+        const base64SizeInBytes = profile_picture.length * 0.75;
         if (base64SizeInBytes > 5 * 1024 * 1024) {
-            return res.status(413).json({ 
-                success: false, 
-                message: 'Image trop volumineuse. Maximum 5MB.' 
-            });
+            return res.status(413).json({ success: false, message: 'Image trop volumineuse. Maximum 5MB.' });
         }
-        
+
         await UserSQL.updateProfile(userId, { profile_picture });
-        
-        res.json({ 
-            success: true, 
+
+        res.json({
+            success: true,
             message: 'Photo de profil mise à jour avec succès',
             data: { profile_picture }
         });
     } catch (err) {
         console.error('Erreur updateProfilePicture:', err);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Erreur lors de la mise à jour de la photo',
-            error: err.message 
-        });
+        res.status(500).json({ success: false, message: 'Erreur lors de la mise à jour de la photo' });
     }
 };
 
-// --- Devenir chauffeur ---
+/**
+ * DEVENIR CHAUFFEUR (Raccourci métier)
+ */
 exports.becomeDriver = async (req, res) => {
     try {
         const userId = req.user.id;
-        
-        // Récupérer l'utilisateur actuel
         const user = await UserSQL.findById(userId);
-        
+
         if (!user) {
-            return res.status(404).json({ 
-                success: false, 
-                message: 'Utilisateur non trouvé' 
-            });
+            return res.status(404).json({ success: false, message: 'Utilisateur non trouvé' });
         }
-        
-        // Mettre à jour le type d'utilisateur
+
         let newUserType = 'chauffeur';
+        // Si déjà passager, on devient hybride
         if (user.user_type === 'passager') {
             newUserType = 'chauffeur_passager';
         }
-        
+
         await UserSQL.updateUserType(userId, newUserType);
-        
-        res.json({ 
-            success: true, 
+
+        res.json({
+            success: true,
             message: 'Vous êtes maintenant chauffeur !',
-            data: {
-                user_type: newUserType
-            }
+            data: { user_type: newUserType }
         });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
