@@ -106,12 +106,16 @@ async function verifyAdminAccess() {
     try {
         console.log('🔍 Vérification des droits...');
         const user = await fetchAPI(API_ENDPOINTS.ME);
+        
+        console.log('👤 Utilisateur récupéré:', user);
 
         // Correction du bug "role undefined": on vérifie user_type
         const role = user.user_type || user.role; 
+        
+        console.log('🔐 Rôle détecté:', role);
 
         if (role !== 'admin' && role !== 'employe') {
-            throw new Error('Droits insuffisants');
+            throw new Error(`Droits insuffisants. Rôle: ${role}`);
         }
 
         console.log('✅ Accès autorisé:', role);
@@ -128,8 +132,8 @@ async function verifyAdminAccess() {
 
     } catch (error) {
         console.warn('❌ Accès refusé:', error.message);
-        showNotification('Accès refusé. Redirection...', 'error');
-        setTimeout(() => window.location.href = 'index.html', 2000);
+        showNotification('Accès refusé. Veuillez vous connecter.', 'error');
+        setTimeout(() => window.location.href = 'connexion.html', 2000);
     }
 }
 
