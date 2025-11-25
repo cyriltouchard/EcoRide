@@ -56,6 +56,29 @@ document.addEventListener('DOMContentLoaded', () => {
      * Gestion du formulaire de proposition
      */
     if (offerRideForm) {
+        // Ajouter un avertissement dynamique pour le prix
+        const priceInput = document.getElementById('price');
+        if (priceInput) {
+            priceInput.addEventListener('input', (e) => {
+                const price = parseFloat(e.target.value);
+                const warningDiv = document.getElementById('price-warning');
+                
+                if (price > 0 && price <= 2) {
+                    if (!warningDiv) {
+                        const warning = document.createElement('p');
+                        warning.id = 'price-warning';
+                        warning.className = 'error-message';
+                        warning.style.color = '#e74c3c';
+                        warning.style.marginTop = '5px';
+                        warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ⚠️ Vous ne recevrez aucun crédit avec ce prix (commission plateforme de 2 crédits)';
+                        priceInput.parentElement.appendChild(warning);
+                    }
+                } else if (warningDiv) {
+                    warningDiv.remove();
+                }
+            });
+        }
+        
         offerRideForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             const formData = new FormData(offerRideForm);
