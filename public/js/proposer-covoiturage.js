@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const priceInput = document.getElementById('price');
         if (priceInput) {
             priceInput.addEventListener('input', (e) => {
-                const price = parseFloat(e.target.value);
+                const price = Number.parseFloat(e.target.value);
                 const warningDiv = document.getElementById('price-warning');
                 
                 if (price > 0 && price <= 2) {
@@ -95,8 +95,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 arrival_address: formData.get('arrival'),
                 departure_datetime: departure_datetime,
                 estimated_arrival: departure_datetime,
-                price_per_seat: parseFloat(formData.get('price')),
-                available_seats: parseInt(formData.get('availableSeats'), 10)
+                price_per_seat: Number.parseFloat(formData.get('price')),
+                available_seats: Number.parseInt(formData.get('availableSeats'), 10)
             };
             
             console.log('📤 Données envoyées:', rideData);
