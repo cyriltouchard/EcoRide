@@ -73,6 +73,19 @@ function escapeHtml(text) {
         .replace(/'/g, "&#039;");
 }
 
+/**
+ * Retourne la classe CSS pour le badge selon le type d'utilisateur
+ */
+function getBadgeClass(userType) {
+    const classes = {
+        'admin': 'danger',
+        'employe': 'warning',
+        'passager': 'info',
+        'chauffeur': 'success'
+    };
+    return classes[userType] || 'secondary';
+}
+
 // ========================================
 // INITIALISATION
 // ========================================
@@ -379,8 +392,9 @@ async function loadUsers() {
     if (!tbody) return;
     tbody.innerHTML = '';
 
-    // L'API retourne { success: true, users: [...] }
-    const users = response.users || response.data || [];
+    // L'API retourne directement un tableau d'utilisateurs
+    // Si response est déjà un tableau, on l'utilise directement
+    const users = Array.isArray(response) ? response : (response.users || response.data || []);
     
     // BUG FIX: Vérification Array
     if (!Array.isArray(users) || users.length === 0) {
@@ -398,7 +412,7 @@ async function loadUsers() {
             <td>
                 ${user.user_type !== 'admin' ? `
                 <button class="btn btn-sm ${user.isSuspended ? 'btn-primary' : 'btn-warning'}" 
-                        onclick="toggleUserStatus(${user.id}, ${user.isSuspended})">
+                        onclick="toggleUserStatus('${user._id}', ${user.isSuspended})">
                     <i class="fas fa-${user.isSuspended ? 'check' : 'ban'}"></i>
                 </button>` : ''}
             </td>
@@ -435,22 +449,25 @@ async function toggleUserStatus(userId, isSuspended) {
 // ========================================
 async function loadRides() {
     try {
-        const data = await fetchAPI(API_ENDPOINTS.RIDES);
+        const response = await fetchAPI(API_ENDPOINTS.RIDES);
         const tbody = document.getElementById('rides-table');
         
-        if (!data.success || !data.rides || data.rides.length === 0) {
+        // L'API retourne { msg: '...', rides: [] }
+        const rides = response.rides || [];
+        
+        if (!Array.isArray(rides) || rides.length === 0) {
             tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">Aucun trajet trouvé</td></tr>';
             return;
         }
 
-        const html = data.rides.map(ride => `
+        const html = rides.map(ride => `
             <tr>
                 <td>${escapeHtml(ride.departure)}</td>
-                <td>${escapeHtml(ride.destination)}</td>
-                <td>${escapeHtml(ride.driverName || 'N/A')}</td>
-                <td>${new Date(ride.departure_date).toLocaleDateString('fr-FR')}</td>
-                <td>${ride.price_per_seat} €</td>
-                <td>${ride.available_seats}</td>
+                <td>${escapeHtml(ride.arrival)}</td>
+                <td>${escapeHtml(ride.driver?.pseudo || 'N/A')}</td>
+                <td>${new Date(ride.departureDate).toLocaleDateString('fr-FR')}</td>
+                <td>${ride.pricePerSeat} €</td>
+                <td>${ride.availableSeats}</td>
                 <td><span class="badge ${ride.status === 'active' ? 'success' : 'danger'}">${ride.status}</span></td>
             </tr>
         `).join('');
@@ -464,6 +481,47 @@ async function loadRides() {
 }
 
 // ========================================
+// GESTION DES AVIS
+// ========================================
+async function loadReviews() {
+    try {
+        const response = await fetchAPI('/reviews/site');
+        const tbody = document.getElementById('reviews-table');
+        
+        if (!tbody) {
+            console.warn('Table reviews-table non trouvée');
+            return;
+        }
+        
+        // L'API retourne { success: true, reviews: [] }
+        const reviews = response.reviews || response.data || [];
+        
+        if (!Array.isArray(reviews) || reviews.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px;">Aucun avis trouvé</td></tr>';
+            return;
+        }
+
+        const html = reviews.map(review => `
+            <tr>
+                <td>${escapeHtml(review.author?.pseudo || 'Anonyme')}</td>
+                <td>${'⭐'.repeat(review.rating)}</td>
+                <td>${escapeHtml(review.comment || '')}</td>
+                <td>${new Date(review.createdAt).toLocaleDateString('fr-FR')}</td>
+                <td><span class="badge ${review.status === 'approved' ? 'success' : review.status === 'pending' ? 'warning' : 'danger'}">${review.status}</span></td>
+            </tr>
+        `).join('');
+        
+        tbody.innerHTML = html;
+    } catch (error) {
+        console.error('Erreur:', error);
+        const tbody = document.getElementById('reviews-table');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #e74c3c;">Erreur de chargement des avis</td></tr>';
+        }
+    }
+}
+
+// ========================================
 // GESTION DES EMPLOYÉS
 // ========================================
 async function loadEmployees() {
@@ -471,7 +529,8 @@ async function loadEmployees() {
         const response = await fetchAPI(API_ENDPOINTS.USERS);
         const tbody = document.getElementById('employees-table');
         
-        const users = response.users || response.data || [];
+        // L'API retourne directement un tableau d'utilisateurs
+        const users = Array.isArray(response) ? response : (response.users || response.data || []);
         const employees = users.filter(u => u.user_type === 'employe');
         
         if (employees.length === 0) {
