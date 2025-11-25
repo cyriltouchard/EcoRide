@@ -192,7 +192,26 @@ class CreditModel {
         try {
             await connection.beginTransaction();
             
-            // 1. Vérifier que le passager peut payer
+            // Configuration de la commission plateforme
+            const PLATFORM_COMMISSION = 2;
+            
+            // Calculer la commission et le montant net pour le chauffeur
+            let platformCommission;
+            let driverAmount;
+            
+            if (amount <= PLATFORM_COMMISSION) {
+                // Si le prix est inférieur ou égal à 2 crédits
+                // La plateforme prend tout, le chauffeur ne reçoit rien
+                platformCommission = amount;
+                driverAmount = 0;
+            } else {
+                // Si le prix est supérieur à 2 crédits
+                // La plateforme prend 2 crédits, le reste va au chauffeur
+                platformCommission = PLATFORM_COMMISSION;
+                driverAmount = amount - PLATFORM_COMMISSION;
+            }
+            
+            // 1. Vérifier que le passager peut payer le montant total
             if (!(await this.canAfford(passengerId, amount))) {
                 throw new Error('Crédits insuffisants pour cette réservation');
             }
@@ -205,22 +224,23 @@ class CreditModel {
                 [passengerId, amount, `Réservation covoiturage`, bookingId, rideId]
             );
             
-            // 3. Commission plateforme (2 crédits)
-            const netAmount = amount - 2;
+            // 3. Commission plateforme (toujours au moins le montant total si <= 2 crédits)
             await connection.execute(
                 `INSERT INTO credit_transactions 
                  (user_id, transaction_type, amount, description, related_booking_id, related_ride_id) 
                  VALUES (?, 'commission', ?, ?, ?, ?)`,
-                [passengerId, 2, `Commission plateforme`, bookingId, rideId]
+                [passengerId, platformCommission, `Commission plateforme (${platformCommission} crédits)`, bookingId, rideId]
             );
             
-            // 4. Créditer le chauffeur (montant - commission)
-            await connection.execute(
-                `INSERT INTO credit_transactions 
-                 (user_id, transaction_type, amount, description, related_booking_id, related_ride_id) 
-                 VALUES (?, 'gain', ?, ?, ?, ?)`,
-                [driverId, netAmount, `Paiement trajet`, bookingId, rideId]
-            );
+            // 4. Créditer le chauffeur uniquement si le montant est supérieur à la commission
+            if (driverAmount > 0) {
+                await connection.execute(
+                    `INSERT INTO credit_transactions 
+                     (user_id, transaction_type, amount, description, related_booking_id, related_ride_id) 
+                     VALUES (?, 'gain', ?, ?, ?, ?)`,
+                    [driverId, driverAmount, `Paiement trajet (après commission plateforme)`, bookingId, rideId]
+                );
+            }
             
             await connection.commit();
             
@@ -228,8 +248,9 @@ class CreditModel {
                 passenger_credits: await this.getUserCredits(passengerId),
                 driver_credits: await this.getUserCredits(driverId),
                 amount_charged: amount,
-                platform_commission: 2,
-                driver_earned: netAmount
+                platform_commission: platformCommission,
+                driver_earned: driverAmount,
+                warning: amount <= PLATFORM_COMMISSION ? 'Prix inférieur ou égal à la commission : le chauffeur ne reçoit rien' : null
             };
             
         } catch (error) {

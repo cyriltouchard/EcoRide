@@ -9,6 +9,30 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+### 💰 Système de Commission sur les Trajets - 2025-11-25
+
+#### ✨ Ajouté
+- **Commission fixe de 2 crédits** par trajet réservé
+- Gestion intelligente des prix inférieurs ou égaux à 2 crédits
+- Avertissements pour les chauffeurs lors de la création de trajets à prix bas
+- Documentation complète du système de commission
+- Tests unitaires pour la répartition des crédits
+
+#### 🔧 Modifié
+- **Backend** : `creditModel.processBooking()` - Calcul automatique de la commission
+- **Frontend** : Validation et avertissements en temps réel sur le prix
+- **HTML** : Message informatif sur la commission dans le formulaire de proposition
+
+#### 📝 Documentation
+- `SYSTEME-COMMISSION-TRAJETS.md` - Documentation technique complète
+- `RESUME-COMMISSION-TRAJETS.md` - Résumé des modifications
+- `GUIDE-MIGRATION-COMMISSION.md` - Guide pour les développeurs
+
+#### 🧪 Tests
+- Tests unitaires pour tous les scénarios de commission
+- Validation des cas prix ≤ 2 crédits
+- Tests d'intégrité des transactions
+
 ### À Venir
 - Système d'avis et notation (US10)
 - Notifications en temps réel

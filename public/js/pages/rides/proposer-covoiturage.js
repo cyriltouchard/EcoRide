@@ -51,6 +51,11 @@ const validateRideForm = (formData) => {
         errors.prix_par_place = 'Le prix doit être entre 0 et 100 crédits';
     }
     
+    // Avertissement pour commission plateforme
+    if (formData.prix_par_place > 0 && formData.prix_par_place <= 2) {
+        errors.prix_par_place = '⚠️ Prix ≤ 2 crédits : la plateforme prendra la totalité, vous ne recevrez rien';
+    }
+    
     return Object.keys(errors).length > 0 ? errors : null;
 };
 
