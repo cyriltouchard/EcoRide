@@ -179,7 +179,7 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
             model: modelValue,
             plate: formData.get('plate').toUpperCase(),
             energy: energyValue,
-            seats: parseInt(formData.get('seats'))
+            seats: Number.parseInt(formData.get('seats'))
         };
         
         console.log('🚗 Données du véhicule à envoyer:', vehicleData);
@@ -218,7 +218,7 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
             brand: formData.get('brand'),
             model: modelValue,
             energy_type: formData.get('energy').toLowerCase(),
-            available_seats: parseInt(formData.get('seats'))
+            available_seats: Number.parseInt(formData.get('seats'))
         };
         
         try {
