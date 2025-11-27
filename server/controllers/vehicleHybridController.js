@@ -46,7 +46,7 @@ exports.addVehicle = async (req, res) => {
             license_plate: (license_plate || plate)?.trim().toUpperCase(),
             first_registration: first_registration || new Date().toISOString().split('T')[0],
             energy_type: (energy_type || energy)?.toLowerCase(),
-            available_seats: parseInt(available_seats || seats)
+            available_seats: Number.parseInt(available_seats || seats)
         };
         
         const validationErrors = VehicleSQL.validateVehicleData(vehicleData);
@@ -68,8 +68,8 @@ exports.addVehicle = async (req, res) => {
                 console.warn('⚠️  mongo_id manquant dans req.user, recherche dans MongoDB...');
                 
                 // Validation stricte de userId pour prévenir l'injection NoSQL
-                const sanitizedUserId = parseInt(userId, 10);
-                if (isNaN(sanitizedUserId) || sanitizedUserId <= 0) {
+                const sanitizedUserId = Number.parseInt(userId, 10);
+                if (Number.isNaN(sanitizedUserId) || sanitizedUserId <= 0) {
                     throw new Error('ID utilisateur invalide');
                 }
                 
@@ -171,10 +171,10 @@ exports.getVehicles = async (req, res) => {
 // @access  Private
 exports.getVehicleById = async (req, res) => {
     try {
-        const vehicleId = parseInt(req.params.id);
+        const vehicleId = Number.parseInt(req.params.id);
         const userId = req.user.id;
         
-        if (isNaN(vehicleId)) {
+        if (Number.isNaN(vehicleId)) {
             return res.status(400).json({
                 success: false,
                 message: 'ID véhicule invalide'
@@ -209,10 +209,10 @@ exports.getVehicleById = async (req, res) => {
 // @access  Private
 exports.updateVehicle = async (req, res) => {
     try {
-        const vehicleId = parseInt(req.params.id);
+        const vehicleId = Number.parseInt(req.params.id);
         const userId = req.user.id;
         
-        if (isNaN(vehicleId)) {
+        if (Number.isNaN(vehicleId)) {
             return res.status(400).json({
                 success: false,
                 message: 'ID véhicule invalide'
@@ -267,10 +267,10 @@ exports.updateVehicle = async (req, res) => {
 // @access  Private
 exports.deleteVehicle = async (req, res) => {
     try {
-        const vehicleId = parseInt(req.params.id);
+        const vehicleId = Number.parseInt(req.params.id);
         const userId = req.user.id;
         
-        if (isNaN(vehicleId)) {
+        if (Number.isNaN(vehicleId)) {
             return res.status(400).json({
                 success: false,
                 message: 'ID véhicule invalide'

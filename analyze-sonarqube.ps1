@@ -142,15 +142,15 @@ try {
 
 Write-Host ""
 Write-Host "═══════════════════════════════════════════════════" -ForegroundColor Cyan
-Write-Host "🎯 Métriques importantes à vérifier:" -ForegroundColor Cyan
-Write-Host "═══════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "Metriques importantes a verifier:" -ForegroundColor Cyan
+Write-Host "===================================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "✅ Complexité cognitive: ≤15 (déjà corrigé !)" -ForegroundColor Green
-Write-Host "⏳ Fiabilité: A (0 bugs)" -ForegroundColor Yellow
-Write-Host "⏳ Maintenabilité: A (0 code smells)" -ForegroundColor Yellow
-Write-Host "⏳ Sécurité: A (0 vulnérabilités)" -ForegroundColor Yellow
-Write-Host "⏳ Duplications: <3%" -ForegroundColor Yellow
-Write-Host "⏳ Couverture: >80% (nécessite tests unitaires)" -ForegroundColor Yellow
+Write-Host "Complexite cognitive: <=15 (deja corrige !)" -ForegroundColor Green
+Write-Host "Fiabilite: A (0 bugs)" -ForegroundColor Yellow
+Write-Host "Maintenabilite: A (0 code smells)" -ForegroundColor Yellow
+Write-Host "Securite: A (0 vulnerabilites)" -ForegroundColor Yellow
+Write-Host "Duplications: <3%" -ForegroundColor Yellow
+Write-Host "Couverture: >80% (necessite tests unitaires)" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "📚 Documentation:" -ForegroundColor Cyan
 Write-Host "  document/GUIDE-SONARQUBE-ANALYSE.md" -ForegroundColor White

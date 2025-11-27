@@ -110,7 +110,7 @@ const searchRides = async (req, res) => { // <-- CHANGEMENT ICI
         }
         if (date) {
             const searchDate = new Date(date);
-            if (isNaN(searchDate)) {
+            if (Number.isNaN(searchDate)) {
                 return res.status(400).json({ msg: 'Format de date invalide.' });
             }
             const startOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
@@ -121,7 +121,7 @@ const searchRides = async (req, res) => { // <-- CHANGEMENT ICI
             };
         }
         if (seats) {
-            query.availableSeats = { $gte: parseInt(seats, 10) };
+            query.availableSeats = { $gte: Number.parseInt(seats, 10) };
         }
 
         const now = new Date();

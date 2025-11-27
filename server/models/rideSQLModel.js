@@ -147,7 +147,7 @@ class RideSQL {
         };
     }
     
-    // Obtenir tous les trajets d'un chauffeur
+    // Obtenir tous les trajets d'un chauffeur (Méthode Conservée et Complète)
     static async getDriverRides(driverId, status = null) {
         let query = `
             SELECT 
@@ -321,11 +321,10 @@ class RideSQL {
                 [rideId]
             );
             
-            // Rembourser les passagers (s'il y en a)
+            // Rembourser les passagers (s'il y en a) - Logique à implémenter avec le système de réservations
             const bookedSeats = ride.total_seats - ride.available_seats;
             if (bookedSeats > 0) {
-                // Cette logique sera implémentée avec le système de réservations
-                // console.log(`Remboursement nécessaire pour ${bookedSeats} places réservées`);
+                 // Logique de remboursement
             }
             
             await connection.commit();
@@ -399,6 +398,7 @@ class RideSQL {
         
         return errors;
     }
+    
     // Méthode pour mettre à jour le nombre de places disponibles
     static async updateAvailableSeats(rideId, newAvailableSeats) {
         try {
@@ -422,7 +422,7 @@ class RideSQL {
         }
     }
 
-    // Méthode pour obtenir les trajets d'un chauffeur spécifique
+    // Ancienne méthode getByDriverId (peut être conservée si nécessaire, ou supprimée)
     static async getByDriverId(driverId) {
         try {
             const query = `
@@ -601,39 +601,6 @@ class RideSQL {
             connection.release();
         }
     }
-
-    // Méthode pour obtenir les trajets d'un chauffeur avec filtre de statut
-    static async getDriverRides(driverId, status = null) {
-        try {
-            let query = `
-                SELECT 
-                    r.*,
-                    v.brand,
-                    v.model,
-                    v.energy_type,
-                    v.available_seats as vehicle_seats
-                FROM rides r
-                LEFT JOIN vehicles v ON r.vehicle_id = v.id
-                WHERE r.driver_id = ?
-            `;
-            
-            const params = [driverId];
-            
-            if (status) {
-                query += ' AND r.status = ?';
-                params.push(status);
-            }
-            
-            query += ' ORDER BY r.departure_datetime DESC';
-            
-            const [rows] = await pool.execute(query, params);
-            return rows;
-        } catch (error) {
-            console.error('Erreur récupération trajets chauffeur avec statut:', error);
-            throw error;
-        }
-    }
-
 }
 
 module.exports = RideSQL;

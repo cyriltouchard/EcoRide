@@ -41,15 +41,15 @@ exports.createRide = async (req, res) => {
         // Validation des données
         const rideData = {
             driver_id: driverId,
-            vehicle_id: parseInt(vehicle_id),
+            vehicle_id: Number.parseInt(vehicle_id),
             departure_city: departure_city?.trim(),
             arrival_city: arrival_city?.trim(),
             departure_address: departure_address?.trim(),
             arrival_address: arrival_address?.trim(),
             departure_datetime,
             estimated_arrival,
-            price_per_seat: parseFloat(price_per_seat),
-            available_seats: parseInt(available_seats)
+            price_per_seat: Number.parseFloat(price_per_seat),
+            available_seats: Number.parseInt(available_seats)
         };
         
         const validationErrors = RideSQL.validateRideData(rideData);
@@ -88,8 +88,8 @@ exports.createRide = async (req, res) => {
             const UserModel = require('../models/user');
             
             // Validation stricte de driverId pour prévenir l'injection NoSQL
-            const sanitizedDriverId = parseInt(driverId, 10);
-            if (isNaN(sanitizedDriverId) || sanitizedDriverId <= 0) {
+            const sanitizedDriverId = Number.parseInt(driverId, 10);
+            if (Number.isNaN(sanitizedDriverId) || sanitizedDriverId <= 0) {
                 throw new Error('ID chauffeur invalide');
             }
             
@@ -106,8 +106,8 @@ exports.createRide = async (req, res) => {
             
             // Validation stricte de vehicle_id pour prévenir l'injection NoSQL
             // Convertir en entier pour s'assurer que c'est bien un nombre
-            const sanitizedVehicleId = parseInt(vehicle_id, 10);
-            if (isNaN(sanitizedVehicleId) || sanitizedVehicleId <= 0) {
+            const sanitizedVehicleId = Number.parseInt(vehicle_id, 10);
+            if (Number.isNaN(sanitizedVehicleId) || sanitizedVehicleId <= 0) {
                 throw new Error('ID de véhicule invalide');
             }
             
@@ -194,9 +194,9 @@ exports.searchRides = async (req, res) => {
             departure_city: depCity,
             arrival_city: arrCity,
             departure_date: depDate,
-            max_price: max_price ? parseFloat(max_price) : null,
+            max_price: max_price ? Number.parseFloat(max_price) : null,
             ecological_only: ecological_only === 'true',
-            min_seats: parseInt(minSeats) || 1
+            min_seats: Number.parseInt(minSeats) || 1
         };
         
         console.log('🔍 Recherche trajets avec:', searchParams);
@@ -288,9 +288,9 @@ exports.getRideById = async (req, res) => {
             };
         } else {
             // Chercher dans MySQL
-            const rideId = parseInt(rideIdParam);
+            const rideId = Number.parseInt(rideIdParam);
             
-            if (isNaN(rideId)) {
+            if (Number.isNaN(rideId)) {
                 return res.status(400).json({
                     success: false,
                     message: 'ID trajet invalide'
@@ -326,11 +326,11 @@ exports.getRideById = async (req, res) => {
 // @access  Private (chauffeur propriétaire)
 exports.updateRideStatus = async (req, res) => {
     try {
-        const rideId = parseInt(req.params.id);
+        const rideId = Number.parseInt(req.params.id);
         const driverId = req.user.id;
         const { status } = req.body;
         
-        if (isNaN(rideId)) {
+        if (Number.isNaN(rideId)) {
             return res.status(400).json({
                 success: false,
                 message: 'ID trajet invalide'
@@ -376,11 +376,11 @@ exports.updateRideStatus = async (req, res) => {
 // @access  Private (chauffeur propriétaire)
 exports.cancelRide = async (req, res) => {
     try {
-        const rideId = parseInt(req.params.id);
+        const rideId = Number.parseInt(req.params.id);
         const driverId = req.user.id;
         const { reason } = req.body;
         
-        if (isNaN(rideId)) {
+        if (Number.isNaN(rideId)) {
             return res.status(400).json({
                 success: false,
                 message: 'ID trajet invalide'
@@ -489,7 +489,7 @@ const bookMongoRide = async (rideId, passengerId, passengers) => {
 const bookMySQLRide = async (rideIdParam, passengerId, passengers) => {
     const rideId = Number.parseInt(rideIdParam);
     
-    if (isNaN(rideId)) {
+    if (Number.isNaN(rideId)) {
         return { success: false, status: 400, message: 'ID de trajet invalide' };
     }
 
@@ -652,10 +652,10 @@ exports.getBookedRides = async (req, res) => {
 // @access  Private (passager propriétaire)
 exports.cancelBooking = async (req, res) => {
     try {
-        const bookingId = parseInt(req.params.id);
+        const bookingId = Number.parseInt(req.params.id);
         const passengerId = req.user.id;
         
-        if (isNaN(bookingId)) {
+        if (Number.isNaN(bookingId)) {
             return res.status(400).json({
                 success: false,
                 message: 'ID de réservation invalide'

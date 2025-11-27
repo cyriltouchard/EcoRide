@@ -178,7 +178,9 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>🚗 Ajouter un véhicule</h3>
-                <span class="close" onclick="closeModal('add-vehicle-modal')">&times;</span>
+                <button type="button" class="close" onclick="closeModal('add-vehicle-modal')" aria-label="Fermer la fenêtre modale">
+                 &times;
+                </button> 
             </div>
             <form id="add-vehicle-form">
                 <div class="form-group">
@@ -244,7 +246,13 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>➕ Créer un covoiturage</h3>
-                <span class="close" onclick="closeModal('create-ride-modal')">&times;</span>
+                    <button 
+                        type="button" 
+                        class="close" 
+                        onclick="closeModal('create-ride-modal')" 
+                        aria-label="Fermer la fenêtre de création de trajet">
+                        &times;
+                    </button>
             </div>
             <form id="create-ride-form">
                 <div class="form-group">
@@ -311,7 +319,13 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>⚙️ Mes préférences de conduite</h3>
-                <span class="close" onclick="closeModal('preferences-modal')">&times;</span>
+                    <button 
+                        type="button" 
+                        class="close" 
+                        onclick="closeModal('preferences-modal')" 
+                        aria-label="Fermer la fenêtre de préférences">
+                        &times;
+                </button>
             </div>
             <form id="preferences-form">
                 <div class="form-group">

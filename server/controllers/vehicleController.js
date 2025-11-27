@@ -22,7 +22,7 @@ exports.addVehicle = async (req, res) => {
         model = sanitizeString(model);
         plate = normalizePlate(plate);
         energy = sanitizeString(energy);
-        seats = parseInt(seats, 10);
+        seats = Number.parseInt(seats, 10);
 
         console.log('🔍 Après traitement:', { brand, model, plate, energy, seats, userId });
 
@@ -117,7 +117,7 @@ exports.updateVehicle = async (req, res) => {
     if (model) vehicleFields.model = sanitizeString(model);
     if (plate) vehicleFields.plate = normalizePlate(plate); // Assurer majuscules et longueur limitée
     if (energy) vehicleFields.energy = sanitizeString(energy);
-    if (seats) vehicleFields.seats = parseInt(seats, 10);
+    if (seats) vehicleFields.seats = Number.parseInt(seats, 10);
 
     try {
         let vehicle = await Vehicle.findById(req.params.id);

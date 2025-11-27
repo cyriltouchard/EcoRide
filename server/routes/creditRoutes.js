@@ -46,7 +46,7 @@ router.get('/balance', authenticateToken, async (req, res) => {
 router.get('/history', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.id;
-        const limit = parseInt(req.query.limit) || 50;
+        const limit = Number.parseInt(req.query.limit) || 50;
         
         const transactions = await CreditModel.getTransactionHistory(userId, limit);
         

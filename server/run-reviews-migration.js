@@ -61,9 +61,9 @@ function normalizeStatement(statement) {
     }
     
     return statement
-        .replaceAll(/\/\//g, '')
-        .replaceAll(/DELIMITER/g, '')
-        .replaceAll(/END\$\$/g, 'END');
+        .replaceAll('//', '')
+        .replaceAll('DELIMITER', '')
+        .replaceAll('END$$', 'END');
 }
 
 /**
@@ -77,7 +77,7 @@ async function executeStatement(statement, index, total) {
     
     try {
         await pool.query(normalized);
-        const preview = normalized.substring(0, 60).replace(/\s+/g, ' ');
+        const preview = normalized.substring(0, 60).replaceAll(/\s+/g, ' ');
         console.log(`✅ ${index + 1}/${total}: ${preview}...`);
     } catch (err) {
         // Ignorer les erreurs "already exists"

@@ -172,7 +172,7 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
         // Normaliser les accents pour l'énergie (électrique -> electrique)
         const energyValue = formData.get('energy').toLowerCase()
             .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, ''); // Supprime les accents
+            .replaceAll(/[\u0300-\u036f]/g, ''); // Supprime les accents
         
         const vehicleData = {
             brand: formData.get('brand'),
