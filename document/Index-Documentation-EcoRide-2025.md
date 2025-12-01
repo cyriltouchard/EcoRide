@@ -517,4 +517,24 @@ La documentation du projet EcoRide a été **complètement modernisée** avec su
 
 ---
 
-*Dernière mise à jour : 3 octobre 2025 - Version 2.0*
+## 📝 **NOTES DE VERSION**
+
+### Version 3.1 (1 décembre 2025)
+- ✅ Ajout système d'avis et notations complet (MySQL)
+- ✅ Dashboard admin migré vers MySQL avec statistiques temps réel
+- ✅ Mise à jour CHANGELOG.md avec version 2.1.0
+- ✅ Mise à jour Documentation-Technique avec nouveaux endpoints
+- ✅ Mise à jour README.md principal du projet
+
+### Version 3.0 (12 novembre 2025)
+- ✅ Réorganisation complète de la documentation
+- ✅ Création de 6 sous-dossiers thématiques
+- ✅ Mise à jour de tous les liens et références
+- ✅ Ajout README.md dans document/
+- ✅ Documentation refactoring SonarQube (98+ corrections)
+- ✅ Documentation vulnérabilités ReDoS
+- ✅ Nettoyage fichiers temporaires
+
+---
+
+*Dernière mise à jour : 1 décembre 2025 - Version 3.1*

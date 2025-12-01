@@ -385,9 +385,13 @@ const corsOptions = {
 | Type de Données | Base | Justification |
 |------------------|------|---------------|
 | **Profils utilisateurs** | MongoDB | Flexibilité schéma, évolution |
-| **Véhicules** | MongoDB | Données semi-structurées |
-| **Trajets** | MongoDB | Requêtes complexes, géolocalisation |
+| **Authentification** | MySQL | ACID, sécurité, intégrité |
+| **Véhicules** | MySQL | Données structurées, relations |
+| **Trajets** | MySQL | ACID, relations complexes |
+| **Réservations (Bookings)** | MySQL | Transactions critiques |
 | **Crédits/Transactions** | MySQL | ACID, intégrité financière |
+| **Avis/Notations** | MySQL | Relations, statistiques temps réel |
+| **Admin Dashboard** | MySQL | Performance, agrégations |
 | **Audit/Logs** | MongoDB | Volume élevé, structure variable |
 
 ### **6.2 Configuration MongoDB**
@@ -457,6 +461,54 @@ CREATE TABLE credit_transactions (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Table des avis sur les chauffeurs
+CREATE TABLE driver_reviews (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  driver_id INT NOT NULL,
+  passenger_id INT NOT NULL,
+  ride_id INT,
+  booking_id INT,
+  rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  punctuality_rating INT CHECK (punctuality_rating BETWEEN 1 AND 5),
+  driving_quality_rating INT CHECK (driving_quality_rating BETWEEN 1 AND 5),
+  vehicle_cleanliness_rating INT CHECK (vehicle_cleanliness_rating BETWEEN 1 AND 5),
+  friendliness_rating INT CHECK (friendliness_rating BETWEEN 1 AND 5),
+  comment TEXT,
+  is_visible BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (driver_id) REFERENCES users(id),
+  FOREIGN KEY (passenger_id) REFERENCES users(id),
+  FOREIGN KEY (ride_id) REFERENCES rides(id),
+  FOREIGN KEY (booking_id) REFERENCES bookings(id)
+);
+
+-- Table des avis sur le site
+CREATE TABLE site_reviews (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  overall_rating INT NOT NULL CHECK (overall_rating BETWEEN 1 AND 5),
+  ease_of_use_rating INT CHECK (ease_of_use_rating BETWEEN 1 AND 5),
+  reliability_rating INT CHECK (reliability_rating BETWEEN 1 AND 5),
+  customer_service_rating INT CHECK (customer_service_rating BETWEEN 1 AND 5),
+  value_for_money_rating INT CHECK (value_for_money_rating BETWEEN 1 AND 5),
+  comment TEXT,
+  would_recommend BOOLEAN DEFAULT TRUE,
+  is_visible BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Table des réponses aux avis
+CREATE TABLE review_responses (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  review_id INT NOT NULL,
+  review_type ENUM('driver', 'site') NOT NULL,
+  responder_id INT NOT NULL,
+  response_text TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (responder_id) REFERENCES users(id)
+);
+
 -- Vue pour le profil utilisateur
 CREATE OR REPLACE VIEW v_user_profile AS
 SELECT 
@@ -500,9 +552,19 @@ GROUP BY u.id;
 │   ├── POST /:id/join       # Rejoindre trajet
 │   └── DELETE /:id/leave    # Quitter trajet
 ├── /reviews
-│   ├── POST /               # Créer avis
-│   ├── GET /driver/:id      # Avis d'un chauffeur
-│   └── PUT /:id/moderate    # Modérer avis (employé)
+│   ├── GET /eligible-rides          # Trajets éligibles pour notation (protégé)
+│   ├── POST /driver                 # Créer avis sur chauffeur (protégé)
+│   ├── GET /driver/:id              # Avis d'un chauffeur
+│   ├── GET /driver/:id/rating       # Note moyenne chauffeur
+│   ├── POST /site                   # Créer avis sur le site (protégé)
+│   ├── GET /site                    # Avis du site
+│   └── GET /my-reviews              # Avis donnés (protégé)
+├── /admin
+│   ├── GET /stats                   # Statistiques dashboard (admin)
+│   ├── GET /users                   # Liste utilisateurs (admin)
+│   ├── POST /employees              # Créer employé (admin)
+│   ├── GET /employees               # Liste employés (admin/employé)
+│   └── PUT /users/:id/toggle-status # Suspendre/Réactiver utilisateur (admin)
 └── /health
     ├── GET /health          # État système
     ├── GET /metrics         # Métriques détaillées

@@ -9,6 +9,62 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+### À Venir
+- Notifications en temps réel
+- Application mobile
+- Système de chat intégré
+- Système de recommandations intelligentes
+
+---
+
+## [2.1.0] - 2025-12-01
+
+### ⭐ Système d'Avis et Notations Complet
+
+#### ✨ Ajouté
+- **Notation des chauffeurs** sur 5 critères (ponctualité, conduite, propreté, amabilité)
+- **Avis sur le site** avec système de recommandation
+- **Affichage temps réel** des notes sur pages recherche et détails trajet
+- **Éligibilité automatique** : Trajets terminés disponibles pour notation
+- **Statistiques détaillées** : Notes moyennes et répartition par critère
+- **Interface étoiles interactive** : Hover, sélection, reset
+- **Dashboard admin MySQL** : Statistiques complètes (utilisateurs, trajets, crédits, avis)
+- **Graphiques Chart.js** : Visualisation activité par jour
+
+#### 🔧 Modifié
+- **Backend** : `reviewHybridController.js` - Validation robuste booking + date trajet
+- **Backend** : `adminController.js` - Migration complète stats vers MySQL
+- **Frontend** : 8 fichiers JavaScript avec parseFloat pour AVG() MySQL
+- **Frontend** : Boutons notation avec data attributes (sécurité XSS)
+- **Frontend** : Reset complet du formulaire de notation avec étoiles
+
+#### 🗄️ Base de Données MySQL
+- **Tables créées** :
+  - `driver_reviews` - Avis sur les chauffeurs
+  - `site_reviews` - Avis sur le site EcoRide
+  - `review_responses` - Réponses aux avis (admin/chauffeur)
+- **Requêtes optimisées** : Remplacement vues SQL par requêtes directes
+- **Statistiques temps réel** : Dashboard admin 100% MySQL
+
+#### 🔐 Sécurité
+- **Validation booking** : Status `IN ('confirme', 'termine')` + date vérifiée
+- **Protection XSS** : Sanitisation complète commentaires
+- **Vérification éligibilité** : Trajets passés uniquement
+- **Double validation** : Frontend + Backend
+
+#### 📝 Documentation
+- `README.md` - Section complète système d'avis
+- `Index-Documentation-EcoRide-2025.md` - Mise à jour avec nouveautés
+- Commit `47ab064` - Documentation technique détaillée
+
+#### 🧪 Tests Validés
+- ✅ Éligibilité trajets (confirme + termine + date passée)
+- ✅ Boutons notation fonctionnels
+- ✅ Soumission avis sans 403 Forbidden
+- ✅ Affichage notes sur toutes les pages
+- ✅ Dashboard admin avec vraies données
+- ✅ Conversions parseFloat AVG() MySQL
+
 ### 💰 Système de Commission sur les Trajets - 2025-11-25
 
 #### ✨ Ajouté
@@ -32,12 +88,6 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/).
 - Tests unitaires pour tous les scénarios de commission
 - Validation des cas prix ≤ 2 crédits
 - Tests d'intégrité des transactions
-
-### À Venir
-- Système d'avis et notation (US10)
-- Notifications en temps réel
-- Application mobile
-- Système de chat intégré
 
 ---
 

@@ -96,5 +96,5 @@ Pour une navigation complète de tous les documents du projet, consultez :
 
 ---
 
-*Dernière mise à jour : Novembre 2025*  
-*Version : 2.0 - Réorganisation complète*
+*Dernière mise à jour : 1 décembre 2025*  
+*Version : 3.1 - Système d'avis complet + Dashboard admin MySQL*

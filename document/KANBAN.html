@@ -309,24 +309,24 @@
             </h1>
             <div class="subtitle">Suivi de Projet - Mise à jour en temps réel</div>
             <div class="subtitle" style="font-size: 0.9em; margin-top: 10px;">
-                📅 Dernière mise à jour : 14 novembre 2025 | Sprint 3
+                📅 Dernière mise à jour : 1 décembre 2025 | Sprint 4
             </div>
         </header>
 
         <div class="stats">
             <div class="stat-card">
                 <div class="icon" style="font-size: 2em;">📝</div>
-                <div class="number">24</div>
+                <div class="number">25</div>
                 <div class="label">Total Tâches</div>
             </div>
             <div class="stat-card">
                 <div class="icon" style="font-size: 2em;">✅</div>
-                <div class="number">14</div>
+                <div class="number">16</div>
                 <div class="label">Terminées</div>
             </div>
             <div class="stat-card">
                 <div class="icon" style="font-size: 2em;">🔄</div>
-                <div class="number">4</div>
+                <div class="number">3</div>
                 <div class="label">En Cours</div>
             </div>
             <div class="stat-card">
@@ -336,7 +336,7 @@
             </div>
             <div class="stat-card">
                 <div class="icon" style="font-size: 2em;">📊</div>
-                <div class="number">60%</div>
+                <div class="number">68%</div>
                 <div class="label">Progression</div>
             </div>
         </div>
@@ -431,7 +431,7 @@
 
             <!-- Colonne EN COURS -->
             <div class="kanban-column inprogress">
-                <h2><span class="icon">🔄</span> EN COURS (5)</h2>
+                <h2><span class="icon">🔄</span> EN COURS (3)</h2>
                 
                 <div class="task-card" data-priority="high">
                     <div class="priority priority-high">🔴 Haute Priorité</div>
@@ -518,7 +518,7 @@
 
             <!-- Colonne TERMINÉ -->
             <div class="kanban-column done">
-                <h2><span class="icon">✅</span> TERMINÉ (8)</h2>
+                <h2><span class="icon">✅</span> TERMINÉ (10)</h2>
                 
                 <div class="task-card">
                     <div class="task-title">Architecture hybride MySQL + MongoDB</div>
@@ -569,14 +569,30 @@
                 </div>
 
                 <div class="task-card">
-                    <div class="task-title">Système d'avis et notes</div>
+                    <div class="task-title">⭐ Système d'avis MySQL complet</div>
                     <div class="task-description">
-                        ✓ Notation 1-5 étoiles<br>
-                        ✓ Commentaires<br>
-                        ✓ Statistiques
+                        ✓ Avis chauffeurs (5 critères détaillés)<br>
+                        ✓ Avis site EcoRide<br>
+                        ✓ Validation booking + date<br>
+                        ✓ Interface étoiles interactive<br>
+                        ✓ Affichage temps réel (recherche/détails)<br>
+                        ✓ 8 fichiers JS corrigés (parseFloat AVG)
                     </div>
                     <div class="task-meta">
-                        <span>✅ 07 nov 2025</span>
+                        <span>✅ 01 déc 2025</span>
+                    </div>
+                </div>
+
+                <div class="task-card">
+                    <div class="task-title">📊 Dashboard Admin MySQL</div>
+                    <div class="task-description">
+                        ✓ Migration complète vers MySQL<br>
+                        ✓ Stats temps réel (users/rides/credits/reviews)<br>
+                        ✓ Graphiques Chart.js activité<br>
+                        ✓ Gestion employés et utilisateurs
+                    </div>
+                    <div class="task-meta">
+                        <span>✅ 01 déc 2025</span>
                     </div>
                 </div>
 
@@ -596,6 +612,19 @@
             <!-- Colonne VALIDÉ -->
             <div class="kanban-column validated">
                 <h2><span class="icon">🎯</span> VALIDÉ (6)</h2>
+                
+                <div class="task-card">
+                    <div class="task-title">⭐ Système d'avis & notations</div>
+                    <div class="task-description">
+                        ✓ Tables MySQL (driver_reviews, site_reviews)<br>
+                        ✓ API REST complète (7 endpoints)<br>
+                        ✓ Validation sécurisée<br>
+                        ✓ Interface utilisateur intuitive
+                    </div>
+                    <div class="task-meta">
+                        <span class="status-badge status-success">En Production</span>
+                    </div>
+                </div>
                 
                 <div class="task-card">
                     <div class="task-title">🚀 Docker Compose production ready</div>
@@ -688,26 +717,26 @@
                     </div>
                     <div class="metric-row">
                         <span class="metric-label">💡 Code Smells</span>
-                        <span class="metric-value">12</span>
-                        <span class="status-badge status-success">✅ Bon</span>
+                        <span class="metric-value">8</span>
+                        <span class="status-badge status-success">✅ Excellent</span>
                     </div>
                 </div>
 
                 <div class="metric-card">
                     <div class="metric-row">
                         <span class="metric-label">🔄 Duplications</span>
-                        <span class="metric-value">1.8%</span>
+                        <span class="metric-value">1.5%</span>
                         <span class="status-badge status-success">✅ Excellent</span>
                     </div>
                     <div class="metric-row">
                         <span class="metric-label">📏 Complexité</span>
-                        <span class="metric-value">15</span>
+                        <span class="metric-value">≤15</span>
                         <span class="status-badge status-success">✅ Respecté</span>
                     </div>
                     <div class="metric-row">
                         <span class="metric-label">🧪 Couverture tests</span>
-                        <span class="metric-value">0%</span>
-                        <span class="status-badge status-danger">❌ À améliorer</span>
+                        <span class="metric-value">20%</span>
+                        <span class="status-badge status-warning">⚠️ En progression</span>
                     </div>
                 </div>
 
@@ -715,17 +744,17 @@
                     <h3 style="margin-bottom: 15px; color: #27ae60;">⚡ Performance</h3>
                     <div class="metric-row">
                         <span class="metric-label">Temps chargement</span>
-                        <span class="metric-value">2.1s</span>
+                        <span class="metric-value">1.9s</span>
                         <span class="status-badge status-success">✅</span>
                     </div>
                     <div class="metric-row">
                         <span class="metric-label">Bundle JS</span>
-                        <span class="metric-value">320KB</span>
+                        <span class="metric-value">340KB</span>
                         <span class="status-badge status-success">✅</span>
                     </div>
                     <div class="metric-row">
                         <span class="metric-label">CSS Total</span>
-                        <span class="metric-value">78KB</span>
+                        <span class="metric-value">82KB</span>
                         <span class="status-badge status-success">✅</span>
                     </div>
                 </div>
@@ -737,7 +766,7 @@
             <p style="margin-top: 10px; opacity: 0.8;">
                 🔗 <a href="https://github.com/cyriltouchard/EcoRide" style="color: #27ae60;">GitHub Repository</a> | 
                 📚 <a href="./Index-Documentation-EcoRide-2025.md" style="color: #27ae60;">Documentation</a> | 
-                🎯 Sprint 3 - Q4 2025
+                🎯 Sprint 4 - Q4 2025 | Version 2.1.0
             </p>
             <p style="margin-top: 15px; font-size: 0.9em;">
                 💡 Pour modifier ce Kanban : Éditer <code>document/KANBAN.html</code>

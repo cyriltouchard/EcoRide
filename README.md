@@ -37,11 +37,23 @@ Cette application full-stack combine une interface utilisateur moderne avec un b
 - ✅ Historique des trajets proposés et réservés
 - ✅ Architecture hybride MySQL + MongoDB pour performances optimales
 
+### ⭐ Système d'Avis et Notations (NOUVEAU)
+- ✅ **Notation des chauffeurs** : Notes détaillées sur 5 critères (ponctualité, conduite, propreté, amabilité)
+- ✅ **Avis sur le site** : Évaluation de l'expérience EcoRide
+- ✅ **Affichage intelligent** : Notes moyennes sur pages recherche et détails
+- ✅ **Éligibilité automatique** : Trajets terminés disponibles pour notation
+- ✅ **Statistiques détaillées** : Vue d'ensemble des performances chauffeurs
+- ✅ **Protection validations** : Vérification booking et date de trajet
+- ✅ **Système d'étoiles interactif** : Interface intuitive de notation
+
 ### 👨‍💼 Administration
 - ✅ Panel d'administration dédié
+- ✅ **Dashboard MySQL complet** : Statistiques temps réel (utilisateurs, trajets, crédits, avis)
+- ✅ **Graphiques d'activité** : Visualisation trajets par jour (Chart.js)
 - ✅ Gestion des employés et utilisateurs
 - ✅ Interface d'administration moderne
 - ✅ Contrôle des accès par rôles
+- ✅ **Migration MySQL** : Toutes les statistiques désormais en MySQL pour performances optimales
 
 ## 🛠️ Technologies Utilisées
 
@@ -179,7 +191,8 @@ npm start
 - **📝 Inscription** : `creation-compte.html` - Création de compte (20 crédits offerts)
 - **👤 Tableau de bord** : `espace-utilisateur.html` - Gestion complète du profil
 - **🚗 Proposer un trajet** : `proposer-covoiturage.html` - Publication de nouveaux trajets
-- **👨‍💼 Administration** : `admin.html` - Panel d'administration
+- **⭐ Avis** : `avis.html` - Notation des chauffeurs et du site (NOUVEAU)
+- **👨‍💼 Administration** : `admin.html` - Panel d'administration avec dashboard MySQL
 - **📞 Contact** : `contact.html` - Formulaire de contact
 
 ### 🌐 API Backend
@@ -269,6 +282,18 @@ Pour une navigation complète de toute la documentation :
 
 📊 Voir [REFACTORING-SONARQUBE-RESUME.md](document/qualite/REFACTORING-SONARQUBE-RESUME.md) pour le détail complet.
 
+### 🎉 Système d'Avis Complet (Décembre 2025)
+
+**Migration MySQL et fonctionnalités avancées** :
+- ✅ **Tables MySQL** : `driver_reviews`, `site_reviews`, `review_responses`
+- ✅ **Validation robuste** : Booking status + date de trajet vérifiés
+- ✅ **Affichage temps réel** : Notes sur recherche, détails trajet et profil
+- ✅ **Interface intuitive** : Système d'étoiles avec hover et sélection
+- ✅ **Dashboard admin** : Statistiques complètes migrées vers MySQL
+- ✅ **8 fichiers corrigés** : parseFloat pour AVG() MySQL, event listeners, requêtes directes
+
+📊 Voir commit `47ab064` pour l'implémentation complète.
+
 ## 🐳 Déploiement Docker (NOUVEAU)
 
 ### Stack containerisée complète
@@ -310,6 +335,9 @@ npm run docker:clean
 - ✅ **Validation stricte des données** avec express-validator
 - ✅ **Variables d'environnement** pour tous les secrets
 - ✅ **Middleware d'authentification** pour les routes protégées
+- ✅ **Protection ReDoS** : Regex sécurisés contre attaques ReDoS (7 regex validés)
+- ✅ **Validation booking** : Vérification statut et date avant notation
+- ✅ **Protection XSS avis** : Sanitisation complète des commentaires
 
 ### Bonnes pratiques respectées
 - 🔒 Mots de passe minimum 8 caractères avec validation
@@ -317,6 +345,8 @@ npm run docker:clean
 - 🛡️ Sanitisation automatique des entrées utilisateur
 - 🔐 Gestion sécurisée des sessions utilisateur
 - 📊 Logs de sécurité et monitoring des erreurs
+- 🎯 **Validation double** : Backend MySQL + Frontend JavaScript
+- 🔍 **Vérification éligibilité** : Trajets terminés uniquement pour avis
 
 ## 🌱 Fonctionnalités Écologiques
 
@@ -385,6 +415,22 @@ npm run lint
 - `GET /api/rides/:id` - Détails d'un trajet spécifique
 - `POST /api/rides/:id/book` - Réserver une place sur un trajet (protégé)
 - `DELETE /api/rides/:id` - Supprimer un trajet proposé (protégé)
+
+#### Avis et Notations (NOUVEAU ⭐)
+- `GET /api/reviews/eligible-rides` - Liste des trajets éligibles pour notation (protégé)
+- `POST /api/reviews/driver` - Créer un avis sur un chauffeur (protégé)
+- `GET /api/reviews/driver/:driverId` - Obtenir les avis d'un chauffeur
+- `GET /api/reviews/driver/:driverId/rating` - Note moyenne d'un chauffeur
+- `POST /api/reviews/site` - Créer un avis sur le site (protégé)
+- `GET /api/reviews/site` - Obtenir les avis du site
+- `GET /api/reviews/my-reviews` - Avis donnés par l'utilisateur connecté (protégé)
+
+#### Administration (NOUVEAU 📊)
+- `GET /api/admin/stats` - Statistiques du dashboard (utilisateurs, trajets, crédits, avis)
+- `GET /api/admin/users` - Liste de tous les utilisateurs (admin uniquement)
+- `POST /api/admin/employees` - Créer un compte employé (admin uniquement)
+- `GET /api/admin/employees` - Liste des employés (admin/employé)
+- `PUT /api/admin/users/:id/toggle-status` - Suspendre/Réactiver un utilisateur (admin)
 
 ### Format des réponses
 ```json
@@ -490,12 +536,15 @@ Ce projet démontre la maîtrise de :
 - ✅ **Documentation technique** complète et professionnelle
 - ✅ **Tests unitaires** avec Jest (infrastructure complète)
 - ✅ **Qualité de code** avec SonarQube (98+ corrections)
+- ✅ **Système de notation** : Avis chauffeurs avec notes détaillées sur 5 critères
+- ✅ **Dashboard analytics** : Visualisation temps réel avec Chart.js
+- ✅ **Migration base de données** : Transition MongoDB → MySQL pour performances
 - ✅ **UX/UI moderne** avec interactions dynamiques intelligentes
 
 ---
 
-**Dernière mise à jour** : 14 novembre 2025  
-**Version** : 2.0.0  
+**Dernière mise à jour** : 1 décembre 2025  
+**Version** : 2.1.0  
 **Status** : ✅ Production Ready
 
 ---
