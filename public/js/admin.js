@@ -340,7 +340,7 @@ async function loadDashboardData() {
     updateCount('stat-users', stats.totalUsers);
     updateCount('stat-rides', stats.totalRides);
     updateCount('stat-credits', stats.totalCredits);
-    updateCount('stat-reviews', stats.pendingReviews);
+    updateCount('stat-reviews', stats.totalReviews || 0);
 
     createActivityChart(stats.ridesByDay || []);
 }

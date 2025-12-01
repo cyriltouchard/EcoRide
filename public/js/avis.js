@@ -218,11 +218,31 @@ document.addEventListener('DOMContentLoaded', () => {
                             <strong>${ride.driver_pseudo || 'Chauffeur'}</strong>
                         </div>
                     </div>
-                    <button class="rate-button" onclick="openRatingModal(${ride.ride_id}, ${ride.driver_id}, ${ride.booking_id}, '${ride.driver_pseudo}', '${ride.departure_city}', '${ride.arrival_city}')">
+                    <button class="rate-button" 
+                            data-ride-id="${ride.ride_id}" 
+                            data-driver-id="${ride.driver_id}" 
+                            data-booking-id="${ride.booking_id}" 
+                            data-driver-pseudo="${(ride.driver_pseudo || 'Chauffeur').replace(/"/g, '&quot;')}" 
+                            data-departure="${(ride.departure_city || '').replace(/"/g, '&quot;')}" 
+                            data-arrival="${(ride.arrival_city || '').replace(/"/g, '&quot;')}">
                         ⭐ Noter ce chauffeur
                     </button>
                 </div>
             `).join('');
+
+            // Ajouter les event listeners sur les boutons de notation
+            document.querySelectorAll('.rate-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const rideId = parseInt(button.dataset.rideId);
+                    const driverId = parseInt(button.dataset.driverId);
+                    const bookingId = parseInt(button.dataset.bookingId);
+                    const driverPseudo = button.dataset.driverPseudo;
+                    const departureCity = button.dataset.departure;
+                    const arrivalCity = button.dataset.arrival;
+                    
+                    openRatingModal(rideId, driverId, bookingId, driverPseudo, departureCity, arrivalCity);
+                });
+            });
 
         } catch (error) {
             console.error('Erreur chargement trajets:', error);
@@ -233,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Ouvre la modale de notation
      */
-    window.openRatingModal = function(rideId, driverId, bookingId, driverPseudo, departureCity, arrivalCity) {
+    function openRatingModal(rideId, driverId, bookingId, driverPseudo, departureCity, arrivalCity) {
         currentRideData = { rideId, driverId, bookingId, driverPseudo, departureCity, arrivalCity };
         
         document.getElementById('selected-ride-id').value = rideId;
@@ -247,11 +267,24 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
         
+        // Réinitialiser le formulaire
         document.getElementById('driver-rating-form').reset();
-        document.querySelectorAll('.star').forEach(star => star.classList.remove('active'));
+        
+        // Réinitialiser toutes les étoiles
+        document.querySelectorAll('#rating-modal .star').forEach(star => {
+            star.classList.remove('active');
+            star.style.color = '#ddd';
+        });
+        
+        // Réinitialiser tous les inputs cachés
+        document.getElementById('driver-overall-rating').value = '';
+        document.getElementById('punctuality-rating').value = '';
+        document.getElementById('driving-rating').value = '';
+        document.getElementById('cleanliness-rating').value = '';
+        document.getElementById('friendliness-rating').value = '';
         
         document.getElementById('rating-modal').classList.add('active');
-    };
+    }
 
     /**
      * Ferme la modale

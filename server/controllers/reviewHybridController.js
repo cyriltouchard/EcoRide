@@ -57,14 +57,15 @@ exports.createDriverReview = async (req, res) => {
                 `SELECT b.id FROM bookings b
                  JOIN rides r ON b.ride_id = r.id
                  WHERE b.passenger_id = ? AND r.driver_id = ? AND b.ride_id = ?
-                 AND b.booking_status = 'termine'`,
+                 AND b.booking_status IN ('confirme', 'termine')
+                 AND (r.status = 'termine' OR r.departure_datetime < NOW())`,
                 [passengerId, driverId, rideId]
             );
 
             if (bookingCheck.length === 0) {
                 return res.status(403).json({ 
                     success: false, 
-                    msg: 'Vous ne pouvez noter que les chauffeurs avec qui vous avez voyagé' 
+                    msg: 'Vous ne pouvez noter que les chauffeurs avec qui vous avez voyagé sur des trajets terminés' 
                 });
             }
         }
@@ -130,17 +131,40 @@ exports.getDriverReviews = async (req, res) => {
         const { driverId } = req.params;
         const { limit = 10, offset = 0 } = req.query;
 
+        // Requête directe pour les avis avec les infos du passager et du trajet
         const [reviews] = await pool.query(
-            `SELECT * FROM v_driver_reviews_detailed 
-             WHERE driver_id = ? 
-             ORDER BY created_at DESC 
+            `SELECT 
+                dr.id,
+                dr.rating,
+                dr.punctuality_rating,
+                dr.driving_quality_rating,
+                dr.vehicle_cleanliness_rating,
+                dr.friendliness_rating,
+                dr.comment,
+                dr.created_at,
+                u.pseudo as passenger_pseudo,
+                r.departure_city,
+                r.arrival_city
+             FROM driver_reviews dr
+             JOIN users u ON dr.passenger_id = u.id
+             LEFT JOIN rides r ON dr.ride_id = r.id
+             WHERE dr.driver_id = ? 
+             ORDER BY dr.created_at DESC 
              LIMIT ? OFFSET ?`,
             [driverId, Number.parseInt(limit), Number.parseInt(offset)]
         );
 
-        // Récupérer les statistiques du chauffeur
+        // Récupérer les statistiques du chauffeur (calcul direct)
         const [stats] = await pool.query(
-            'SELECT * FROM v_driver_ratings_summary WHERE driver_id = ?',
+            `SELECT 
+                COUNT(*) as total_reviews,
+                COALESCE(AVG(rating), 0) as avg_rating,
+                COALESCE(AVG(punctuality_rating), 0) as avg_punctuality,
+                COALESCE(AVG(driving_quality_rating), 0) as avg_driving_quality,
+                COALESCE(AVG(vehicle_cleanliness_rating), 0) as avg_vehicle_cleanliness,
+                COALESCE(AVG(friendliness_rating), 0) as avg_friendliness
+             FROM driver_reviews
+             WHERE driver_id = ?`,
             [driverId]
         );
 
@@ -179,12 +203,21 @@ exports.getDriverRating = async (req, res) => {
     try {
         const { driverId } = req.params;
 
+        // Calcul direct des statistiques sans vue
         const [stats] = await pool.query(
-            'SELECT * FROM v_driver_ratings_summary WHERE driver_id = ?',
+            `SELECT 
+                COUNT(*) as total_reviews,
+                COALESCE(AVG(rating), 0) as avg_rating,
+                COALESCE(AVG(punctuality_rating), 0) as avg_punctuality,
+                COALESCE(AVG(driving_quality_rating), 0) as avg_driving_quality,
+                COALESCE(AVG(vehicle_cleanliness_rating), 0) as avg_vehicle_cleanliness,
+                COALESCE(AVG(friendliness_rating), 0) as avg_friendliness
+             FROM driver_reviews
+             WHERE driver_id = ?`,
             [driverId]
         );
 
-        if (stats.length === 0) {
+        if (stats.length === 0 || stats[0].total_reviews === 0) {
             return res.json({
                 success: true,
                 rating: {
@@ -512,7 +545,8 @@ exports.getEligibleRides = async (req, res) => {
              JOIN users u ON r.driver_id = u.id
              LEFT JOIN driver_reviews dr ON (dr.ride_id = r.id AND dr.passenger_id = ?)
              WHERE b.passenger_id = ?
-             AND b.booking_status = 'termine'
+             AND (r.status = 'termine' OR r.departure_datetime < NOW())
+             AND b.booking_status IN ('confirme', 'termine')
              AND dr.id IS NULL
              ORDER BY r.departure_datetime DESC`,
             [userId, userId]

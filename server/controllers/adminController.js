@@ -120,28 +120,50 @@ exports.toggleUserStatus = async (req, res) => {
 // Obtenir les statistiques
 exports.getStats = async (req, res) => {
     try {
-        const totalUsers = await User.countDocuments();
-        const totalRides = await Ride.countDocuments();
-        const pendingReviews = await Review.countDocuments({ status: 'pending' });
+        const { pool } = require('../config/db-mysql');
         
-        // Calcul des crédits (simplifié)
-        const completedRides = await Ride.find({ status: 'completed' });
-        const totalCredits = completedRides.length * 2; // 2 crédits par trajet terminé
+        // Nombre d'utilisateurs (MongoDB)
+        const totalUsers = await User.countDocuments();
+        
+        // Nombre de trajets (MySQL)
+        const [ridesCount] = await pool.query('SELECT COUNT(*) as count FROM rides');
+        const totalRides = ridesCount[0].count;
+        
+        // Total des avis (MySQL - avis chauffeur + avis site)
+        const [driverReviewsCount] = await pool.query('SELECT COUNT(*) as count FROM driver_reviews');
+        const [siteReviewsCount] = await pool.query('SELECT COUNT(*) as count FROM site_reviews');
+        const totalReviews = driverReviewsCount[0].count + siteReviewsCount[0].count;
+        
+        // Calcul des crédits distribués (somme des crédits actuels des utilisateurs)
+        const [creditsSum] = await pool.query('SELECT COALESCE(SUM(current_credits), 0) as total FROM user_credits');
+        const totalCredits = creditsSum[0].total;
 
-        // Données pour les graphiques
-        const ridesByDay = await Ride.aggregate([
-            { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, count: { $sum: 1 } } },
-            { $sort: { _id: 1 } }
-        ]);
+        // Données pour les graphiques (trajets par jour, derniers 30 jours)
+        const [ridesByDayResults] = await pool.query(`
+            SELECT 
+                DATE(created_at) as date, 
+                COUNT(*) as count 
+            FROM rides 
+            WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            GROUP BY DATE(created_at)
+            ORDER BY DATE(created_at) ASC
+        `);
+        
+        const ridesByDay = ridesByDayResults.map(row => ({
+            _id: row.date,
+            date: row.date,
+            count: row.count
+        }));
 
         res.json({
             totalUsers,
             totalRides,
-            pendingReviews,
+            totalReviews,
             totalCredits,
             ridesByDay
         });
     } catch (error) {
+        console.error('Erreur récupération stats:', error);
         res.status(500).json({ msg: 'Erreur serveur.' });
     }
 };

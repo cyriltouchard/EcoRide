@@ -437,31 +437,39 @@ const initTabs = (loadUserVehicles, loadRides, loadMyRatings) => {
 function renderRatingStats(statsContainer, ratingData) {
     if (ratingData.success && ratingData.rating && ratingData.rating.total_reviews > 0) {
         const stats = ratingData.rating;
-        const stars = '⭐'.repeat(Math.round(stats.avg_rating));
+        
+        // Convertir les valeurs en nombres (MySQL retourne des strings pour AVG)
+        const avgRating = parseFloat(stats.avg_rating) || 0;
+        const avgPunctuality = parseFloat(stats.avg_punctuality) || 0;
+        const avgDrivingQuality = parseFloat(stats.avg_driving_quality) || 0;
+        const avgVehicleCleanliness = parseFloat(stats.avg_vehicle_cleanliness) || 0;
+        const avgFriendliness = parseFloat(stats.avg_friendliness) || 0;
+        
+        const stars = '⭐'.repeat(Math.round(avgRating));
         
         statsContainer.innerHTML = `
             <div class="rating-overview">
                 <div class="rating-score">
-                    <div class="score-number">${stats.avg_rating.toFixed(1)}</div>
+                    <div class="score-number">${avgRating.toFixed(1)}</div>
                     <div class="score-stars">${stars}</div>
                     <div class="score-count">${stats.total_reviews} avis</div>
                 </div>
                 <div class="rating-breakdown">
                     <div class="rating-criteria">
                         <span>⏰ Ponctualité:</span>
-                        <strong>${stats.avg_punctuality ? stats.avg_punctuality.toFixed(1) : 'N/A'}/5</strong>
+                        <strong>${avgPunctuality > 0 ? avgPunctuality.toFixed(1) : 'N/A'}/5</strong>
                     </div>
                     <div class="rating-criteria">
                         <span>🚗 Conduite:</span>
-                        <strong>${stats.avg_driving_quality ? stats.avg_driving_quality.toFixed(1) : 'N/A'}/5</strong>
+                        <strong>${avgDrivingQuality > 0 ? avgDrivingQuality.toFixed(1) : 'N/A'}/5</strong>
                     </div>
                     <div class="rating-criteria">
                         <span>✨ Propreté:</span>
-                        <strong>${stats.avg_vehicle_cleanliness ? stats.avg_vehicle_cleanliness.toFixed(1) : 'N/A'}/5</strong>
+                        <strong>${avgVehicleCleanliness > 0 ? avgVehicleCleanliness.toFixed(1) : 'N/A'}/5</strong>
                     </div>
                     <div class="rating-criteria">
                         <span>😊 Amabilité:</span>
-                        <strong>${stats.avg_friendliness ? stats.avg_friendliness.toFixed(1) : 'N/A'}/5</strong>
+                        <strong>${avgFriendliness > 0 ? avgFriendliness.toFixed(1) : 'N/A'}/5</strong>
                     </div>
                 </div>
             </div>
@@ -764,8 +772,17 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function loadMyRatings() {
         try {
-            const userData = await fetchWithAuth(`${API_BASE_URL}/users/me`);
+            const response = await fetchWithAuth(`${API_BASE_URL}/users/me`);
+            const userData = response.data || response;
             const userId = userData.id || userData._id;
+            
+            if (!userId) {
+                console.error('❌ Impossible de récupérer l\'ID utilisateur:', userData);
+                showNotification('Erreur: ID utilisateur non trouvé', 'error');
+                return;
+            }
+            
+            console.log(`✅ Chargement des avis pour le chauffeur ID: ${userId}`);
             
             const ratingResponse = await fetch(`${API_BASE_URL}/reviews/driver/${userId}/rating`);
             const ratingData = await ratingResponse.json();

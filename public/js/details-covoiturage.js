@@ -92,6 +92,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.warn('⚠️ Données véhicule manquantes. Populate ne fonctionne pas correctement.');
             }
             
+            // Charger les notes et avis du chauffeur
+            await loadDriverRating(ride.driver.id || ride.driver._id);
+            
             const button = document.getElementById('participate-button');
             if (ride.availableSeats <= 0) {
                 button.disabled = true;
@@ -100,6 +103,65 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('❌ Erreur chargement trajet:', error);
             showNotification(`Erreur de chargement: ${error.message}`, 'error');
+        }
+    };
+
+    /**
+     * Charge les notes et avis du chauffeur
+     */
+    const loadDriverRating = async (driverId) => {
+        try {
+            // Charger la note moyenne
+            const ratingResponse = await fetch(`${API_BASE_URL}/reviews/driver/${driverId}/rating`);
+            const ratingData = await ratingResponse.json();
+            
+            if (ratingData.success && ratingData.rating) {
+                const avgRating = parseFloat(ratingData.rating.avg_rating) || 0;
+                const totalReviews = ratingData.rating.total_reviews || 0;
+                
+                const driverRatingEl = document.getElementById('driver-rating');
+                if (driverRatingEl) {
+                    if (totalReviews > 0) {
+                        const stars = '⭐'.repeat(Math.round(avgRating));
+                        driverRatingEl.innerHTML = `${stars} ${avgRating.toFixed(1)} (${totalReviews} avis)`;
+                    } else {
+                        driverRatingEl.innerHTML = 'Nouveau chauffeur';
+                    }
+                }
+            }
+            
+            // Charger les avis
+            const reviewsResponse = await fetch(`${API_BASE_URL}/reviews/driver/${driverId}?limit=10`);
+            const reviewsData = await reviewsResponse.json();
+            
+            const reviewsContainer = document.getElementById('reviews-container');
+            if (reviewsContainer) {
+                if (reviewsData.success && reviewsData.reviews && reviewsData.reviews.length > 0) {
+                    reviewsContainer.innerHTML = reviewsData.reviews.map(review => {
+                        const stars = '⭐'.repeat(review.rating);
+                        const date = new Date(review.created_at).toLocaleDateString('fr-FR');
+                        
+                        return `
+                            <div class="review-item">
+                                <div class="review-header">
+                                    <strong>${review.passenger_pseudo || 'Passager'}</strong>
+                                    <span class="review-date">${date}</span>
+                                </div>
+                                <div class="review-rating">${stars}</div>
+                                ${review.comment ? `<p class="review-comment">${review.comment}</p>` : ''}
+                                ${review.departure_city && review.arrival_city ? 
+                                    `<p class="review-trip"><i class="fas fa-route"></i> ${review.departure_city} → ${review.arrival_city}</p>` 
+                                    : ''}
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    reviewsContainer.innerHTML = '<p>Aucun avis pour le moment.</p>';
+                }
+            }
+            
+        } catch (error) {
+            console.error('❌ Erreur chargement notes chauffeur:', error);
         }
     };
 
