@@ -48,7 +48,12 @@ describe('reviewController', () => {
             await reviewController.getPendingReviews(req, res);
 
             expect(Review.find).toHaveBeenCalledWith({ status: 'pending' });
-            expect(res.json).toHaveBeenCalledWith(mockReviews);
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({
+                success: true,
+                message: 'Avis en attente récupérés avec succès',
+                data: { reviews: mockReviews }
+            });
         });
 
         it('devrait gérer les erreurs serveur', async () => {
@@ -62,7 +67,10 @@ describe('reviewController', () => {
             await reviewController.getPendingReviews(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.json).toHaveBeenCalledWith({ msg: 'Erreur serveur' });
+            expect(res.json).toHaveBeenCalledWith({
+                success: false,
+                message: 'Erreur serveur'
+            });
         });
 
         it('devrait retourner un tableau vide si aucun avis en attente', async () => {
@@ -75,7 +83,12 @@ describe('reviewController', () => {
 
             await reviewController.getPendingReviews(req, res);
 
-            expect(res.json).toHaveBeenCalledWith([]);
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({
+                success: true,
+                message: 'Avis en attente récupérés avec succès',
+                data: { reviews: [] }
+            });
         });
     });
 
@@ -96,7 +109,12 @@ describe('reviewController', () => {
 
             expect(mockReview.status).toBe('approved');
             expect(mockReview.save).toHaveBeenCalled();
-            expect(res.json).toHaveBeenCalledWith({ msg: 'Avis approuvé.' });
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({
+                success: true,
+                message: 'Avis approuvé.',
+                data: { review: mockReview }
+            });
         });
 
         it('devrait rejeter un avis avec succès', async () => {
@@ -115,7 +133,12 @@ describe('reviewController', () => {
 
             expect(mockReview.status).toBe('rejected');
             expect(mockReview.save).toHaveBeenCalled();
-            expect(res.json).toHaveBeenCalledWith({ msg: 'Avis rejeté.' });
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({
+                success: true,
+                message: 'Avis rejeté.',
+                data: { review: mockReview }
+            });
         });
 
         it('devrait retourner 400 si le statut est invalide', async () => {
@@ -125,7 +148,10 @@ describe('reviewController', () => {
             await reviewController.updateReviewStatus(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ msg: 'Statut invalide.' });
+            expect(res.json).toHaveBeenCalledWith({
+                success: false,
+                message: 'Statut invalide.'
+            });
         });
 
         it('devrait retourner 404 si l\'avis n\'existe pas', async () => {
@@ -137,7 +163,10 @@ describe('reviewController', () => {
             await reviewController.updateReviewStatus(req, res);
 
             expect(res.status).toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith({ msg: 'Avis non trouvé.' });
+            expect(res.json).toHaveBeenCalledWith({
+                success: false,
+                message: 'Avis non trouvé.'
+            });
         });
 
         it('devrait gérer les erreurs serveur', async () => {
@@ -149,7 +178,10 @@ describe('reviewController', () => {
             await reviewController.updateReviewStatus(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.json).toHaveBeenCalledWith({ msg: 'Erreur serveur' });
+            expect(res.json).toHaveBeenCalledWith({
+                success: false,
+                message: 'Erreur serveur'
+            });
         });
     });
 });

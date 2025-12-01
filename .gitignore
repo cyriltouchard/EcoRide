@@ -120,3 +120,4 @@ docs/_build/
 # SonarQube
 .scannerwork/
 .sonar/
+.env.sonarqube

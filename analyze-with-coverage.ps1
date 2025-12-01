@@ -65,9 +65,9 @@ Write-Host ""
 Write-Host "Etape 5/5 : Lancement analyse..." -ForegroundColor Cyan
 
 if ($env:SONAR_TOKEN) {
-    sonar-scanner -Dsonar.token=$env:SONAR_TOKEN
+    sonar-scanner "-Dsonar.token=$env:SONAR_TOKEN"
 } elseif ($env:SONAR_LOGIN) {
-    sonar-scanner -Dsonar.login=$env:SONAR_LOGIN -Dsonar.password=$env:SONAR_PASSWORD
+    sonar-scanner "-Dsonar.login=$env:SONAR_LOGIN" "-Dsonar.password=$env:SONAR_PASSWORD"
 } else {
     sonar-scanner
 }

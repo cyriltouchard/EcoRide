@@ -4,22 +4,14 @@ const CreditModel = require('../models/creditModel'); // Système de crédits
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
-
-// --- UTILITAIRES DE SÉCURITÉ ---
-
-// Nettoyer les chaînes de caractères (Anti-NoSQL Injection)
-const sanitizeString = (s) => (typeof s === 'string' ? s.trim() : '');
-
-/**
- * Valide une adresse email (sécurisé contre ReDoS)
- * Utilise une regex bornée pour éviter le backtracking excessif
- */
-const isValidEmail = (e) => {
-    if (typeof e !== 'string') return false;
-    const email = e.trim();
-    if (email.length === 0 || email.length > 254) return false;
-    return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(email);
-};
+const { 
+    sanitizeString, 
+    isValidEmail, 
+    errorResponse, 
+    successResponse,
+    limitString 
+} = require('../utils/validators');
+const { handleError } = require('../utils/errorHandler');
 
 // --- CONTRÔLEURS ---
 
@@ -39,22 +31,22 @@ exports.register = async (req, res) => {
         email = sanitizeString(email).toLowerCase();
 
         if (!pseudo || !email || !password) {
-            return res.status(400).json({ success: false, message: "Tous les champs sont requis" });
+            return errorResponse(res, 400, "Tous les champs sont requis");
         }
 
         if (!isValidEmail(email)) {
-            return res.status(400).json({ success: false, message: 'Email invalide' });
+            return errorResponse(res, 400, 'Email invalide');
         }
 
         // 2. Vérifications d'unicité (MySQL)
         const existingUserSQL = await UserSQL.findByEmail(email);
         if (existingUserSQL) {
-            return res.status(400).json({ success: false, message: "Cet email est déjà utilisé." });
+            return errorResponse(res, 400, "Cet email est déjà utilisé.");
         }
 
         const existingPseudo = await UserSQL.findByPseudo(pseudo);
         if (existingPseudo) {
-            return res.status(400).json({ success: false, message: "Ce pseudo est déjà utilisé." });
+            return errorResponse(res, 400, "Ce pseudo est déjà utilisé.");
         }
 
         // 3. Hashage du mot de passe
@@ -112,7 +104,7 @@ exports.register = async (req, res) => {
 
     } catch (err) {
         console.error('Erreur inscription:', err);
-        res.status(500).json({ success: false, message: "Erreur serveur lors de l'inscription" });
+        return handleError(err, res, "Erreur serveur lors de l'inscription");
     }
 };
 
@@ -130,19 +122,19 @@ exports.login = async (req, res) => {
         email = sanitizeString(email).toLowerCase();
 
         if (!email || !password) {
-            return res.status(400).json({ success: false, message: "Email et mot de passe requis" });
+            return errorResponse(res, 400, "Email et mot de passe requis");
         }
 
         // 1. Recherche utilisateur (MySQL)
         const userSQL = await UserSQL.findByEmail(email);
         if (!userSQL) {
-            return res.status(400).json({ success: false, message: "Identifiants invalides." });
+            return errorResponse(res, 400, "Identifiants invalides.");
         }
 
         // 2. Vérification mot de passe
         const isMatch = await bcrypt.compare(password, userSQL.password_hash);
         if (!isMatch) {
-            return res.status(400).json({ success: false, message: "Identifiants invalides." });
+            return errorResponse(res, 400, "Identifiants invalides.");
         }
 
         // 3. Récupération infos MongoDB (Optionnel mais recommandé pour cohérence)

@@ -1,4 +1,6 @@
 const Review = require('../models/reviewModel');
+const { errorResponse, successResponse } = require('../utils/validators');
+const { handleError } = require('../utils/errorHandler');
 
 // Obtenir les avis en attente
 exports.getPendingReviews = async (req, res) => {
@@ -6,9 +8,9 @@ exports.getPendingReviews = async (req, res) => {
         const reviews = await Review.find({ status: 'pending' })
             .populate('authorId', 'pseudo')
             .populate('driverId', 'pseudo');
-        res.json(reviews);
+        return successResponse(res, 200, 'Avis en attente récupérés avec succès', { reviews });
     } catch (error) {
-        res.status(500).json({ msg: 'Erreur serveur' });
+        return handleError(error, res, 'Erreur serveur');
     }
 };
 
@@ -16,17 +18,17 @@ exports.getPendingReviews = async (req, res) => {
 exports.updateReviewStatus = async (req, res) => {
     const { status } = req.body; // 'approved' or 'rejected'
     if (!['approved', 'rejected'].includes(status)) {
-        return res.status(400).json({ msg: 'Statut invalide.' });
+        return errorResponse(res, 400, 'Statut invalide.');
     }
     try {
         const review = await Review.findById(req.params.id);
         if (!review) {
-            return res.status(404).json({ msg: 'Avis non trouvé.' });
+            return errorResponse(res, 404, 'Avis non trouvé.');
         }
         review.status = status;
         await review.save();
-        res.json({ msg: `Avis ${status === 'approved' ? 'approuvé' : 'rejeté'}.` });
+        return successResponse(res, 200, `Avis ${status === 'approved' ? 'approuvé' : 'rejeté'}.`, { review });
     } catch (error) {
-        res.status(500).json({ msg: 'Erreur serveur' });
+        return handleError(error, res, 'Erreur serveur');
     }
 };
