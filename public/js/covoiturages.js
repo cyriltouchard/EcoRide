@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Charger la note du chauffeur
             const rating = await loadDriverRating(driverId);
-            const avgRating = parseFloat(rating.avg_rating) || 0;
+            const avgRating = Number.parseFloat(rating.avg_rating) || 0;
             const stars = generateStars(avgRating);
             const ratingDisplay = rating.total_reviews > 0 
                 ? `<div class="driver-rating">${stars} <span class="rating-value">${avgRating.toFixed(1)}/5</span> <span class="rating-count">(${rating.total_reviews} avis)</span></div>`

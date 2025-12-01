@@ -222,9 +222,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             data-ride-id="${ride.ride_id}" 
                             data-driver-id="${ride.driver_id}" 
                             data-booking-id="${ride.booking_id}" 
-                            data-driver-pseudo="${(ride.driver_pseudo || 'Chauffeur').replace(/"/g, '&quot;')}" 
-                            data-departure="${(ride.departure_city || '').replace(/"/g, '&quot;')}" 
-                            data-arrival="${(ride.arrival_city || '').replace(/"/g, '&quot;')}">
+                            data-driver-pseudo="${(ride.driver_pseudo || 'Chauffeur').replaceAll('"', '&quot;')}" 
+                            data-departure="${(ride.departure_city || '').replaceAll('"', '&quot;')}" 
+                            data-arrival="${(ride.arrival_city || '').replaceAll('"', '&quot;')}">
                         ⭐ Noter ce chauffeur
                     </button>
                 </div>
@@ -233,9 +233,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Ajouter les event listeners sur les boutons de notation
             document.querySelectorAll('.rate-button').forEach(button => {
                 button.addEventListener('click', () => {
-                    const rideId = parseInt(button.dataset.rideId);
-                    const driverId = parseInt(button.dataset.driverId);
-                    const bookingId = parseInt(button.dataset.bookingId);
+                    const rideId = Number.parseInt(button.dataset.rideId);
+                    const driverId = Number.parseInt(button.dataset.driverId);
+                    const bookingId = Number.parseInt(button.dataset.bookingId);
                     const driverPseudo = button.dataset.driverPseudo;
                     const departureCity = button.dataset.departure;
                     const arrivalCity = button.dataset.arrival;

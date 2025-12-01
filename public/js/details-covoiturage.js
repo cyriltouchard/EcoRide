@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const ratingData = await ratingResponse.json();
             
             if (ratingData.success && ratingData.rating) {
-                const avgRating = parseFloat(ratingData.rating.avg_rating) || 0;
+                const avgRating = Number.parseFloat(ratingData.rating.avg_rating) || 0;
                 const totalReviews = ratingData.rating.total_reviews || 0;
                 
                 const driverRatingEl = document.getElementById('driver-rating');

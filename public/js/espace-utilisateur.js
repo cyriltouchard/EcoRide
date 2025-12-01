@@ -439,11 +439,11 @@ function renderRatingStats(statsContainer, ratingData) {
         const stats = ratingData.rating;
         
         // Convertir les valeurs en nombres (MySQL retourne des strings pour AVG)
-        const avgRating = parseFloat(stats.avg_rating) || 0;
-        const avgPunctuality = parseFloat(stats.avg_punctuality) || 0;
-        const avgDrivingQuality = parseFloat(stats.avg_driving_quality) || 0;
-        const avgVehicleCleanliness = parseFloat(stats.avg_vehicle_cleanliness) || 0;
-        const avgFriendliness = parseFloat(stats.avg_friendliness) || 0;
+        const avgRating = Number.parseFloat(stats.avg_rating) || 0;
+        const avgPunctuality = Number.parseFloat(stats.avg_punctuality) || 0;
+        const avgDrivingQuality = Number.parseFloat(stats.avg_driving_quality) || 0;
+        const avgVehicleCleanliness = Number.parseFloat(stats.avg_vehicle_cleanliness) || 0;
+        const avgFriendliness = Number.parseFloat(stats.avg_friendliness) || 0;
         
         const stars = '⭐'.repeat(Math.round(avgRating));
         
