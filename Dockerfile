@@ -19,14 +19,13 @@ RUN apk add --no-cache \
     dumb-init
 
 # Copie des fichiers de dépendances
-COPY server/package*.json ./
+COPY server/package*.json ./server/
 
 # Installation des dépendances Node.js
-RUN npm ci --only=production && \
-    npm cache clean --force
+RUN cd server && npm ci --only=production && npm cache clean --force
 
 # Copie du code source
-COPY server/ ./
+COPY server/ ./server/
 COPY public/ ./public/
 COPY *.html ./
 
@@ -49,4 +48,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 ENTRYPOINT ["dumb-init", "--"]
 
 # Commande de démarrage
-CMD ["node", "server.js"]
+CMD ["node", "server/server.js"]

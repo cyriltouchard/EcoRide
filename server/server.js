@@ -34,8 +34,8 @@ app.use(helmet({
             scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
             imgSrc: ["'self'", "data:", "https:", "blob:"],
             mediaSrc: ["'self'", "blob:"],
-            // Ajout de localhost:3000 pour être sûr que le front parle au back
-            connectSrc: ["'self'", "http://localhost:3000", "http://localhost:3002"]
+            // Ajout de localhost:3000 et cdn.jsdelivr.net pour Chart.js
+            connectSrc: ["'self'", "http://localhost:3000", "http://localhost:3002", "https://cdn.jsdelivr.net"]
         }
     }
 }));
@@ -84,7 +84,7 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Servir les fichiers statiques
 // Servir les fichiers du dossier public (CSS, JS, images)
-app.use('/public', express.static(path.join(__dirname, 'public'), {
+app.use('/public', express.static(path.join(__dirname, '..', 'public'), {
     setHeaders: (res, filepath) => {
         if (filepath.endsWith('.js')) {
             res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -94,8 +94,8 @@ app.use('/public', express.static(path.join(__dirname, 'public'), {
     }
 }));
 
-// Servir les fichiers HTML à la racine
-app.use(express.static(__dirname, {
+// Servir les fichiers HTML à la racine du projet
+app.use(express.static(path.join(__dirname, '..'), {
     setHeaders: (res, filepath) => {
         if (filepath.endsWith('.html')) {
             res.set('Cache-Control', 'no-cache, no-store, must-revalidate');

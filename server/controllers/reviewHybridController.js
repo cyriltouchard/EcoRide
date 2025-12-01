@@ -310,8 +310,14 @@ exports.getSiteReviews = async (req, res) => {
             [Number.parseInt(limit), Number.parseInt(offset)]
         );
 
-        // Récupérer les statistiques globales
-        const [stats] = await pool.query('SELECT * FROM v_site_ratings_summary');
+        // Récupérer les statistiques globales (sans vue, calcul direct)
+        const [stats] = await pool.query(`
+            SELECT 
+                COUNT(*) as total_reviews,
+                COALESCE(AVG(overall_rating), 0) as avg_overall_rating
+            FROM site_reviews
+            WHERE is_visible = TRUE
+        `);
 
         res.json({
             success: true,

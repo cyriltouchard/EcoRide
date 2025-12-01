@@ -263,6 +263,7 @@ class RideSQL {
                 price: row.price_per_seat,
                 availableSeats: row.available_seats,
                 totalSeats: row.total_seats,
+                status: row.status,
                 isEcologic: row.is_ecological
             };
         });

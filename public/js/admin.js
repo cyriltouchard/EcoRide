@@ -402,22 +402,26 @@ async function loadUsers() {
         return;
     }
 
-    tbody.innerHTML = users.map(user => `
+    const html = users.map(user => {
+        // Gérer les deux formats: role (MongoDB) et user_type (MySQL)
+        const userType = user.user_type || user.role || 'passager';
+        return `
         <tr>
             <td>${escapeHtml(user.pseudo)}</td>
             <td>${escapeHtml(user.email)}</td>
-            <td><span class="badge ${getBadgeClass(user.user_type)}">${user.user_type}</span></td>
+            <td><span class="badge ${getBadgeClass(userType)}">${userType}</span></td>
             <td><span class="badge ${user.isSuspended ? 'danger' : 'success'}">${user.isSuspended ? 'Suspendu' : 'Actif'}</span></td>
             <td>${new Date(user.createdAt || Date.now()).toLocaleDateString('fr-FR')}</td>
             <td>
-                ${user.user_type !== 'admin' ? `
+                ${userType !== 'admin' ? `
                 <button class="btn btn-sm ${user.isSuspended ? 'btn-primary' : 'btn-warning'}" 
                         onclick="toggleUserStatus('${user._id}', ${user.isSuspended})">
                     <i class="fas fa-${user.isSuspended ? 'check' : 'ban'}"></i>
                 </button>` : ''}
             </td>
         </tr>
-    `).join('');
+        `;
+    }).join('');
     
     tbody.innerHTML = html;
 }
@@ -466,9 +470,9 @@ async function loadRides() {
                 <td>${escapeHtml(ride.arrival)}</td>
                 <td>${escapeHtml(ride.driver?.pseudo || 'N/A')}</td>
                 <td>${new Date(ride.departureDate).toLocaleDateString('fr-FR')}</td>
-                <td>${ride.pricePerSeat} €</td>
-                <td>${ride.availableSeats}</td>
-                <td><span class="badge ${ride.status === 'active' ? 'success' : 'danger'}">${ride.status}</span></td>
+                <td>${ride.price || ride.pricePerSeat || 0} crédits</td>
+                <td>${ride.availableSeats || 0}</td>
+                <td><span class="badge ${(ride.status === 'en_attente' || !ride.status) ? 'warning' : ride.status === 'confirme' ? 'success' : 'secondary'}">${ride.status || 'en_attente'}</span></td>
             </tr>
         `).join('');
         
@@ -503,11 +507,11 @@ async function loadReviews() {
 
         const html = reviews.map(review => `
             <tr>
-                <td>${escapeHtml(review.author?.pseudo || 'Anonyme')}</td>
-                <td>${'⭐'.repeat(review.rating)}</td>
+                <td>${escapeHtml(review.user_pseudo || 'Anonyme')}</td>
+                <td>${'⭐'.repeat(review.overall_rating || 0)}</td>
                 <td>${escapeHtml(review.comment || '')}</td>
-                <td>${new Date(review.createdAt).toLocaleDateString('fr-FR')}</td>
-                <td><span class="badge ${review.status === 'approved' ? 'success' : review.status === 'pending' ? 'warning' : 'danger'}">${review.status}</span></td>
+                <td>${review.created_at ? new Date(review.created_at).toLocaleDateString('fr-FR') : 'N/A'}</td>
+                <td><span class="badge ${review.is_visible ? 'success' : 'danger'}">${review.is_visible ? 'Visible' : 'Masqué'}</span></td>
             </tr>
         `).join('');
         
@@ -531,7 +535,8 @@ async function loadEmployees() {
         
         // L'API retourne directement un tableau d'utilisateurs
         const users = Array.isArray(response) ? response : (response.users || response.data || []);
-        const employees = users.filter(u => u.user_type === 'employe');
+        // Gérer les deux formats: role (MongoDB) et user_type (MySQL)
+        const employees = users.filter(u => (u.user_type === 'employe' || u.role === 'employe'));
         
         if (employees.length === 0) {
             tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 40px;">Aucun employé trouvé</td></tr>';

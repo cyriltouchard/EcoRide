@@ -631,7 +631,10 @@ document.addEventListener('DOMContentLoaded', () => {
             scheduled: 'Ouvert',
             started: 'En cours',
             completed: 'Terminé',
-            cancelled: 'Annulé'
+            termine: 'Terminé',
+            confirme: 'Confirmé',
+            cancelled: 'Annulé',
+            annule: 'Annulé'
         };
 
         try {
@@ -645,13 +648,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     noMsg.style.display = 'none';
                     activeRides.forEach(ride => {
                         const date = new Date(ride.departureDate).toLocaleDateString('fr-FR');
-                        const statusText = statusMap[ride.status] || ride.status;
+                        
+                        // Vérifier si le trajet est dans le passé
+                        const departureDateTime = new Date(ride.departureDate);
+                        const isPast = departureDateTime < new Date();
+                        
+                        // Si le trajet est passé et toujours en attente/confirmé, le marquer comme terminé
+                        let actualStatus = ride.status;
+                        if (isPast && (ride.status === 'en_attente' || ride.status === 'scheduled' || ride.status === 'confirme')) {
+                            actualStatus = 'termine';
+                        }
+                        
+                        const statusText = statusMap[actualStatus] || actualStatus;
                         
                         let isCancellable = false;
                         if (type === 'offered') {
-                            isCancellable = ride.status === 'scheduled' || ride.status === 'en_attente';
+                            isCancellable = !isPast && (ride.status === 'scheduled' || ride.status === 'en_attente');
                         } else {
-                            isCancellable = ride.status === 'confirme' || ride.status === 'scheduled' || ride.status === 'en_attente';
+                            isCancellable = !isPast && (ride.status === 'confirme' || ride.status === 'scheduled' || ride.status === 'en_attente');
                         }
                         
                         let cardHtml = '';
@@ -667,7 +681,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 </div>`;
                         } else {
                             // Vérifier si le trajet est terminé et peut être noté
-                            const isCompleted = ride.status === 'completed' || ride.status === 'termine';
+                            const isCompleted = actualStatus === 'completed' || actualStatus === 'termine';
                             const canRate = isCompleted && ride.driver?.id;
                             
                             cardHtml = `

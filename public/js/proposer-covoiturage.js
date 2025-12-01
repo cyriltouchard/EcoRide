@@ -42,10 +42,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 noVehicleMessage.style.display = 'none';
                 vehicleSelect.style.display = 'block';
+                vehicleSelect.required = true;
             } else {
                 vehicleSelect.innerHTML = '';
                 noVehicleMessage.style.display = 'block';
                 vehicleSelect.style.display = 'none';
+                vehicleSelect.required = false; // Retirer l'obligation si pas de véhicules
             }
         } catch (error) {
             showNotification(`Erreur chargement véhicules: ${error.message}`, 'error');

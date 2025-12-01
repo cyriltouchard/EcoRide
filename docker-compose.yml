@@ -34,6 +34,20 @@ services:
       - ./espace-utilisateur.html:/app/espace-utilisateur.html
       - ./connexion.html:/app/connexion.html
       - ./index.html:/app/index.html
+      - ./admin.html:/app/admin.html
+      - ./covoiturages.html:/app/covoiturages.html
+      - ./proposer-covoiturage.html:/app/proposer-covoiturage.html
+      - ./details-covoiturage.html:/app/details-covoiturage.html
+      - ./creation-compte.html:/app/creation-compte.html
+      - ./contact.html:/app/contact.html
+      - ./conditions-generales.html:/app/conditions-generales.html
+      - ./politique-confidentialite.html:/app/politique-confidentialite.html
+      - ./mentions-legales.html:/app/mentions-legales.html
+      - ./espace-chauffeur.html:/app/espace-chauffeur.html
+      - ./employe.html:/app/employe.html
+      - ./acheter-credits.html:/app/acheter-credits.html
+      - ./paiement-credits.html:/app/paiement-credits.html
+      - ./avis.html:/app/avis.html
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
       interval: 30s

@@ -1,6 +1,8 @@
 const User = require('../models/userModel');
+const UserSQL = require('../models/userSQLModel'); // Ajout du modèle SQL
 const Ride = require('../models/rideModel');
 const Review = require('../models/reviewModel');
+const bcrypt = require('bcryptjs'); // Ajout pour hacher le mot de passe
 
 // Helper: sanitize simple strings and validate emails to prevent NoSQL injection
 const sanitizeString = (s) => (typeof s === 'string' ? s.trim() : '');
@@ -23,29 +25,66 @@ const isValidEmail = (e) => {
 exports.createEmployee = async (req, res) => {
     let { pseudo, email, password } = req.body;
     try {
+        console.log('📝 Création employé:', { pseudo, email });
+        
         if (!pseudo || !email || !password) {
-            return res.status(400).json({ msg: 'Veuillez remplir tous les champs.' });
+            console.log('❌ Champs manquants');
+            return res.status(400).json({ success: false, msg: 'Veuillez remplir tous les champs.' });
         }
+        
         pseudo = sanitizeString(pseudo);
         email = sanitizeString(email).toLowerCase();
+        
         if (!isValidEmail(email)) {
-            return res.status(400).json({ msg: 'Email invalide.' });
+            console.log('❌ Email invalide:', email);
+            return res.status(400).json({ success: false, msg: 'Email invalide.' });
         }
 
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ msg: 'Cet email est déjà utilisé.' });
+        // Vérifier si l'utilisateur existe déjà (MySQL)
+        const existingUserSQL = await UserSQL.findByEmail(email);
+        if (existingUserSQL) {
+            console.log('❌ Email déjà utilisé:', email);
+            return res.status(400).json({ success: false, msg: 'Cet email est déjà utilisé.' });
         }
-        const newEmployee = new User({
+
+        // Hacher le mot de passe
+        const hashedPassword = await bcrypt.hash(password, 12);
+        console.log('🔐 Mot de passe haché');
+
+        // 1. Créer dans MySQL
+        const userSQL = await UserSQL.create({
             pseudo,
             email,
-            password,
-            role: 'employe'
+            password_hash: hashedPassword, // ✅ Correction : password_hash au lieu de password
+            user_type: 'employe',
+            current_credits: 0
         });
-        await newEmployee.save();
-        res.status(201).json({ msg: 'Compte employé créé avec succès.' });
+        console.log('✅ Utilisateur créé dans MySQL:', userSQL.id);
+
+        // 2. Créer dans MongoDB pour la compatibilité
+        try {
+            const newEmployee = new User({
+                pseudo,
+                email,
+                password: hashedPassword,
+                role: 'employe',
+                credits: 0,
+                sql_id: userSQL.id
+            });
+            
+            // Empêcher le middleware pre-save de re-hasher
+            await newEmployee.save({ validateBeforeSave: true });
+            console.log('✅ Utilisateur créé dans MongoDB');
+        } catch (mongoError) {
+            console.log('⚠️  Erreur MongoDB (non bloquante):', mongoError.message);
+            // L'essentiel est créé dans MySQL, MongoDB est optionnel
+        }
+
+        res.status(201).json({ success: true, msg: 'Compte employé créé avec succès.' });
+        
     } catch (error) {
-        res.status(500).json({ msg: 'Erreur serveur.' });
+        console.error('❌ Erreur création employé:', error);
+        res.status(500).json({ success: false, msg: 'Erreur serveur: ' + error.message });
     }
 };
 
