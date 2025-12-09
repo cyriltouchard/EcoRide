@@ -224,8 +224,7 @@ window.validateData = {
 
 // Alias global pour compatibilité avec les anciens scripts
 window.API_BASE_URL = window.EcoRideConfig.API_BASE_URL;
-const API_BASE_URL = window.API_BASE_URL;
 
 // Log de configuration (développement uniquement)
 console.log('🌐 EcoRide - Environnement:', window.location.hostname);
-console.log('🔗 API Base URL:', API_BASE_URL);
+console.log('🔗 API Base URL:', window.API_BASE_URL);
