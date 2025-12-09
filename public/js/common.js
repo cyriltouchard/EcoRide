@@ -4,11 +4,8 @@
  * @file common.js
  */
 
-// Configuration centralisée des URLs
-// Détection automatique de l'environnement
-const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:3000/api'
-    : `${window.location.protocol}//${window.location.host}/api`;
+// Configuration centralisée des URLs (définie dans config.js)
+const API_BASE_URL = window.API_BASE_URL;
 
 /**
  * Crée une fonction fetch avec authentification automatique
