@@ -12,7 +12,7 @@ window.EcoRideConfig = {
     
     // Configuration application
     APP_NAME: 'EcoRide',
-    VERSION: '2.0.0',
+    VERSION: '2.0.1-PROD',
     
     // Configuration crédits
     INITIAL_CREDITS: 20,
@@ -226,5 +226,6 @@ window.validateData = {
 window.API_BASE_URL = window.EcoRideConfig.API_BASE_URL;
 
 // Log de configuration (développement uniquement)
+console.log('✅ CONFIG.JS v2.0.1 CHARGÉ - ' + new Date().toISOString());
 console.log('🌐 EcoRide - Environnement:', window.location.hostname);
 console.log('🔗 API Base URL:', window.API_BASE_URL);
