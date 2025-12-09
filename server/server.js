@@ -57,7 +57,9 @@ const corsOptions = {
             'http://127.0.0.1:5500',
             'http://127.0.0.1:5501',
             'http://127.0.0.1:5502',
-            'https://ecoride.fr' // Votre domaine de production
+            'https://ecoride.fr', // Votre domaine de production
+            'https://www.cyrildev.com',
+            'https://cyrildev.com'
         ];
         
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
