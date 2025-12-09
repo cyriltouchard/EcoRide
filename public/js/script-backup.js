@@ -3,8 +3,10 @@
  * Fichier refactorisé avec modules séparés pour réduire la complexité cognitive
  */
 
-// Configuration centralisée des URLs
-const API_BASE_URL = 'http://localhost:3000/api';
+// Configuration centralisée des URLs - Détection automatique de l'environnement
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000/api'
+    : `${window.location.protocol}//${window.location.host}/api`;
 
 // Fonction globale pour les requêtes authentifiées
 const createFetchWithAuth = (token) => {

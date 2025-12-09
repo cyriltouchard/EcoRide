@@ -1,0 +1,94 @@
+services:
+  # Application EcoRide
+  ecoride-app:
+    build: .
+    container_name: ecoride-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MONGO_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@ecoride-mongo:27017/${MONGO_DATABASE:-ecoride}
+      - MONGODB_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@ecoride-mongo:27017/${MONGO_DATABASE:-ecoride}
+      - DB_HOST=ecoride-mysql
+      - DB_PORT=3306
+      - DB_NAME=${MYSQL_DATABASE:-ecoride}
+      - DB_USER=${MYSQL_USER:-ecoride_user}
+      - DB_PASSWORD=${MYSQL_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      ecoride-mongo:
+        condition: service_healthy
+      ecoride-mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - ecoride-network
+    volumes:
+      # PRODUCTION: On monte uniquement les logs, pas le code source
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Base de données MongoDB
+  ecoride-mongo:
+    image: mongo:7.0
+    container_name: ecoride-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE:-ecoride}
+    volumes:
+      - ecoride_mongo_data:/data/db
+      - ./docker/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    restart: unless-stopped
+    networks:
+      - ecoride-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # Base de données MySQL
+  ecoride-mysql:
+    image: mysql:8.0
+    container_name: ecoride-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-ecoride}
+      - MYSQL_USER=${MYSQL_USER:-ecoride_user}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - ecoride_mysql_data:/var/lib/mysql
+      - ./docker/mysql-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: unless-stopped
+    networks:
+      - ecoride-network
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+networks:
+  ecoride-network:
+    driver: bridge
+    name: ecoride-network
+
+volumes:
+  ecoride_mongo_data:
+    name: ecoride_mongo_data
+  ecoride_mysql_data:
+    name: ecoride_mysql_data

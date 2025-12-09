@@ -5,7 +5,10 @@
  */
 
 // Configuration centralisée des URLs
-const API_BASE_URL = 'http://localhost:3000/api';
+// Détection automatique de l'environnement
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000/api'
+    : `${window.location.protocol}//${window.location.host}/api`;
 
 /**
  * Crée une fonction fetch avec authentification automatique
