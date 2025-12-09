@@ -4,6 +4,13 @@
  * @file connexion.js
  */
 
+// Configuration API - Détection automatique de l'environnement
+const API_BASE_URL = window.API_BASE_URL || (
+    window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:3000/api'
+        : `${window.location.protocol}//${window.location.host}/api`
+);
+
 document.addEventListener('DOMContentLoaded', () => {
     if (document.body.classList.contains('connexion-page')) {
         const loginForm = document.querySelector('.auth-form');

@@ -1,10 +1,14 @@
 // Configuration centralisée pour EcoRide
 window.EcoRideConfig = {
-    // Configuration API
-    API_BASE_URL: `${window.location.protocol}//${window.location.hostname}:3000/api`,
+    // Configuration API - Détection automatique de l'environnement
+    API_BASE_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:3000/api'
+        : `${window.location.protocol}//${window.location.host}/api`,
     
     // Configuration WebSocket (pour futures notifications temps réel)
-    WS_URL: `ws://${window.location.hostname}:3000`,
+    WS_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? `ws://${window.location.hostname}:3000`
+        : `wss://${window.location.host}`,
     
     // Configuration application
     APP_NAME: 'EcoRide',
@@ -218,4 +222,10 @@ window.validateData = {
     required: (value) => value !== null && value !== undefined && value.toString().trim() !== ''
 };
 
-// Configuration chargée (log en mode développement uniquement - commenté pour production)
+// Alias global pour compatibilité avec les anciens scripts
+window.API_BASE_URL = window.EcoRideConfig.API_BASE_URL;
+const API_BASE_URL = window.API_BASE_URL;
+
+// Log de configuration (développement uniquement)
+console.log('🌐 EcoRide - Environnement:', window.location.hostname);
+console.log('🔗 API Base URL:', API_BASE_URL);
