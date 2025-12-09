@@ -4,9 +4,6 @@
  * @file common.js
  */
 
-// Configuration centralisée des URLs (définie dans config.js)
-const API_BASE_URL = window.API_BASE_URL;
-
 /**
  * Crée une fonction fetch avec authentification automatique
  * @param {string} token - Le token JWT d'authentification
@@ -153,7 +150,7 @@ const checkAdminAccess = async (adminNavButton, token) => {
     if (!adminNavButton || !token) return;
     
     try {
-        const response = await fetch(`${API_BASE_URL}/users/me`, {
+        const response = await fetch(`${window.API_BASE_URL}/users/me`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await response.json();
@@ -270,7 +267,7 @@ const loadReviewsBadge = async () => {
     if (!userToken) return;
 
     try {
-        const response = await fetch(`${API_BASE_URL}/reviews/eligible-rides`, {
+        const response = await fetch(`${window.API_BASE_URL}/reviews/eligible-rides`, {
             headers: { 'x-auth-token': userToken }
         });
         
