@@ -354,6 +354,13 @@
     </footer>
 
     <div id="notification-container"></div>
+    <script>
+        // Configuration inline forcée (fix problème de chargement)
+        window.API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000/api'
+            : window.location.protocol + '//' + window.location.host + '/api';
+        console.log('✅ CONFIG INLINE CHARGÉ - API:', window.API_BASE_URL);
+    </script>
     <script src="public/js/config.js?v=1733755000"></script>
     <script src="public/js/common/vehicle-data.js"></script>
     <script src="public/js/common.js"></script>
