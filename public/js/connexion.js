@@ -4,9 +4,6 @@
  * @file connexion.js
  */
 
-// Configuration API (définie dans config.js)
-const API_BASE_URL = window.API_BASE_URL;
-
 document.addEventListener('DOMContentLoaded', () => {
     if (document.body.classList.contains('connexion-page')) {
         const loginForm = document.querySelector('.auth-form');
