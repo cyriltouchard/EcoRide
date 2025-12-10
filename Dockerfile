@@ -22,22 +22,18 @@ RUN apk add --no-cache \
 COPY server/package*.json ./server/
 
 # Installation des dépendances Node.js
-RUN cd server && npm install --production --legacy-peer-deps && npm cache clean --force
+RUN cd server && npm install --production --legacy-peer-deps && \
+    npm cache clean --force && \
+    mkdir -p /tmp/node_modules && \
+    cp -r node_modules /tmp/node_modules/
 
-# Copie du code source (sauf node_modules avec .dockerignore)
-COPY server/*.js ./server/
-COPY server/__tests__/ ./server/__tests__/
-COPY server/config/ ./server/config/
-COPY server/controllers/ ./server/controllers/
-COPY server/database/ ./server/database/
-COPY server/middleware/ ./server/middleware/
-COPY server/migrations/ ./server/migrations/
-COPY server/models/ ./server/models/
-COPY server/routes/ ./server/routes/
-COPY server/scripts/ ./server/scripts/
-COPY server/utils/ ./server/utils/
+# Copie du code source
+COPY server/ ./server/
 COPY public/ ./public/
 COPY *.html ./
+
+# Restaurer node_modules
+RUN cp -r /tmp/node_modules/node_modules ./server/ && rm -rf /tmp/node_modules
 
 # Changement de propriétaire vers utilisateur non-root
 RUN chown -R ecoride:ecoride /app
