@@ -287,6 +287,8 @@ const initVehicleModals = (fetchWithAuth, loadUserVehicles) => {
  * Initialise les gestionnaires de photo de profil
  */
 const initProfilePictureHandlers = (fetchWithAuth) => {
+    console.log('🔧 Initialisation des gestionnaires de photo de profil');
+    
     const pictureModal = document.getElementById('picture-modal');
     const editPictureBtn = document.getElementById('edit-picture-btn');
     const closePictureModalBtn = document.getElementById('close-picture-modal-btn');
@@ -295,6 +297,12 @@ const initProfilePictureHandlers = (fetchWithAuth) => {
     const useUrlBtn = document.getElementById('use-url-btn');
     const fileUploadSection = document.getElementById('file-upload-section');
     const urlUploadSection = document.getElementById('url-upload-section');
+    
+    console.log('📋 Éléments trouvés:', {
+        pictureModal: !!pictureModal,
+        pictureForm: !!pictureForm,
+        editPictureBtn: !!editPictureBtn
+    });
 
     if (useFileBtn && useUrlBtn && fileUploadSection && urlUploadSection) {
         useFileBtn.addEventListener('click', () => {
@@ -312,23 +320,60 @@ const initProfilePictureHandlers = (fetchWithAuth) => {
         });
     }
 
+    // Aperçu de l'image sélectionnée
+    const fileInput = document.getElementById('profileImageFile');
+    if (fileInput) {
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+                console.log('📁 Fichier sélectionné:', {
+                    name: file.name,
+                    type: file.type,
+                    size: `${Math.round(file.size / 1024)}KB`
+                });
+                
+                // Afficher un aperçu si possible
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    console.log('✅ Fichier chargé, prêt pour l\'upload');
+                };
+                reader.onerror = () => {
+                    console.error('❌ Erreur lecture fichier');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
     if (editPictureBtn && pictureModal) {
-        editPictureBtn.addEventListener('click', () => pictureModal.classList.add('active'));
+        editPictureBtn.addEventListener('click', () => {
+            console.log('🖼️ Ouverture modal photo');
+            pictureModal.classList.add('active');
+        });
     }
 
     if (closePictureModalBtn && pictureModal) {
-        closePictureModalBtn.addEventListener('click', () => pictureModal.classList.remove('active'));
+        closePictureModalBtn.addEventListener('click', () => {
+            console.log('❌ Fermeture modal photo');
+            pictureModal.classList.remove('active');
+        });
     }
 
     if (pictureModal) {
         window.addEventListener('click', (e) => {
-            if (e.target === pictureModal) pictureModal.classList.remove('active');
+            if (e.target === pictureModal) {
+                console.log('🔙 Clic extérieur - fermeture modal');
+                pictureModal.classList.remove('active');
+            }
         });
     }
 
     if (pictureForm) {
+        console.log('📝 Ajout du listener submit sur le formulaire');
+        
         pictureForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            console.log('🚀 SUBMIT DÉCLENCHÉ - Début traitement');
             
             const fileInput = document.getElementById('profileImageFile');
             const urlInput = document.getElementById('profileImageUrl');
