@@ -545,13 +545,21 @@ const initProfileHandlers = (fetchWithAuth) => {
     if (editProfileBtn && editProfileModal) {
         editProfileBtn.addEventListener('click', async () => {
             try {
-                const data = await fetchWithAuth(`${API_BASE_URL}/users/me`);
+                const response = await fetchWithAuth(`${API_BASE_URL}/users/me`);
+                console.log('🔍 DEBUG réponse /users/me:', response);
+                
+                // La réponse peut être dans response.data ou directement dans response
+                const data = response.data || response;
+                console.log('🔍 DEBUG données utilisateur:', data);
+                
                 document.getElementById('edit-pseudo').value = data.pseudo || '';
                 document.getElementById('edit-email').value = data.email || '';
                 document.getElementById('edit-phone').value = data.phone || '';
                 document.getElementById('edit-bio').value = data.bio || '';
+                
                 editProfileModal.classList.add('active');
             } catch (error) {
+                console.error('❌ Erreur chargement profil:', error);
                 showNotification(`Erreur: ${error.message}`, 'error');
             }
         });
