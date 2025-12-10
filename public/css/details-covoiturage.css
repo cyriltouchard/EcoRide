@@ -21,6 +21,17 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+#ride-description {
+    font-size: 1rem;
+    color: #555;
+    font-style: italic;
+    margin: 1rem 0 1.5rem 0;
+    padding: 1rem;
+    background-color: #f0f7f0;
+    border-left: 4px solid #4CAF50;
+    border-radius: 4px;
+}
+
 .ride-summary {
     display: flex;
     justify-content: space-around;
