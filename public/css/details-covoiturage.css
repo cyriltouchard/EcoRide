@@ -26,9 +26,9 @@
     color: #333;
     margin: 0;
     padding: 1rem;
-    background-color: #f0f7f0;
-    border: 2px solid #4CAF50;
-    border-radius: 6px;
+    background-color: #fff;
+    border-left: 4px solid #4CAF50;
+    border-radius: 4px;
 }
 
 #ride-description strong {
