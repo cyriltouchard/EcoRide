@@ -733,6 +733,7 @@ footer {
     background-position: center;
     vertical-align: middle;
     margin-left: 4px;
+    filter: hue-rotate(90deg) saturate(1.5) brightness(1.1);
 }
 
 .ecocredit-icon-sm {
@@ -745,6 +746,7 @@ footer {
     background-position: center;
     vertical-align: middle;
     margin-left: 4px;
+    filter: hue-rotate(90deg) saturate(1.5) brightness(1.1);
 }
 
 .ecocredit-icon-lg {
@@ -757,6 +759,7 @@ footer {
     background-position: center;
     vertical-align: middle;
     margin-left: 4px;
+    filter: hue-rotate(90deg) saturate(1.5) brightness(1.1);
 }
 
 /* ================================================================================================================================ */
