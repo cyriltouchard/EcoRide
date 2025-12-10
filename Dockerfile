@@ -22,10 +22,21 @@ RUN apk add --no-cache \
 COPY server/package*.json ./server/
 
 # Installation des dépendances Node.js
-RUN cd server && npm ci --only=production && npm cache clean --force
+RUN cd server && npm install --production --legacy-peer-deps && npm cache clean --force
 
-# Copie du code source
-COPY server/ ./server/
+# Copie du code source (sauf node_modules avec .dockerignore)
+COPY server/*.js ./server/
+COPY server/__tests__/ ./server/__tests__/
+COPY server/config/ ./server/config/
+COPY server/controllers/ ./server/controllers/
+COPY server/database/ ./server/database/
+COPY server/logs/ ./server/logs/
+COPY server/middleware/ ./server/middleware/
+COPY server/migrations/ ./server/migrations/
+COPY server/models/ ./server/models/
+COPY server/routes/ ./server/routes/
+COPY server/scripts/ ./server/scripts/
+COPY server/utils/ ./server/utils/
 COPY public/ ./public/
 COPY *.html ./
 
