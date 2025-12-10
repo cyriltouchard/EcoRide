@@ -205,6 +205,8 @@ exports.getUserProfile = async (req, res) => {
                 id: userSQL.id,
                 pseudo: userSQL.pseudo,
                 email: userSQL.email,
+                phone: userSQL.phone || '',
+                bio: userSQL.bio || '',
                 
                 // ✅ CORRECTION IMPORTANTE POUR L'ADMIN :
                 role: userSQL.user_type,
