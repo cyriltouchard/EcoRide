@@ -35,7 +35,8 @@ exports.createRide = async (req, res) => {
             departure_datetime,
             estimated_arrival,
             price_per_seat,
-            available_seats
+            available_seats,
+            description
         } = req.body;
         
         // Validation des données
@@ -49,7 +50,8 @@ exports.createRide = async (req, res) => {
             departure_datetime,
             estimated_arrival,
             price_per_seat: Number.parseFloat(price_per_seat),
-            available_seats: Number.parseInt(available_seats)
+            available_seats: Number.parseInt(available_seats),
+            description: description?.trim() || null
         };
         
         const validationErrors = RideSQL.validateRideData(rideData);
