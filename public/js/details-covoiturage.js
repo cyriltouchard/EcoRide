@@ -51,11 +51,14 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('driver-name').textContent = ride.driver.pseudo;
             
             // Description du trajet
+            console.log('🔍 DEBUG description:', ride.description, 'Type:', typeof ride.description);
             const descriptionEl = document.getElementById('ride-description');
             if (ride.description && ride.description.trim()) {
                 descriptionEl.textContent = ride.description;
+                console.log('✅ Description affichée:', ride.description);
             } else {
                 descriptionEl.style.display = 'none';
+                console.log('⚠️ Description cachée (vide ou null)');
             }
             
             // Bio du chauffeur
