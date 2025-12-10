@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS vehicles (
     color VARCHAR(30),
     license_plate VARCHAR(20) NOT NULL UNIQUE,
     first_registration DATE,
-    energy_type ENUM('essence', 'diesel', 'electrique', 'hybride') NOT NULL,
+    energy_type ENUM('essence', 'diesel', 'electrique', 'hybride', 'gpl') NOT NULL,
     available_seats INT DEFAULT 4,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
