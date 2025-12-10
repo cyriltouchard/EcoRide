@@ -51,11 +51,16 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('driver-name').textContent = ride.driver.pseudo;
             
             // Description du trajet
-            const descriptionEl = document.getElementById('ride-description');
+            console.log('🔍 DEBUG description:', ride.description, 'Type:', typeof ride.description);
+            const descriptionContainer = document.getElementById('ride-description-container');
+            const descriptionText = document.getElementById('ride-description-text');
             if (ride.description && ride.description.trim()) {
-                descriptionEl.textContent = ride.description;
+                descriptionText.textContent = ride.description;
+                descriptionContainer.style.display = 'block';
+                console.log('✅ Description affichée:', ride.description);
             } else {
-                descriptionEl.style.display = 'none';
+                descriptionContainer.style.display = 'none';
+                console.log('⚠️ Description cachée (vide ou null)');
             }
             
             // Bio du chauffeur
