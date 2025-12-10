@@ -140,11 +140,11 @@ app.use('/api/admin', require('./routes/adminRoutes'));
 // Routes de santé et monitoring
 app.use('/api', require('./routes/healthRoutes'));
 
-// Gérer les routes non trouvées (middleware après toutes les routes définies)
-app.use((req, res, next) => {
+// Gérer les routes API non trouvées (middleware après toutes les routes API)
+app.use('/api/*', (req, res, next) => {
     res.status(404).json({
         success: false,
-        message: 'Route non trouvée',
+        message: 'Route API non trouvée',
         path: req.originalUrl
     });
 });
