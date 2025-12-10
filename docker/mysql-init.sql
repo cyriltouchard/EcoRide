@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS rides (
     platform_commission DECIMAL(6,2) DEFAULT 2.00,
     available_seats INT NOT NULL,
     total_seats INT NOT NULL,
+    description TEXT,
     -- NOSONAR: 'confirme' est un statut métier standardisé utilisé dans rides et bookings
     status ENUM('en_attente', 'confirme', 'en_cours', 'termine', 'annule') DEFAULT 'en_attente',
     is_ecological BOOLEAN DEFAULT FALSE,

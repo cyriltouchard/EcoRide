@@ -17,7 +17,8 @@ class RideSQL {
             departure_datetime,
             estimated_arrival,
             price_per_seat,
-            available_seats
+            available_seats,
+            description
         } = rideData;
         
         const connection = await pool.getConnection();
@@ -63,11 +64,11 @@ class RideSQL {
                 `INSERT INTO rides 
                  (driver_id, vehicle_id, departure_city, arrival_city, departure_address, arrival_address,
                   departure_datetime, estimated_arrival, price_per_seat, platform_commission, 
-                  available_seats, total_seats, status)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 2.00, ?, ?, 'en_attente')`,
+                  available_seats, total_seats, status, description)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 2.00, ?, ?, 'en_attente', ?)`,
                 [
                     driver_id, vehicle_id, departure_city, arrival_city, departure_address, arrival_address,
-                    departure_datetime, estimated_arrival, price_per_seat, total_seats, total_seats
+                    departure_datetime, estimated_arrival, price_per_seat, total_seats, total_seats, description
                 ]
             );
             
