@@ -149,7 +149,8 @@ class RideSQL {
             status: row.status,
             platformCommission: row.platform_commission,
             isEcologic: row.is_ecological,
-            driverCredits: row.driver_credits
+            driverCredits: row.driver_credits,
+            description: row.description
         };
     }
     
