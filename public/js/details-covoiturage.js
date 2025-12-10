@@ -52,12 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Description du trajet
             console.log('🔍 DEBUG description:', ride.description, 'Type:', typeof ride.description);
+            const descriptionContainer = document.getElementById('ride-description-container');
             const descriptionEl = document.getElementById('ride-description');
             if (ride.description && ride.description.trim()) {
                 descriptionEl.textContent = ride.description;
+                descriptionContainer.style.display = 'block';
                 console.log('✅ Description affichée:', ride.description);
             } else {
-                descriptionEl.style.display = 'none';
+                descriptionContainer.style.display = 'none';
                 console.log('⚠️ Description cachée (vide ou null)');
             }
             
