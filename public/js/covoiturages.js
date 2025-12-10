@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="card-body">
                         <p><strong>Trajet:</strong> ${ride.departure} → ${ride.arrival}</p>
                         <p><strong>Date:</strong> ${date} à ${ride.departureTime}</p>
-                        <p><strong>Prix:</strong> ${ride.price} €</p>
+                        <p><strong>Prix:</strong> ${ride.price} <span class="ecocredit-icon"></span></p>
                         <div class="card-actions">
                             <a href="details-covoiturage.html?id=${ride._id}" class="details-button">
                                 <i class="fas fa-info-circle"></i> Détails

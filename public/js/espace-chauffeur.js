@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="ride-item">
                     <h4>${ride.departure} → ${ride.arrival}</h4>
                     <p>📅 ${date} à ${ride.departureTime} | 
-                       💰 ${ride.price}€ | 
+                       💰 ${ride.price} <span class="ecocredit-icon-sm"></span> | 
                        🪑 ${ride.availableSeats} places</p>
                     <button class="btn btn-danger" onclick="cancelRide('${ride._id}')">
                         Annuler
