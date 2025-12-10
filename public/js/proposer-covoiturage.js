@@ -98,7 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 departure_datetime: departure_datetime,
                 estimated_arrival: departure_datetime,
                 price_per_seat: Number.parseFloat(formData.get('price')),
-                available_seats: Number.parseInt(formData.get('availableSeats'), 10)
+                available_seats: Number.parseInt(formData.get('availableSeats'), 10),
+                description: formData.get('description') ? formData.get('description').trim() : null
             };
             
             console.log('📤 Données envoyées:', rideData);
