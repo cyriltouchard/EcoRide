@@ -30,7 +30,6 @@ COPY server/__tests__/ ./server/__tests__/
 COPY server/config/ ./server/config/
 COPY server/controllers/ ./server/controllers/
 COPY server/database/ ./server/database/
-COPY server/logs/ ./server/logs/
 COPY server/middleware/ ./server/middleware/
 COPY server/migrations/ ./server/migrations/
 COPY server/models/ ./server/models/
