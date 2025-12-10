@@ -59,6 +59,14 @@ class RideSQL {
                 throw new Error('Crédits insuffisants (2 crédits requis pour la commission plateforme)');
             }
             
+            // Préparer les paramètres
+            const params = [
+                driver_id, vehicle_id, departure_city, arrival_city, departure_address || null, arrival_address || null,
+                departure_datetime, estimated_arrival, price_per_seat, total_seats, total_seats, description
+            ];
+            
+            console.log('🔍 DEBUG rideSQLModel.create - Paramètres:', params.map((p, i) => `${i}: ${p}`));
+            
             // Créer le trajet
             const [result] = await connection.execute(
                 `INSERT INTO rides 
@@ -66,10 +74,7 @@ class RideSQL {
                   departure_datetime, estimated_arrival, price_per_seat, platform_commission, 
                   available_seats, total_seats, status, description)
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 2.00, ?, ?, 'en_attente', ?)`,
-                [
-                    driver_id, vehicle_id, departure_city, arrival_city, departure_address, arrival_address,
-                    departure_datetime, estimated_arrival, price_per_seat, total_seats, total_seats, description
-                ]
+                params
             );
             
             const rideId = result.insertId;
