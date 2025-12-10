@@ -69,20 +69,26 @@ const compressImage = (file, maxWidth = 800, maxHeight = 800, quality = 0.8) => 
                     let imageData = canvas.toDataURL('image/jpeg', quality);
                     let currentQuality = quality;
                     
-                    // Si l'image est trop grosse (>2MB en base64), réduire la qualité
-                    const maxSizeBytes = 2 * 1024 * 1024; // 2MB
-                    while (imageData.length > maxSizeBytes && currentQuality > 0.3) {
-                        currentQuality -= 0.1;
+                    // Détecter mobile pour limiter la taille
+                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                    const maxSizeBytes = isMobile ? 800 * 1024 : 2 * 1024 * 1024; // 800KB mobile, 2MB desktop
+                    
+                    // Si l'image est trop grosse, réduire la qualité progressivement
+                    let compressionAttempts = 0;
+                    while (imageData.length > maxSizeBytes && currentQuality > 0.3 && compressionAttempts < 10) {
+                        currentQuality -= 0.05;
                         imageData = canvas.toDataURL('image/jpeg', currentQuality);
+                        compressionAttempts++;
                     }
                     
                     // Vérification finale de la taille
-                    if (imageData.length > 5 * 1024 * 1024) {
-                        reject(new Error('Image trop volumineuse après compression'));
+                    const finalLimit = isMobile ? 1.5 * 1024 * 1024 : 5 * 1024 * 1024; // 1.5MB mobile, 5MB desktop
+                    if (imageData.length > finalLimit) {
+                        reject(new Error(`Image trop volumineuse: ${Math.round(imageData.length / 1024)}KB (max ${Math.round(finalLimit / 1024)}KB)`));
                         return;
                     }
                     
-                    console.log(`✅ Image compressée: ${Math.round(imageData.length / 1024)}KB, qualité: ${Math.round(currentQuality * 100)}%`);
+                    console.log(`✅ Image compressée: ${Math.round(imageData.length / 1024)}KB, qualité: ${Math.round(currentQuality * 100)}%, tentatives: ${compressionAttempts}`);
                     resolve(imageData);
                     
                 } catch (error) {
@@ -412,12 +418,49 @@ const initProfilePictureHandlers = (fetchWithAuth) => {
                     }
                     
                     try {
-                        // Compresser l'image avec paramètres adaptés à la taille
-                        const targetSize = file.size > 5 * 1024 * 1024 ? 600 : 800;
-                        const targetQuality = file.size > 5 * 1024 * 1024 ? 0.7 : 0.85;
+                        // Détecter si on est sur mobile pour ajuster la compression
+                        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                        
+                        // Paramètres de compression adaptés
+                        let targetSize, targetQuality;
+                        
+                        if (isMobile) {
+                            // Sur mobile : compression plus agressive
+                            if (file.size > 2 * 1024 * 1024) {
+                                targetSize = 400; // Très petit pour grosses images mobile
+                                targetQuality = 0.6;
+                            } else if (file.size > 1 * 1024 * 1024) {
+                                targetSize = 500;
+                                targetQuality = 0.65;
+                            } else {
+                                targetSize = 600;
+                                targetQuality = 0.7;
+                            }
+                            console.log('📱 Mode MOBILE détecté - compression renforcée');
+                        } else {
+                            // Sur desktop : compression standard
+                            targetSize = file.size > 5 * 1024 * 1024 ? 600 : 800;
+                            targetQuality = file.size > 5 * 1024 * 1024 ? 0.7 : 0.85;
+                            console.log('💻 Mode DESKTOP - compression standard');
+                        }
                         
                         showNotification('📸 Compression de l\'image...', 'info');
                         imageUrl = await compressImage(file, targetSize, targetSize, targetQuality);
+                        
+                        // Vérifier la taille finale (surtout sur mobile)
+                        const finalSizeKB = Math.round(imageUrl.length / 1024);
+                        const finalSizeMB = (finalSizeKB / 1024).toFixed(2);
+                        console.log(`📊 Taille finale: ${finalSizeKB}KB (${finalSizeMB}MB)`);
+                        
+                        // Si trop gros pour mobile, refuser
+                        if (isMobile && imageUrl.length > 1 * 1024 * 1024) {
+                            showNotification('⚠️ Image encore trop volumineuse après compression. Utilisez une photo plus petite.', 'error');
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.textContent = originalText;
+                            }
+                            return;
+                        }
                         
                         if (submitBtn) {
                             submitBtn.textContent = '⬆️ Envoi...';

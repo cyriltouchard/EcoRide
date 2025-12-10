@@ -12,31 +12,63 @@
 const createFetchWithAuth = (token) => {
     return async (url, options = {}) => {
         console.log('🔵 Requête authentifiée:', url, 'Token présent:', !!token);
-        const headers = { ...options.headers, 'Content-Type': 'application/json', 'x-auth-token': token };
-        const response = await fetch(url, { ...options, headers });
         
-        console.log('📡 Réponse:', response.status, response.statusText);
+        // Détecter mobile pour ajuster le timeout
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const timeout = isMobile ? 60000 : 30000; // 60s mobile, 30s desktop
         
-        // Tenter de parser le JSON, sinon retourner null
-        let data = null;
+        // Créer un AbortController pour gérer le timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+        
         try {
-            const text = await response.text();
-            data = text ? JSON.parse(text) : null;
-            console.log('📦 Data reçue:', data);
-        } catch (e) {
-            console.error('❌ Erreur de parsing JSON:', e);
-        }
-        
-        if (!response.ok) {
-            console.error('❌ Erreur HTTP:', response.status, data?.message);
-            if (response.status === 401) {
-                console.warn('⚠️ Token invalide - déconnexion');
-                localStorage.removeItem('token');
-                window.location.href = 'connexion.html';
+            const headers = { 
+                ...options.headers, 
+                'Content-Type': 'application/json', 
+                'x-auth-token': token 
+            };
+            
+            const response = await fetch(url, { 
+                ...options, 
+                headers,
+                signal: controller.signal 
+            });
+            
+            clearTimeout(timeoutId);
+            
+            console.log('📡 Réponse:', response.status, response.statusText);
+            
+            // Tenter de parser le JSON, sinon retourner null
+            let data = null;
+            try {
+                const text = await response.text();
+                data = text ? JSON.parse(text) : null;
+                console.log('📦 Data reçue:', data);
+            } catch (e) {
+                console.error('❌ Erreur de parsing JSON:', e);
             }
-            throw new Error(data?.message || `Erreur ${response.status}`);
+            
+            if (!response.ok) {
+                console.error('❌ Erreur HTTP:', response.status, data?.message);
+                if (response.status === 401) {
+                    console.warn('⚠️ Token invalide - déconnexion');
+                    localStorage.removeItem('token');
+                    window.location.href = 'connexion.html';
+                }
+                throw new Error(data?.message || `Erreur ${response.status}`);
+            }
+            return data;
+            
+        } catch (error) {
+            clearTimeout(timeoutId);
+            
+            if (error.name === 'AbortError') {
+                console.error('⏱️ Timeout - Requête trop longue');
+                throw new Error('La connexion a pris trop de temps. Réessayez avec une image plus petite.');
+            }
+            
+            throw error;
         }
-        return data;
     };
 };
 
