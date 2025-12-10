@@ -727,7 +727,7 @@ footer {
     display: inline-block;
     width: 20px;
     height: 20px;
-    background-image: url('../images/coin.png');
+    background-image: url('/public/images/coin.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -739,7 +739,7 @@ footer {
     display: inline-block;
     width: 16px;
     height: 16px;
-    background-image: url('../images/coin.png');
+    background-image: url('/public/images/coin.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -751,7 +751,7 @@ footer {
     display: inline-block;
     width: 24px;
     height: 24px;
-    background-image: url('../images/coin.png');
+    background-image: url('/public/images/coin.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
