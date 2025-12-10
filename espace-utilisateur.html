@@ -200,11 +200,14 @@
                 <!-- Option 1: Upload de fichier -->
                 <div id="file-upload-section" style="display: block;">
                     <div class="form-group">
-                        <label for="profileImageFile">Sélectionner une image</label>
+                        <label for="profileImageFile">📸 Sélectionner une image</label>
                         <input type="file" id="profileImageFile" name="profileImageFile"
-                            accept="image/png, image/jpeg, image/jpg, image/gif, image/webp">
+                            accept="image/*"
+                            capture="environment">
                         <small style="color: #666; display: block; margin-top: 5px;">
-                            Formats acceptés: PNG, JPG, JPEG, GIF, WEBP (Max 5MB)
+                            ✅ Tous formats d'image acceptés (JPG, PNG, WEBP, HEIC...)<br>
+                            📱 Compatible appareil photo mobile<br>
+                            💾 Taille max: 20MB (compression automatique)
                         </small>
                     </div>
                 </div>

@@ -6,6 +6,7 @@
 
 /**
  * Compresse une image avant de l'envoyer au serveur
+ * Version améliorée avec gestion EXIF et optimisation mobile
  * @param {File} file - Fichier image à compresser
  * @param {number} maxWidth - Largeur maximale
  * @param {number} maxHeight - Hauteur maximale
@@ -15,38 +16,83 @@
 const compressImage = (file, maxWidth = 800, maxHeight = 800, quality = 0.8) => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
+        
+        reader.onerror = () => reject(new Error('Erreur de lecture du fichier'));
+        
         reader.onload = (e) => {
             const img = new Image();
+            
+            img.onerror = () => reject(new Error('Image invalide ou corrompue'));
+            
             img.onload = () => {
-                const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
+                try {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
 
-                // Calculer les nouvelles dimensions en conservant le ratio
-                if (width > height) {
-                    if (width > maxWidth) {
-                        height *= maxWidth / width;
-                        width = maxWidth;
+                    // Calculer les nouvelles dimensions en conservant le ratio
+                    if (width > height) {
+                        if (width > maxWidth) {
+                            height = Math.round((height * maxWidth) / width);
+                            width = maxWidth;
+                        }
+                    } else {
+                        if (height > maxHeight) {
+                            width = Math.round((width * maxHeight) / height);
+                            height = maxHeight;
+                        }
                     }
-                } else {
-                    if (height > maxHeight) {
-                        width *= maxHeight / height;
-                        height = maxHeight;
+
+                    // Assurer des dimensions minimales
+                    if (width < 100 || height < 100) {
+                        reject(new Error('Image trop petite (minimum 100x100 pixels)'));
+                        return;
                     }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    const ctx = canvas.getContext('2d', { alpha: false });
+                    
+                    // Fond blanc pour les images transparentes
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, width, height);
+                    
+                    // Améliorer la qualité du rendu
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    
+                    // Dessiner l'image
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Convertir en base64 avec compression progressive
+                    let imageData = canvas.toDataURL('image/jpeg', quality);
+                    let currentQuality = quality;
+                    
+                    // Si l'image est trop grosse (>2MB en base64), réduire la qualité
+                    const maxSizeBytes = 2 * 1024 * 1024; // 2MB
+                    while (imageData.length > maxSizeBytes && currentQuality > 0.3) {
+                        currentQuality -= 0.1;
+                        imageData = canvas.toDataURL('image/jpeg', currentQuality);
+                    }
+                    
+                    // Vérification finale de la taille
+                    if (imageData.length > 5 * 1024 * 1024) {
+                        reject(new Error('Image trop volumineuse après compression'));
+                        return;
+                    }
+                    
+                    console.log(`✅ Image compressée: ${Math.round(imageData.length / 1024)}KB, qualité: ${Math.round(currentQuality * 100)}%`);
+                    resolve(imageData);
+                    
+                } catch (error) {
+                    reject(new Error(`Erreur de compression: ${error.message}`));
                 }
-
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-
-                // Convertir en base64 avec compression
-                resolve(canvas.toDataURL('image/jpeg', quality));
             };
-            img.onerror = reject;
+            
             img.src = e.target.result;
         };
-        reader.onerror = reject;
+        
         reader.readAsDataURL(file);
     });
 };
@@ -293,40 +339,107 @@ const initProfilePictureHandlers = (fetchWithAuth) => {
                 if (fileInput?.files?.[0]) {
                     const file = fileInput.files[0];
                     
-                    // Vérifier le type de fichier
-                    if (!file.type.startsWith('image/')) {
-                        showNotification('Veuillez sélectionner une image valide', 'error');
+                    console.log('📸 Fichier sélectionné:', {
+                        name: file.name,
+                        type: file.type,
+                        size: `${Math.round(file.size / 1024)}KB`
+                    });
+                    
+                    // Vérifier le type de fichier (accepter plus de formats)
+                    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+                    if (!validTypes.includes(file.type.toLowerCase()) && !file.type.startsWith('image/')) {
+                        showNotification('Format non supporté. Utilisez JPG, PNG ou WEBP', 'error');
                         return;
                     }
                     
-                    if (file.size > 10 * 1024 * 1024) {
-                        showNotification('Le fichier est trop volumineux (max 10MB)', 'error');
+                    // Limite taille fichier original (20MB max pour mobile)
+                    if (file.size > 20 * 1024 * 1024) {
+                        showNotification('Fichier trop volumineux (max 20MB)', 'error');
                         return;
                     }
                     
-                    // Compresser l'image avant l'envoi
-                    showNotification('Compression de l\'image...', 'info');
-                    imageUrl = await compressImage(file, 800, 800, 0.85);
+                    // Afficher un loader pendant la compression
+                    const submitBtn = pictureForm.querySelector('button[type="submit"]');
+                    const originalText = submitBtn?.textContent;
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = '⏳ Compression...';
+                    }
+                    
+                    try {
+                        // Compresser l'image avec paramètres adaptés à la taille
+                        const targetSize = file.size > 5 * 1024 * 1024 ? 600 : 800;
+                        const targetQuality = file.size > 5 * 1024 * 1024 ? 0.7 : 0.85;
+                        
+                        showNotification('📸 Compression de l\'image...', 'info');
+                        imageUrl = await compressImage(file, targetSize, targetSize, targetQuality);
+                        
+                        if (submitBtn) {
+                            submitBtn.textContent = '⬆️ Envoi...';
+                        }
+                        
+                    } catch (compressError) {
+                        console.error('Erreur compression:', compressError);
+                        showNotification(`Erreur de compression: ${compressError.message}`, 'error');
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = originalText;
+                        }
+                        return;
+                    }
                     
                 } else if (urlInput?.value) {
                     imageUrl = urlInput.value;
+                    
+                    // Valider l'URL
+                    try {
+                        new URL(imageUrl);
+                    } catch {
+                        showNotification('URL invalide', 'error');
+                        return;
+                    }
+                    
                 } else {
                     showNotification('Veuillez sélectionner une image ou entrer une URL', 'warning');
                     return;
                 }
                 
-                await fetchWithAuth(`${API_BASE_URL}/users/profile-picture`, {
+                // Envoyer au serveur
+                await fetchWithAuth(`${window.API_BASE_URL}/users/profile-picture`, {
                     method: 'PUT',
                     body: JSON.stringify({ profile_picture: imageUrl })
                 });
                 
-                document.getElementById('profile-picture').src = imageUrl;
-                showNotification('Photo de profil mise à jour !', 'success');
+                // Mettre à jour l'affichage
+                const profileImg = document.getElementById('profile-picture');
+                if (profileImg) {
+                    profileImg.src = imageUrl;
+                    // Forcer le rechargement de l'image
+                    profileImg.onload = () => console.log('✅ Photo de profil mise à jour dans le DOM');
+                    profileImg.onerror = () => console.warn('⚠️ Erreur chargement image dans le DOM');
+                }
+                
+                showNotification('✅ Photo de profil mise à jour !', 'success');
                 pictureModal.classList.remove('active');
                 pictureForm.reset();
+                
+                // Réinitialiser le bouton
+                const submitBtn = pictureForm.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Mettre à jour';
+                }
+                
             } catch (error) {
-                console.error('Erreur upload photo:', error);
+                console.error('❌ Erreur upload photo:', error);
                 showNotification(`Erreur: ${error.message}`, 'error');
+                
+                // Réinitialiser le bouton en cas d'erreur
+                const submitBtn = pictureForm.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Mettre à jour';
+                }
             }
         });
     }
