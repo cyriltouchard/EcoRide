@@ -4,7 +4,7 @@
 
 ## 📋 Description
 
-EcoRide est une plateforme web moderne de covoiturage écologique développée dans le cadre du **Titre Professionnel Développeur Web et Web Mobile**. L'objectif est de mettre en relation des conducteurs et des passagers pour partager des trajets, en mettant l'accent sur l'économie et l'écologie.
+EcoRide est une plateforme web moderne de covoiturage écologique développée dans le cadre du **Titre Professionnel Développeur Web et Web Mobile** chez **Studi**. L'objectif est de mettre en relation des conducteurs et des passagers pour partager des trajets, en mettant l'accent sur l'économie et l'écologie.
 
 Cette application full-stack combine une interface utilisateur moderne avec un backend robuste pour offrir une expérience de covoiturage complète et sécurisée.
 
@@ -451,13 +451,19 @@ x-auth-token: [votre_token_jwt]
 
 Ce projet est ouvert aux contributions ! Voici comment participer :
 
+### Stratégie de branches
+- **`deploiement`** : Branche de production (déployée sur Hostinger)
+- **`main`** : Branche stable pour développement local
+- **`dev`** : Branche de développement et tests localhost
+- **`feature/*`** : Branches de fonctionnalités temporaires
+
 ### Processus de contribution
 1. **Fork** le projet sur GitHub
 2. **Clonez** votre fork : `git clone https://github.com/votre-username/ecoride.git`
 3. **Créez** une branche feature : `git checkout -b feature/nouvelle-fonctionnalite`
 4. **Commitez** vos changements : `git commit -am 'Ajout: nouvelle fonctionnalité'`
 5. **Push** vers la branche : `git push origin feature/nouvelle-fonctionnalite`
-6. **Ouvrez** une Pull Request avec description détaillée
+6. **Ouvrez** une Pull Request vers `dev` avec description détaillée
 
 ### Conventions de code
 - **JavaScript** : ES6+, camelCase, JSDoc pour les fonctions importantes
@@ -482,7 +488,7 @@ Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 ## 👥 Auteurs & Contributeurs
 
 - **Cyril Touchard** - *Développeur Full-Stack* - Projet dans le cadre du Titre Professionnel Développeur Web et Web Mobile
-- **Formation** - [Nom de votre organisme de formation]
+- **Formation** - **Studi** (École en ligne)
 
 ### Remerciements spéciaux
 - **Formateurs** pour l'accompagnement technique
@@ -514,10 +520,16 @@ Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 - **Portfolio** : [Votre site web]
 
 ### 🚀 Déploiement et production
-Pour un déploiement en production, consultez les guides :
+**🌐 Hébergement actuel : Hostinger VPS**
+- Site en production : [www.cyrildev.com](https://www.cyrildev.com)
+- Docker + Docker Compose pour l'orchestration
+- Nginx comme reverse proxy avec SSL (Let's Encrypt)
+- MySQL et MongoDB containerisés
+
+Autres options de déploiement :
 - **Frontend** : Netlify, Vercel, GitHub Pages
 - **Backend** : Heroku, DigitalOcean, AWS
-- **Base de données** : MongoDB Atlas (recommandé)
+- **Base de données** : MongoDB Atlas, MySQL Cloud
 
 ---
 
