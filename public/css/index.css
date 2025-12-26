@@ -131,3 +131,19 @@
     filter: grayscale(0%);
     opacity: 1;
 }
+.search-button {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    background: rgba(39,174,96,0.85);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 20px 0 rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+}

@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     user_type ENUM('passager', 'chauffeur', 'chauffeur_passager', 'employe', 'admin') DEFAULT 'passager',
+    profile_picture VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     is_active BOOLEAN DEFAULT TRUE,
@@ -107,6 +108,25 @@ CREATE TABLE IF NOT EXISTS rides (
     INDEX idx_status (status),
     INDEX idx_ecological (is_ecological)
 );
+
+-- ================================================
+-- TABLE DRIVER_REVIEWS (Avis des chauffeurs)
+-- ================================================
+CREATE TABLE IF NOT EXISTS driver_reviews (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ride_id INT NOT NULL,
+    driver_id INT NOT NULL,
+    reviewer_id INT NOT NULL,
+    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    INDEX idx_driver_reviews_driver (driver_id),
+    INDEX idx_driver_reviews_ride (ride_id),
+    FOREIGN KEY (ride_id) REFERENCES rides(id) ON DELETE CASCADE,
+    FOREIGN KEY (driver_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (reviewer_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================
 -- TABLE BOOKINGS (Réservations passagers)

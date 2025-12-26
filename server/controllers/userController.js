@@ -211,7 +211,7 @@ exports.getUserProfile = async (req, res) => {
                 user_type: userSQL.user_type,
                 
                 created_at: userSQL.created_at,
-                profile_picture: userSQL.profile_picture || null,
+                profile_picture: userMongo?.profilePicture || null,
 
                 // Info Crédits
                 credits: userSQL.current_credits || credits?.current_credits || 0,
@@ -303,7 +303,28 @@ exports.updateProfilePicture = async (req, res) => {
             return res.status(413).json({ success: false, message: 'Image trop volumineuse. Maximum 5MB.' });
         }
 
-        await UserSQL.updateProfile(userId, { profile_picture });
+        // Récupérer l'email depuis MySQL pour trouver dans MongoDB
+        const userSQL = await UserSQL.findById(userId);
+        if (!userSQL) {
+            return res.status(404).json({ success: false, message: 'Utilisateur non trouvé dans MySQL' });
+        }
+
+        // Mise à jour dans MongoDB (chercher par email)
+        let user = await User.findOne({ email: userSQL.email });
+        
+        // Si l'utilisateur n'existe pas encore dans MongoDB, le créer
+        if (!user) {
+            user = new User({
+                email: userSQL.email,
+                pseudo: userSQL.pseudo,
+                password: userSQL.password_hash,
+                profilePicture: profile_picture
+            });
+        } else {
+            user.profilePicture = profile_picture;
+        }
+        
+        await user.save();
 
         res.json({
             success: true,

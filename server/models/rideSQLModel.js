@@ -94,7 +94,6 @@ class RideSQL {
                 u.id as driver_id,
                 u.pseudo as driver_pseudo,
                 u.profile_picture as driver_photo,
-                u.bio as driver_bio,
                 v.brand, v.model, v.color, v.energy_type, v.license_plate,
                 CASE WHEN v.energy_type = 'electrique' THEN true ELSE false END as is_ecological,
                 uc.current_credits as driver_credits
@@ -119,8 +118,7 @@ class RideSQL {
                 id: row.driver_id,
                 _id: row.driver_id,
                 pseudo: row.driver_pseudo,
-                profile_picture: row.driver_photo,
-                bio: row.driver_bio
+                profile_picture: row.driver_photo
             },
             vehicle: {
                 id: row.vehicle_id,

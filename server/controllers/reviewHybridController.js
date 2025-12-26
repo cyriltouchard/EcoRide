@@ -88,22 +88,15 @@ exports.createDriverReview = async (req, res) => {
         // Insérer l'avis
         const insertQuery = `
             INSERT INTO driver_reviews 
-            (driver_id, passenger_id, ride_id, booking_id, rating, 
-             punctuality_rating, driving_quality_rating, vehicle_cleanliness_rating, 
-             friendliness_rating, comment)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (driver_id, reviewer_id, ride_id, rating, comment)
+            VALUES (?, ?, ?, ?, ?)
         `;
 
         const [result] = await pool.query(insertQuery, [
             driverId,
             passengerId,
             rideId || null,
-            bookingId || null,
             rating,
-            punctualityRating || null,
-            drivingQualityRating || null,
-            vehicleCleanlinessRating || null,
-            friendlinessRating || null,
             comment || null
         ]);
 
@@ -136,17 +129,13 @@ exports.getDriverReviews = async (req, res) => {
             `SELECT 
                 dr.id,
                 dr.rating,
-                dr.punctuality_rating,
-                dr.driving_quality_rating,
-                dr.vehicle_cleanliness_rating,
-                dr.friendliness_rating,
                 dr.comment,
                 dr.created_at,
                 u.pseudo as passenger_pseudo,
                 r.departure_city,
                 r.arrival_city
              FROM driver_reviews dr
-             JOIN users u ON dr.passenger_id = u.id
+             JOIN users u ON dr.reviewer_id = u.id
              LEFT JOIN rides r ON dr.ride_id = r.id
              WHERE dr.driver_id = ? 
              ORDER BY dr.created_at DESC 
@@ -158,11 +147,7 @@ exports.getDriverReviews = async (req, res) => {
         const [stats] = await pool.query(
             `SELECT 
                 COUNT(*) as total_reviews,
-                COALESCE(AVG(rating), 0) as avg_rating,
-                COALESCE(AVG(punctuality_rating), 0) as avg_punctuality,
-                COALESCE(AVG(driving_quality_rating), 0) as avg_driving_quality,
-                COALESCE(AVG(vehicle_cleanliness_rating), 0) as avg_vehicle_cleanliness,
-                COALESCE(AVG(friendliness_rating), 0) as avg_friendliness
+                COALESCE(AVG(rating), 0) as avg_rating
              FROM driver_reviews
              WHERE driver_id = ?`,
             [driverId]
@@ -172,11 +157,7 @@ exports.getDriverReviews = async (req, res) => {
             success: true,
             stats: stats[0] || {
                 total_reviews: 0,
-                avg_rating: 0,
-                avg_punctuality: 0,
-                avg_driving_quality: 0,
-                avg_vehicle_cleanliness: 0,
-                avg_friendliness: 0
+                avg_rating: 0
             },
             reviews,
             pagination: {
@@ -207,11 +188,7 @@ exports.getDriverRating = async (req, res) => {
         const [stats] = await pool.query(
             `SELECT 
                 COUNT(*) as total_reviews,
-                COALESCE(AVG(rating), 0) as avg_rating,
-                COALESCE(AVG(punctuality_rating), 0) as avg_punctuality,
-                COALESCE(AVG(driving_quality_rating), 0) as avg_driving_quality,
-                COALESCE(AVG(vehicle_cleanliness_rating), 0) as avg_vehicle_cleanliness,
-                COALESCE(AVG(friendliness_rating), 0) as avg_friendliness
+                COALESCE(AVG(rating), 0) as avg_rating
              FROM driver_reviews
              WHERE driver_id = ?`,
             [driverId]
@@ -543,7 +520,7 @@ exports.getEligibleRides = async (req, res) => {
              FROM bookings b
              JOIN rides r ON b.ride_id = r.id
              JOIN users u ON r.driver_id = u.id
-             LEFT JOIN driver_reviews dr ON (dr.ride_id = r.id AND dr.passenger_id = ?)
+             LEFT JOIN driver_reviews dr ON (dr.ride_id = r.id AND dr.reviewer_id = ?)
              WHERE b.passenger_id = ?
              AND (r.status = 'termine' OR r.departure_datetime < NOW())
              AND b.booking_status IN ('confirme', 'termine')
@@ -586,7 +563,7 @@ exports.getMyReviews = async (req, res) => {
              FROM driver_reviews dr
              JOIN users u ON dr.driver_id = u.id
              LEFT JOIN rides r ON dr.ride_id = r.id
-             WHERE dr.passenger_id = ?
+             WHERE dr.reviewer_id = ?
              ORDER BY dr.created_at DESC`,
             [userId]
         );

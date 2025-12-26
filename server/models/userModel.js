@@ -25,6 +25,10 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 20.0
     },
+    profilePicture: {
+        type: String,
+        default: null
+    },
     // La ligne à ajouter est ici :
     vehicles: [{ 
         type: mongoose.Schema.Types.ObjectId, 
